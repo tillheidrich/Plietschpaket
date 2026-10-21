@@ -97,5 +97,22 @@
   if (shell) {
     shell.registerUnit(UNIT.id, { flush: flush });
     shell.report(UNIT.id, { kind: 'opened' });
+    // Block courses embed units inline: tell the player how tall the content is.
+    if (typeof shell.resizeUnit === 'function') {
+      var last = 0;
+      var send = function () {
+        // html/body are 100 % high in H5P iframes, so measure the content wrapper instead of the document
+        var wrap = document.querySelector('.ss-unit-wrap');
+        var h = wrap ? wrap.offsetTop + wrap.offsetHeight : document.documentElement.scrollHeight;
+        if (Math.abs(h - last) > 2) {
+          last = h;
+          shell.resizeUnit(UNIT.id, h);
+        }
+      };
+      if (window.ResizeObserver) new ResizeObserver(send).observe(document.querySelector('.ss-unit-wrap') || document.documentElement);
+      window.addEventListener('load', send);
+      setInterval(send, 1500);
+      send();
+    }
   }
 })();

@@ -8,12 +8,13 @@ import { db } from './db.js';
 import { seedAdmin, sessionMiddleware, purgeExpired } from './auth.js';
 import { createH5P, toH5pUser } from './h5p.js';
 import { contentRole, atLeast } from './access.js';
-import { setH5P } from './services.js';
+import { setH5P, getCourse, courseMediaFile } from './services.js';
 import { apiRouter, downloadHandler, exportForUser } from './routes/api.js';
 import { oauthRouter, bearerAuth, MCP_PATH } from './oauth.js';
 import { handleMcp } from './mcp.js';
 import { extensionHandler } from './extension.js';
-import { ensurePreview } from './export/scorm.js';
+import { ensurePreview, playerHtml } from './export/scorm.js';
+import { mediaMime, PLAYER_DESIGNS } from './blocks.js';
 import { previewPage } from './preview.js';
 import { scheduleCleanup } from './cleanup.js';
 import { checkUploadFile } from './sniff.js';
@@ -195,6 +196,58 @@ app.get('/downloads/scorm-studio.mcpb', (_req, res) => res.redirect(301, '/downl
 app.get('/downloads/plietschpaket.mcpb', (req, res, next) => {
   if (!req.user) return res.redirect(302, '/login?next=/connect');
   extensionHandler(req, res, next);
+});
+
+// --------------------------------------------------------------- block courses: runtime, media, live preview
+const RUNTIME_FILES = new Set(['blocks.js', 'player.js', 'player.css']);
+app.get('/runtime/:file', (req, res, next) => {
+  if (!RUNTIME_FILES.has(req.params.file)) return next();
+  res.set('Cache-Control', 'no-cache');
+  res.sendFile(path.join(APP_ROOT, 'src/export/runtime', req.params.file));
+});
+app.get('/runtime/fonts/Geist-Variable.woff2', (_req, res) => res.sendFile(path.join(APP_ROOT, 'public/assets/fonts/Geist-Variable.woff2')));
+app.get('/course-media/:courseId/:name', (req, res, next) => {
+  try {
+    if (!req.user) return res.status(401).send('Nicht angemeldet.');
+    const file = courseMediaFile(req.user, req.params.courseId, req.params.name);
+    if (!file) return res.status(404).send('Nicht gefunden.');
+    const mime = mediaMime(req.params.name);
+    const inline = /^(image|video|audio)\//.test(mime) || mime === 'text/vtt' || mime === 'application/pdf';
+    // User files are never executable; PDFs may be framed by our own pages (PDF block).
+    res.set('Content-Security-Policy', mime === 'application/pdf' ? "default-src 'none'; frame-ancestors 'self'" : FILE_CSP);
+    res.set('X-Frame-Options', 'SAMEORIGIN');
+    res.set('Cache-Control', 'private, max-age=300');
+    if (!inline) res.set('Content-Disposition', 'attachment');
+    res.type(mime).sendFile(file);
+  } catch (err) {
+    next(err);
+  }
+});
+app.get('/live/:courseId', (req, res, next) => {
+  try {
+    if (!req.user) return res.redirect(302, `/login?next=${encodeURIComponent(req.originalUrl)}`);
+    const full = getCourse(req.user, req.params.courseId);
+    const design = { ...full.design };
+    if (PLAYER_DESIGNS.includes(req.query.design)) design.player = req.query.design;
+    const units = Object.fromEntries(full.units.map((u) => [u.id, { title: u.title, library: String(u.library).split(' ')[0], href: null }]));
+    const payload = {
+      title: full.title,
+      description: full.description,
+      language: full.language,
+      packageUuid: full.packageUuid,
+      scormVersion: full.settings.scormVersion,
+      settings: { completion: full.settings.completion, masteryScore: full.settings.masteryScore, navigation: full.settings.navigation },
+      design,
+      blocks: full.blocks,
+      units,
+      mediaBase: `/course-media/${encodeURIComponent(full.id)}/`,
+      preview: true
+    };
+    res.set('Cache-Control', 'no-store');
+    res.send(playerHtml(full, payload, { assetBase: '/runtime/' }));
+  } catch (err) {
+    next(err);
+  }
 });
 
 // --------------------------------------------------------------- static + SPA

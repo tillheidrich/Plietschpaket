@@ -26,6 +26,7 @@ import { listConnections, revokeConnection } from '../oauth.js';
 import { listApiTokens, createApiToken, revokeApiToken } from '../apitokens.js';
 import { tr, requestLanguage, UI_LANGUAGES } from '../i18n.js';
 import { RateLimit, limitByIp, jobGate } from '../limits.js';
+import { blockCatalog, BLOCK_CATEGORIES, PLAYER_DESIGNS, THEME_PRESETS, FONTS } from '../blocks.js';
 
 const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
@@ -265,6 +266,7 @@ export function apiRouter() {
   );
 
   const jobIpLimit = limitByIp(new RateLimit({ windowMs: 10 * 60_000, max: 30 }));
+  const uploadLimit = limitByIp(new RateLimit({ windowMs: 10 * 60_000, max: 200 }));
   r.post(
     '/import',
     jobIpLimit,
@@ -299,6 +301,33 @@ export function apiRouter() {
       if (!FORMATS[format]) return res.status(400).json({ error: 'Unbekanntes Format.' });
       res.status(201).json(await jobGate.run(req.user.id, () => exportCourse(req.user, req.params.id, format)));
     })
+  );
+
+  // ------------------------------------------------------------------ block courses
+  r.get('/block-types', (req, res) =>
+    res.json({ categories: BLOCK_CATEGORIES, types: blockCatalog(requestLanguage(req), { withSpec: true }), designs: PLAYER_DESIGNS, presets: THEME_PRESETS, fonts: FONTS })
+  );
+  r.put('/courses/:id/blocks', (req, res) => {
+    const out = svc.saveBlocks(req.user, req.params.id, req.body.blocks, { expectedUpdatedAt: req.body.expectedUpdatedAt, draft: req.body.draft === true });
+    const lang = requestLanguage(req);
+    out.blocks = out.blocks.map((b) => (b.issues ? { ...b, issues: b.issues.map((m) => tr(m, lang)) } : b));
+    res.json(out);
+  });
+  r.post('/courses/:id/blocks', (req, res) => res.status(201).json(svc.insertBlocks(req.user, req.params.id, req.body.blocks, { afterId: req.body.afterId, position: req.body.position })));
+  r.patch('/courses/:id/blocks/:blockId', (req, res) => res.json(svc.updateBlock(req.user, req.params.id, req.params.blockId, req.body)));
+  r.delete('/courses/:id/blocks/:blockId', (req, res) => res.json(svc.deleteBlocks(req.user, req.params.id, [req.params.blockId])));
+  r.post('/courses/:id/blocks/:blockId/move', (req, res) => res.json(svc.moveBlock(req.user, req.params.id, req.params.blockId, req.body)));
+  r.put('/courses/:id/design', (req, res) => res.json(svc.setDesign(req.user, req.params.id, req.body || {})));
+  r.get('/courses/:id/media', (req, res) => res.json(svc.courseMedia(req.user, req.params.id)));
+  r.post(
+    '/courses/:id/media',
+    uploadLimit,
+    express.raw({ type: () => true, limit: config.maxUploadBytes }),
+    (req, res) => {
+      const name = String(req.get('x-filename') || req.query.name || '');
+      if (!Buffer.isBuffer(req.body) || !req.body.length) return res.status(400).json({ error: 'Leere Datei.' });
+      res.status(201).json(svc.uploadCourseMedia(req.user, req.params.id, decodeURIComponent(name), req.body, config.maxUploadBytes));
+    }
   );
 
   r.post('/courses/:id/units/draft', ah(async (req, res) => res.status(201).json(await svc.createDraftUnit(req.user, req.params.id, req.body.library, req.body.title))));

@@ -1,0 +1,17 @@
+{
+  "title": "Scenario",
+  "description": "Branching role-play: characters, backgrounds, narration and decisions with consequences.",
+  "machineName": "H5P.Scenario",
+  "majorVersion": 1,
+  "minorVersion": 0,
+  "patchVersion": 3,
+  "runnable": 1,
+  "author": "Heidrich Digital",
+  "license": "MIT",
+  "coreApi": { "majorVersion": 1, "minorVersion": 24 },
+  "embedTypes": ["iframe"],
+  "fullscreen": 0,
+  "metadataSettings": { "disable": 0, "disableExtraTitleField": 1 },
+  "preloadedJs": [{ "path": "scripts/art.js" }, { "path": "scripts/scenario.js" }],
+  "preloadedCss": [{ "path": "styles/scenario.css" }]
+}

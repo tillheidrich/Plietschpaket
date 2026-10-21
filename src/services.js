@@ -7,13 +7,16 @@ import { db, newId, audit, parseJson } from './db.js';
 import { assertProject, assertCourse, assertUnit, AccessError, projectRole } from './access.js';
 import { toH5pUser, resolveUbername } from './h5p.js';
 import { normalizeParams, relocalizeParams } from './schema.js';
+import { normalizeBlocks, normalizeDesign, outline, mediaPath, saveMedia, listMedia, courseMediaDir, newBlockId, DEFAULT_DESIGN } from './blocks.js';
+import fs from 'node:fs';
 
 export const DEFAULT_COURSE_SETTINGS = {
   scormVersion: '1.2', // '1.2' | '2004'
   completion: 'all', // 'all' = all units finished | 'viewed' = all units opened
   masteryScore: 80, // percent, only relevant when scored units exist
   navigation: 'free', // 'free' | 'linear'
-  showUnitList: true
+  showUnitList: true,
+  mode: 'units' // 'units' = H5P units in the course shell | 'blocks' = block course with own player
 };
 
 let h5p = null;
@@ -209,7 +212,10 @@ export function getCourse(user, courseId) {
     projectName: project.name,
     myRole: role,
     units: units.map(unitSummary),
-    exports: exportsList
+    exports: exportsList,
+    blocks: parseJson(course.blocks, []),
+    design: { ...DEFAULT_DESIGN, ...parseJson(course.design, {}) },
+    outline: outline(parseJson(course.blocks, []))
   };
 }
 
@@ -246,6 +252,7 @@ function sanitizeSettings(input = {}) {
   }
   if (['free', 'linear'].includes(input.navigation)) s.navigation = input.navigation;
   if (input.showUnitList !== undefined) s.showUnitList = !!input.showUnitList;
+  if (['units', 'blocks'].includes(input.mode)) s.mode = input.mode;
   return s;
 }
 
@@ -269,6 +276,7 @@ export async function deleteCourse(user, courseId, via = 'web') {
   const contentIds = db.prepare('SELECT content_id FROM units WHERE course_id = ?').all(courseId).map((r) => r.content_id);
   db.prepare('DELETE FROM courses WHERE id = ?').run(courseId);
   for (const cid of contentIds) await deleteH5pContent(cid, user);
+  fs.rmSync(courseMediaDir(courseId), { recursive: true, force: true });
   touchProject(course.project_id);
   audit(user.id, 'course.delete', courseId, null, via);
 }
@@ -283,12 +291,20 @@ export async function duplicateCourse(user, courseId, { title, projectId, langua
     language: language || source.language,
     settings: source.settings
   }, via);
+  const unitMap = {};
   for (const unit of source.units) {
     const full = await getUnit(user, unit.id);
     const params = await relocalizeParams(h5p.editor, full.library, full.params, source.language, copy.language);
     const created = await createUnit(user, copy.id, { library: full.library, params, title: full.title, skipValidation: true }, via);
     await copyContentFiles(full.contentId, created.contentId, user);
     if (unit.weight !== 1) db.prepare('UPDATE units SET weight = ? WHERE id = ?').run(unit.weight, created.id);
+    unitMap[unit.id] = created.id;
+  }
+  if (source.blocks.length || source.settings.mode === 'blocks') {
+    const srcDir = courseMediaDir(source.id);
+    if (fs.existsSync(srcDir)) fs.cpSync(srcDir, courseMediaDir(copy.id), { recursive: true });
+    const blocks = source.blocks.map((b) => (b.type === 'h5p' ? { ...b, data: { ...b.data, unitId: unitMap[b.data.unitId] || b.data.unitId } } : b));
+    db.prepare('UPDATE courses SET blocks = ?, design = ? WHERE id = ?').run(JSON.stringify(blocks), JSON.stringify(source.design), copy.id);
   }
   return getCourse(user, copy.id);
 }
@@ -549,6 +565,7 @@ export async function listContentTypes() {
 
 export const RECOMMENDED = [
   'H5P.AppSimulation',
+  'H5P.Scenario',
   'H5P.Column',
   'H5P.MultiChoice',
   'H5P.TrueFalse',
@@ -569,6 +586,7 @@ export const RECOMMENDED = [
 ];
 
 export const CONTENT_TYPE_NOTES = {
+  'H5P.Scenario': 'Szenario: verzweigtes Rollenspiel mit gezeichneten Figuren oder eigenen Fotos, Hintergründen, Sprechblase und Erzählung (Audio oder Browser-Stimme). Jede Antwort führt zu einer anderen Szene oder einem Ende und gibt Punkte. Bewertet. Erste Wahl für Gesprächs- und Entscheidungstrainings.',
   'H5P.AppSimulation': 'App-Simulation: Schritt-für-Schritt-Übung auf Screenshots. Lernende tippen die richtige Stelle an, Info-, Hinweis- und Erkunden-Schritte mit Hover-Erklärungen, fester Abschluss. Ohne Ton, Video optional. Bewertet (erster Versuch). Erste Wahl für Software-Trainings.',
   'H5P.Column': 'Lektionsseite im Stil von Rise: stapelt beliebige Blöcke untereinander (Text, Bild, Akkordeon, Fragen …). Erste Wahl für Lerninhalte.',
   'H5P.MultiChoice': 'Multiple-Choice-Frage mit einer oder mehreren richtigen Antworten, Feedback je Antwort. Bewertet.',
@@ -590,6 +608,7 @@ export const CONTENT_TYPE_NOTES = {
 };
 
 export const CONTENT_TYPE_NOTES_EN = {
+  'H5P.Scenario': 'Scenario: branching role-play with illustrated characters or your own photos, backgrounds, speech bubble and narration (audio or browser voice). Each answer leads to another scene or an ending and gives points. Scored. First choice for conversation and decision training.',
   'H5P.AppSimulation': 'App simulation: step-by-step practice on screenshots. Learners tap the right spot; info, note and explore steps with hover hints; fixed completion screen. No audio, optional video. Scored (first try). First choice for software training.',
   'H5P.Column': 'Rise-style lesson page: stacks any blocks vertically (text, image, accordion, questions …). First choice for learning content.',
   'H5P.MultiChoice': 'Multiple choice question with one or more correct answers and feedback per answer. Scored.',
@@ -611,3 +630,121 @@ export const CONTENT_TYPE_NOTES_EN = {
 };
 
 export { courseSummary, unitSummary, sanitizeSettings };
+
+// ---------------------------------------------------------------------------
+// Block courses
+// ---------------------------------------------------------------------------
+
+function blockCtx(courseId) {
+  const unitIds = new Set(db.prepare('SELECT id FROM units WHERE course_id = ?').all(courseId).map((r) => r.id));
+  return { mediaExists: (name) => !!mediaPath(courseId, name), unitExists: (id) => unitIds.has(id) };
+}
+
+/** strictIds: 'all' | Set of block ids that must be valid; other incomplete blocks are kept as drafts. */
+function storeBlocks(user, course, blocks, via, action, strictIds = 'all') {
+  const clean = normalizeBlocks(blocks, blockCtx(course.id), { draft: true, strictIds });
+  const settings = { ...parseJson(course.settings, {}), mode: 'blocks' };
+  db.prepare("UPDATE courses SET blocks = ?, settings = ?, updated_at = datetime('now') WHERE id = ?").run(JSON.stringify(clean), JSON.stringify(sanitizeSettings(settings)), course.id);
+  touchProject(course.project_id);
+  audit(user.id, action, course.id, { blocks: clean.length }, via);
+  return clean;
+}
+
+/** Replaces the whole block list. `expectedUpdatedAt` guards against overwriting a newer save. */
+export function saveBlocks(user, courseId, blocks, { expectedUpdatedAt, draft = false } = {}, via = 'web') {
+  const { course } = assertCourse(user, courseId, 'editor');
+  if (expectedUpdatedAt && expectedUpdatedAt !== course.updated_at) {
+    throw Object.assign(new Error('Der Kurs wurde inzwischen von jemand anderem gespeichert. Bitte neu laden.'), { status: 409 });
+  }
+  storeBlocks(user, course, blocks, via, 'course.blocks.save', draft ? null : 'all');
+  return getCourse(user, courseId);
+}
+
+/** Inserts blocks after the block with id `afterId` (or at the end / at `position`). */
+export function insertBlocks(user, courseId, blocks, { afterId, position } = {}, via = 'web') {
+  const { course } = assertCourse(user, courseId, 'editor');
+  const list = parseJson(course.blocks, []);
+  let at = list.length;
+  if (afterId) {
+    const i = list.findIndex((b) => b.id === afterId);
+    if (i === -1) throw new ValidationError(`Block ${afterId} gibt es nicht.`);
+    at = i + 1;
+  } else if (position !== undefined) at = Math.max(0, Math.min(list.length, Number(position) || 0));
+  const fresh = (Array.isArray(blocks) ? blocks : []).map((b) => ({ ...b, id: newBlockId() }));
+  list.splice(at, 0, ...fresh);
+  const clean = storeBlocks(user, course, list, via, 'course.blocks.insert', new Set(fresh.map((b) => b.id)));
+  return { inserted: clean.slice(at, at + fresh.length).map((b) => b.id), course: getCourse(user, courseId) };
+}
+
+export function updateBlock(user, courseId, blockId, { data, type, narration }, via = 'web') {
+  const { course } = assertCourse(user, courseId, 'editor');
+  const list = parseJson(course.blocks, []);
+  const i = list.findIndex((b) => b.id === blockId);
+  if (i === -1) throw new ValidationError(`Block ${blockId} gibt es nicht.`);
+  list[i] = { ...list[i], ...(type ? { type } : {}), data: data !== undefined ? data : list[i].data };
+  if (narration !== undefined) list[i].narration = narration || undefined;
+  storeBlocks(user, course, list, via, 'course.blocks.update', new Set([blockId]));
+  return getCourse(user, courseId);
+}
+
+export function deleteBlocks(user, courseId, blockIds, via = 'web') {
+  const { course } = assertCourse(user, courseId, 'editor');
+  const drop = new Set(blockIds);
+  const list = parseJson(course.blocks, []).filter((b) => !drop.has(b.id));
+  storeBlocks(user, course, list, via, 'course.blocks.delete', null);
+  return getCourse(user, courseId);
+}
+
+export function moveBlock(user, courseId, blockId, { afterId, position }, via = 'web') {
+  const { course } = assertCourse(user, courseId, 'editor');
+  const list = parseJson(course.blocks, []);
+  const i = list.findIndex((b) => b.id === blockId);
+  if (i === -1) throw new ValidationError(`Block ${blockId} gibt es nicht.`);
+  const [b] = list.splice(i, 1);
+  let at = list.length;
+  if (afterId === null || afterId === '') at = 0;
+  else if (afterId) {
+    const j = list.findIndex((x) => x.id === afterId);
+    if (j === -1) throw new ValidationError(`Block ${afterId} gibt es nicht.`);
+    at = j + 1;
+  } else if (position !== undefined) at = Math.max(0, Math.min(list.length, Number(position) || 0));
+  list.splice(at, 0, b);
+  storeBlocks(user, course, list, via, 'course.blocks.move', null);
+  return getCourse(user, courseId);
+}
+
+export function setDesign(user, courseId, design, via = 'web') {
+  const { course } = assertCourse(user, courseId, 'editor');
+  const current = { ...DEFAULT_DESIGN, ...parseJson(course.design, {}) };
+  const merged = {
+    ...current,
+    ...design,
+    theme: { ...current.theme, ...(design.theme || {}) },
+    cover: { ...current.cover, ...(design.cover || {}) },
+    completion: { ...current.completion, ...(design.completion || {}) },
+    labels: design.labels && typeof design.labels === 'object' ? design.labels : current.labels
+  };
+  const clean = normalizeDesign(merged, blockCtx(courseId));
+  db.prepare("UPDATE courses SET design = ?, updated_at = datetime('now') WHERE id = ?").run(JSON.stringify(clean), courseId);
+  audit(user.id, 'course.design', courseId, null, via);
+  return getCourse(user, courseId);
+}
+
+export function uploadCourseMedia(user, courseId, filename, buf, maxBytes, via = 'web') {
+  assertCourse(user, courseId, 'editor');
+  const saved = saveMedia(courseId, filename, buf, maxBytes);
+  audit(user.id, 'course.media.upload', courseId, { name: saved.name, size: saved.size }, via);
+  return saved;
+}
+
+export function courseMedia(user, courseId) {
+  assertCourse(user, courseId, 'viewer');
+  return listMedia(courseId);
+}
+
+/** Absolute path of a media file the user may read (viewer role), or null. */
+export function courseMediaFile(user, courseId, name) {
+  assertCourse(user, courseId, 'viewer');
+  return mediaPath(courseId, name);
+}
+

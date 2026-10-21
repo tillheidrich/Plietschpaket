@@ -69,6 +69,36 @@ Lücken mit *Sternchen*, Alternativen mit /.
 ### H5P.Accordion
 { "panels": [ { "title": "Abschnitt", "content": { "library": "H5P.AdvancedText 1.1", "params": { "text": "<p>…</p>" } } } ] }
 
+### H5P.Scenario (Szenario – verzweigtes Rollenspiel, erste Wahl für Gesprächs- und Entscheidungstrainings)
+Aufbau: characters (Figuren), scenes (die erste Szene startet), endings (Enden). Jede Antwort (choices[].next)
+verweist auf den Kurznamen (key) einer Szene oder eines Endes. Kurznamen: Kleinbuchstaben, Ziffern, - und _.
+Figuren: look = amara | ben | chen | jonas | lea | mira | sofia | yusuf (gezeichnet) oder "custom" mit image (PNG-Freisteller).
+Szene: background = service | office | meeting | shop | warehouse | clinic oder "custom" mit backgroundImage;
+expression = neutral | happy | angry | worried | thinking | surprised; pose = auto | neutral | hips | crossed | explain;
+position = right | left | center; situation = kurze Regieanweisung oben; line = was die Figur sagt;
+audio optional (sonst liest die Browser-Stimme vor, wenn behaviour.tts true).
+Antworten: 2–4 je Szene, points (−10…10), tone good|neutral|bad, feedback = Folge, die nach der Wahl erscheint.
+Szene ohne choices: nextScene. Punkte = Summe der gewählten Antworten; Maximum = bester Weg. passPercent = Bestehensgrenze.
+Gute Szenarien: 4–8 Szenen, 2–3 Enden (gut, gemischt, schlecht), jede falsche Antwort hat eine glaubwürdige Folge,
+der Ausdruck der Figur reagiert auf die vorherige Wahl (z. B. angry → worried → happy).
+{"intro":{"kicker":"Kundenservice","text":"Ein verärgerter Kunde steht an deinem Schalter. Bleib ruhig und finde eine Lösung."},
+ "characters":[{"key":"kunde","name":"Herr Chen","look":"chen","color":"#c4b5fd"}],
+ "scenes":[
+  {"key":"start","situation":"Ein Kunde kommt mit rotem Kopf an den Schalter.","background":"service","character":"kunde","expression":"angry",
+   "line":"Seit zwei Wochen versuche ich, dieses defekte Gerät zurückzugeben. Niemand hilft mir!",
+   "choices":[
+    {"text":"Ruhig zuhören, den Ärger anerkennen und mich für die Wartezeit entschuldigen","next":"zuhoeren","points":2,"tone":"good","feedback":"Er atmet durch. Er fühlt sich ernst genommen."},
+    {"text":"Erklären, warum der Prozess so lange dauert","next":"mittel","points":0,"tone":"neutral","feedback":"Er hört kaum zu. Er wollte keine Erklärung, sondern Hilfe."},
+    {"text":"Ihn bitten, leiser zu sein, weil andere Kunden warten","next":"eskalation","points":-1,"tone":"bad","feedback":"Jetzt wird er richtig laut."}]},
+  {"key":"zuhoeren","background":"service","character":"kunde","expression":"worried","line":"Also, was können Sie jetzt konkret tun?",
+   "choices":[{"text":"Die Rückgabe sofort selbst anstoßen und eine Bestätigung mitgeben","next":"gut","points":2,"tone":"good"},
+              {"text":"Auf das Online-Formular verweisen","next":"mittel","points":0,"tone":"neutral"}]}],
+ "endings":[{"key":"gut","title":"Problem gelöst","text":"Der Kunde geht zufrieden und bedankt sich.","rating":"good"},
+            {"key":"mittel","title":"Halb gelöst","text":"Er ist ruhiger, aber nicht überzeugt.","rating":"mixed"},
+            {"key":"eskalation","title":"Eskaliert","text":"Er verlangt die Filialleitung.","rating":"bad"}],
+ "theme":{"mode":"dark","accent":"#7c6cf0"},
+ "behaviour":{"scoring":"points","passPercent":70,"tts":true,"autoNarrate":false,"showFeedback":true,"allowRetry":true}}
+
 ### H5P.AppSimulation (App-Simulation – erste Wahl für Software-Trainings)
 Schritt-für-Schritt-Übung auf Screenshots, ohne Ton. Lernende tippen die richtige Stelle an; nur so geht es weiter.
 Schrittarten (kind): "click" = Aufgabe (zählt für Punkte, braucht area), "info" = Bereich hervorheben + Weiter,
@@ -119,6 +149,29 @@ SCORM 1.2 speichert höchstens 4096 Zeichen Fortschritt. Bei langen Videos mit v
 ## Sprachfassungen (DE, EN, FR, IT)
 - Kurssprache beim Anlegen setzen. Sie bestimmt die Sprache der Kursnavigation und die vorbelegten H5P-Oberflächentexte.
 - Für eine weitere Sprache: create_language_version, dann jede Einheit mit get_unit lesen, Inhalte übersetzen (Fragen, Antworten, Texte, Feedback) und mit update_unit vollständig zurückschreiben. Fachbegriffe und UI-Begriffe der Software exakt so übernehmen, wie sie in der jeweiligen Oberflächensprache heißen.
+
+## Block-Kurse (moderner Kurs mit eigenem Player)
+Ein Block-Kurs ist eine flache Liste von Blöcken. Jeder Block "title" beginnt eine neue Lektion; alles bis zum nächsten "title" gehört dazu. Der Player zeigt die Lektionen je nach Design als Seitenleiste (studio, classic), als Folgen von Bildschirmen (stage), als lange Seite (focus, lesson, magazine) oder mit Startseite (journey, hub).
+1. create_course mit settings.mode "blocks" (oder später save_blocks, das schaltet um).
+2. list_block_types lesen: Felder, Pflichtfelder (ohne ?) und Beispiele.
+3. Ersten Entwurf mit save_blocks schicken, danach gezielt mit insert_blocks, update_block, move_block, delete_blocks ändern.
+4. Bilder und PDFs mit upload_course_media hochladen und "media:<datei>" in die Felder setzen. Bilder brauchen alt-Text.
+5. set_course_design: Player-Design, Farbschema (preset), Schrift, Titelbild (cover), Logo, Abschlussmeldung.
+6. Live-Vorschau: liveUrl aus get_blocks an den Menschen geben. Export wie gewohnt mit export_course.
+
+Bewertung: Blöcke mit graded=true (quiz, matching, sorting, fillBlanks, bucketSort, assessment) und bewertete H5P-Einheiten ergeben die Gesamtnote; masteryScore gilt wie bei Einheiten-Kursen. Gibt es keinen bewerteten Block, ist der Kurs abgeschlossen, sobald alle Lektionen gesehen sind.
+H5P-Einheiten (App-Simulation, Szenario, interaktives Video) erst mit create_unit im selben Kurs anlegen und dann als Block {"type":"h5p","data":{"unitId":"u_…"}} einbetten.
+
+Beispiel (gekürzt):
+[
+ {"type":"title","data":{"content":"Warum Gespräche kippen","kicker":"Lektion 1","image":"media:theke.jpg"}},
+ {"type":"text","data":{"content":"<p>Die meisten Beschwerden eskalieren in den <strong>ersten 30 Sekunden</strong>.</p>"}},
+ {"type":"callout","data":{"variant":"tip","title":"Merke","content":"Erst zuhören, dann lösen."}},
+ {"type":"quiz","data":{"question":"Was zuerst?","options":["Zuhören","Lösung anbieten"],"correct":[0],"explanation":"Wer sich gehört fühlt, wird ruhiger."}},
+ {"type":"title","data":{"content":"Abschluss"}},
+ {"type":"assessment","data":{"title":"Abschlusstest","passPercent":70,"questions":[{"question":"…","options":["…","…"],"correct":[1]}]}}
+]
+Didaktik: pro Lektion ein Lernziel, 4 bis 10 Blöcke, nach zwei bis drei Inhaltsblöcken eine Interaktion. Zwischentitel und Trenner (divider) gliedern lange Lektionen; im Design stage wird an jedem divider und nach jeder bewerteten Frage ein neuer Bildschirm begonnen.
 
 ## Grenzen
 - H5P.CoursePresentation, H5P.DragQuestion, H5P.ImageHotspots und H5P.BranchingScenario brauchen Koordinaten bzw. viel Struktur – anlegen ist möglich, Feinschliff besser im Browser-Editor (editUrl).

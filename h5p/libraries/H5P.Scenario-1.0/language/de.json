@@ -1,0 +1,389 @@
+{
+  "semantics": [
+    {
+      "label": "Startbildschirm",
+      "fields": [
+        {
+          "label": "Kennzeichnung über dem Titel",
+          "default": "Rollenspiel"
+        },
+        {
+          "label": "Einleitung",
+          "description": "Ein bis zwei Sätze zur Lage und zu dem, was geübt wird."
+        },
+        {
+          "label": "Titelbild",
+          "description": "Optional. Ohne Titelbild ist die erste Szene im Hintergrund zu sehen."
+        }
+      ]
+    },
+    {
+      "label": "Figuren",
+      "entity": "figur",
+      "field": {
+        "label": "Figur",
+        "fields": [
+          {
+            "label": "Kurzname",
+            "description": "Kleinbuchstaben ohne Leerzeichen, z. B. kunde. Szenen verweisen über diesen Kurznamen auf die Figur."
+          },
+          {
+            "label": "Name in der Sprechblase"
+          },
+          {
+            "label": "Aussehen",
+            "description": "Mitgelieferte gezeichnete Figuren oder ein eigenes Bild.",
+            "options": [
+              {
+                "label": "Amara"
+              },
+              {
+                "label": "Ben"
+              },
+              {
+                "label": "Chen"
+              },
+              {
+                "label": "Jonas"
+              },
+              {
+                "label": "Lea"
+              },
+              {
+                "label": "Mira"
+              },
+              {
+                "label": "Sofia"
+              },
+              {
+                "label": "Yusuf"
+              },
+              {
+                "label": "Eigenes Bild"
+              }
+            ]
+          },
+          {
+            "label": "Eigenes Bild",
+            "description": "PNG mit transparentem Hintergrund, ganze Figur stehend. Wird genutzt, wenn als Aussehen „Eigenes Bild“ gewählt ist."
+          },
+          {
+            "label": "Farbe des Namens",
+            "description": "Hex-Farbe, z. B. #c4b5fd."
+          }
+        ]
+      }
+    },
+    {
+      "label": "Szenen",
+      "description": "Mit der ersten Szene beginnt das Rollenspiel. Jede Antwort verweist auf den Kurznamen der nächsten Szene oder eines Endes.",
+      "entity": "szene",
+      "field": {
+        "label": "Szene",
+        "fields": [
+          {
+            "label": "Kurzname",
+            "description": "Kleinbuchstaben ohne Leerzeichen, z. B. begruessung."
+          },
+          {
+            "label": "Situation",
+            "description": "Kurze Regieanweisung oben, z. B. „Ein verärgerter Kunde kommt an den Schalter.“"
+          },
+          {
+            "label": "Hintergrund",
+            "options": [
+              {
+                "label": "Serviceschalter"
+              },
+              {
+                "label": "Großraumbüro"
+              },
+              {
+                "label": "Besprechungsraum"
+              },
+              {
+                "label": "Laden"
+              },
+              {
+                "label": "Lager"
+              },
+              {
+                "label": "Empfang / Praxis"
+              },
+              {
+                "label": "Eigenes Bild"
+              }
+            ]
+          },
+          {
+            "label": "Eigenes Hintergrundbild",
+            "description": "Querformat, mindestens 1600 px breit. Wird genutzt, wenn als Hintergrund „Eigenes Bild“ gewählt ist."
+          },
+          {
+            "label": "Kurzname der Figur",
+            "description": "Kurzname der sprechenden Figur. Leer lassen für eine Szene ohne Figur."
+          },
+          {
+            "label": "Gesichtsausdruck",
+            "options": [
+              {
+                "label": "Neutral"
+              },
+              {
+                "label": "Freundlich"
+              },
+              {
+                "label": "Verärgert"
+              },
+              {
+                "label": "Besorgt"
+              },
+              {
+                "label": "Nachdenklich"
+              },
+              {
+                "label": "Überrascht"
+              }
+            ]
+          },
+          {
+            "label": "Haltung",
+            "options": [
+              {
+                "label": "Passend zum Ausdruck"
+              },
+              {
+                "label": "Arme unten"
+              },
+              {
+                "label": "Hände in den Hüften"
+              },
+              {
+                "label": "Arme verschränkt"
+              },
+              {
+                "label": "Erklärend"
+              }
+            ]
+          },
+          {
+            "label": "Position",
+            "options": [
+              {
+                "label": "Rechts"
+              },
+              {
+                "label": "Links"
+              },
+              {
+                "label": "Mitte"
+              }
+            ]
+          },
+          {
+            "label": "Was die Figur sagt"
+          },
+          {
+            "label": "Audio der Erzählung",
+            "description": "Optional. Ohne Audio liest der Browser die Texte vor, wenn das eingeschaltet ist."
+          },
+          {
+            "label": "Antworten",
+            "description": "Zwei bis vier Möglichkeiten. Ohne Antworten geht es mit „Nächste Szene“ weiter.",
+            "entity": "antwort",
+            "field": {
+              "label": "Antwort",
+              "fields": [
+                {
+                  "label": "Antworttext"
+                },
+                {
+                  "label": "Führt zu (Kurzname einer Szene oder eines Endes)"
+                },
+                {
+                  "label": "Folge, die nach der Wahl erscheint"
+                },
+                {
+                  "label": "Punkte"
+                },
+                {
+                  "label": "Bewertung",
+                  "options": [
+                    {
+                      "label": "Gut"
+                    },
+                    {
+                      "label": "Neutral"
+                    },
+                    {
+                      "label": "Schlecht"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "label": "Nächste Szene (wenn es keine Antworten gibt)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Enden",
+      "entity": "ende",
+      "field": {
+        "label": "Ende",
+        "fields": [
+          {
+            "label": "Kurzname"
+          },
+          {
+            "label": "Titel"
+          },
+          {
+            "label": "Was passiert ist"
+          },
+          {
+            "label": "Bewertung",
+            "options": [
+              {
+                "label": "Gut"
+              },
+              {
+                "label": "Gemischt"
+              },
+              {
+                "label": "Schlecht"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "Aussehen",
+      "fields": [
+        {
+          "label": "Modus",
+          "options": [
+            {
+              "label": "Dunkel"
+            },
+            {
+              "label": "Hell"
+            }
+          ]
+        },
+        {
+          "label": "Akzentfarbe",
+          "description": "Hex-Farbe für Buttons und Fortschritt."
+        }
+      ]
+    },
+    {
+      "label": "Verhalten",
+      "fields": [
+        {
+          "label": "Bewertung",
+          "options": [
+            {
+              "label": "Punkte der gewählten Antworten"
+            },
+            {
+              "label": "Ohne Punkte"
+            }
+          ]
+        },
+        {
+          "label": "Bestehensgrenze in Prozent des besten Wegs"
+        },
+        {
+          "label": "Texte mit der Browser-Stimme vorlesen, wenn kein Audio da ist"
+        },
+        {
+          "label": "Erzählung in jeder Szene automatisch starten"
+        },
+        {
+          "label": "Nach jeder Wahl die Folge zeigen"
+        },
+        {
+          "label": "Am Ende einen weiteren Versuch erlauben"
+        }
+      ]
+    },
+    {
+      "label": "Texte der Oberfläche",
+      "fields": [
+        {
+          "label": "Start-Button",
+          "default": "Starten"
+        },
+        {
+          "label": "Fortsetzen-Button",
+          "default": "Dort weitermachen, wo du aufgehört hast"
+        },
+        {
+          "label": "Beschriftung Erzählung",
+          "default": "Erzählung"
+        },
+        {
+          "label": "Abspielen (Screenreader)",
+          "default": "Erzählung abspielen"
+        },
+        {
+          "label": "Anhalten (Screenreader)",
+          "default": "Erzählung anhalten"
+        },
+        {
+          "label": "Weiter-Button",
+          "default": "Weiter"
+        },
+        {
+          "label": "Frage über den Antworten",
+          "default": "Was tust du?"
+        },
+        {
+          "label": "Zähler der Entscheidungen",
+          "default": "Entscheidung :num"
+        },
+        {
+          "label": "Überschrift gutes Ende",
+          "default": "Starkes Ergebnis"
+        },
+        {
+          "label": "Überschrift gemischtes Ende",
+          "default": "Da geht noch was"
+        },
+        {
+          "label": "Überschrift schlechtes Ende",
+          "default": "Das ging schief"
+        },
+        {
+          "label": "Punktezeile",
+          "default": "Punkte: :score von :max"
+        },
+        {
+          "label": "Bestanden",
+          "default": "Bestanden"
+        },
+        {
+          "label": "Nicht bestanden",
+          "default": "Noch nicht bestanden"
+        },
+        {
+          "label": "Neu-starten-Button",
+          "default": "Noch einmal"
+        },
+        {
+          "label": "Überschrift Rückblick",
+          "default": "Deine Entscheidungen"
+        },
+        {
+          "label": "Zurück",
+          "default": "Zurück"
+        }
+      ]
+    }
+  ]
+}

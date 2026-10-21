@@ -146,6 +146,11 @@ const migrations = [
     revoked INTEGER NOT NULL DEFAULT 0
   );
   CREATE INDEX api_tokens_user ON api_tokens(user_id);
+  `,
+  // 4: block courses (flat block list + player design)
+  `
+  ALTER TABLE courses ADD COLUMN blocks TEXT NOT NULL DEFAULT '[]';
+  ALTER TABLE courses ADD COLUMN design TEXT NOT NULL DEFAULT '{}';
   `
 ];
 

@@ -488,7 +488,7 @@ route(
               ? `<ul class="rows fade-in">${p.courses
                   .map(
                     (c, i) => `<li style="--i:${i}"><a class="row with-tile" href="/courses/${esc(c.id)}">${tile(c.title, c.id)}<div><span class="row-title">${esc(c.title)}</span>
-                    <span class="row-meta"><span>${esc(plural(c.unitCount, 'Einheit', 'Einheiten'))}</span><span>${fmtDate(c.updatedAt)}</span></span>
+                    <span class="row-meta"><span>${c.settings.mode === 'blocks' ? te('Block-Kurs') : esc(plural(c.unitCount, 'Einheit', 'Einheiten'))}</span><span>${fmtDate(c.updatedAt)}</span></span>
                     <span class="stamps"><span class="stamp"><b>v${c.version}</b>SCORM ${esc(c.settings.scormVersion)}</span><span class="stamp">${esc(c.language.toUpperCase())}</span></span></div>
                     ${chev()}</a></li>`
                   )
@@ -528,6 +528,10 @@ route(
       dialog({
         title: t('Neuer Kurs'),
         body: `<div class="field"><label for="ct">${te('Titel')}</label><input class="input" id="ct" maxlength="200" placeholder="${te('z. B. Kontor – Erste Schritte')}"></div>
+          <fieldset class="kind-pick"><legend>${te('Kursart')}</legend>
+            <label class="kind-card"><input type="radio" name="ck" value="blocks" checked><span><b>${te('Block-Kurs')}</b><small>${te('Lektionen aus Text, Bildern, Wissensfragen, Rollenspielen und H5P – mit eigenem Player-Design. Empfohlen.')}</small></span></label>
+            <label class="kind-card"><input type="radio" name="ck" value="units"><span><b>${te('H5P-Einheiten')}</b><small>${te('Eine Folge von H5P-Inhalten in einer schlichten Kurshülle.')}</small></span></label>
+          </fieldset>
           <div class="form-grid two">
             <div class="field"><label for="cl">${te('Kurssprache')}</label><select class="input" id="cl">${langOptions(state.lang)}</select></div>
             <div class="field"><label for="cv">${te('SCORM-Version')}</label><select class="input" id="cv"><option value="1.2">${te('SCORM 1.2 (am verbreitetsten)')}</option><option value="2004">SCORM 2004 (4th Ed.)</option></select></div>
@@ -540,7 +544,7 @@ route(
             handler: async (d) => {
               const c = await api(`/projects/${p.id}/courses`, {
                 method: 'POST',
-                body: { title: d.querySelector('#ct').value, language: d.querySelector('#cl').value, settings: { scormVersion: d.querySelector('#cv').value } }
+                body: { title: d.querySelector('#ct').value, language: d.querySelector('#cl').value, settings: { scormVersion: d.querySelector('#cv').value, mode: d.querySelector('[name="ck"]:checked').value } }
               });
               navigate(`/courses/${c.id}`);
             }
@@ -633,6 +637,11 @@ route(
     el.innerHTML = `<div class="page"><div class="page-head"><div><div class="skeleton" style="width:320px;height:28px"></div></div></div>${skeletonRows(4)}</div>`;
     const [c, types] = await Promise.all([api(`/courses/${id}`), state.types || api('/content-types').catch(() => [])]);
     if (!alive()) return;
+    if (c.settings.mode === 'blocks') {
+      const { blockEditor } = await import('./blockeditor.js');
+      if (!alive()) return;
+      return blockEditor(el, id, { api, t, te, esc, toast, fail, dialog, confirmDialog, navigate, state, fmtSize, fmtDate, langOptions, alive, render });
+    }
     state.types = types.length ? types : state.types;
     const iconOf = (lib) => (types.find((ty) => ty.machineName === String(lib).split(' ')[0]) || {}).icon;
     const titleOf = (lib) => (types.find((ty) => ty.machineName === String(lib).split(' ')[0]) || {}).title || String(lib).replace('H5P.', '').split(' ')[0];
@@ -645,7 +654,7 @@ route(
         <div><h1>${esc(c.title)}</h1>
           <div class="stamps"><span class="stamp solid"><b>v${c.version}</b>SCORM ${esc(s.scormVersion)}</span><span class="stamp">${esc(c.language.toUpperCase())}</span><span class="stamp">${esc(plural(c.units.length, 'Einheit', 'Einheiten'))}</span><span class="stamp" title="${te('Paket-ID')}">PP-${esc(c.packageUuid.slice(0, 8))}</span></div></div>
         <div class="actions">
-          ${canEdit ? `<button class="btn ghost" id="course-more">${icon('copy')}${te('Duplizieren')}</button><a class="btn" href="/import?course=${esc(c.id)}">${icon('import')}${te('.h5p hinzufügen')}</a><a class="btn primary" href="/courses/${esc(c.id)}/new">${icon('plus')}${te('Einheit hinzufügen')}</a>` : ''}
+          ${canEdit ? `<button class="btn ghost" id="to-blocks" title="${te('Lektionen mit Text, Bildern und Übungen um die H5P-Einheiten herum bauen')}">${te('Als Block-Kurs bearbeiten')}</button><button class="btn ghost" id="course-more">${icon('copy')}${te('Duplizieren')}</button><a class="btn" href="/import?course=${esc(c.id)}">${icon('import')}${te('.h5p hinzufügen')}</a><a class="btn primary" href="/courses/${esc(c.id)}/new">${icon('plus')}${te('Einheit hinzufügen')}</a>` : ''}
         </div>
       </div>
       <div class="split">
@@ -843,6 +852,27 @@ route(
       await api(`/courses/${c.id}`, { method: 'DELETE' });
       navigate(`/projects/${c.projectId}`);
     });
+    el.querySelector('#to-blocks')?.addEventListener('click', () =>
+      dialog({
+        title: t('Als Block-Kurs bearbeiten?'),
+        body: `<p>${te('Der Kurs bekommt den Block-Editor: Lektionen aus Text, Bildern, Wissensfragen und mehr, mit eigenem Player-Design. Jede vorhandene Einheit wird zu einer Lektion mit einem H5P-Block – nichts geht verloren.')}</p>`,
+        actions: [
+          { label: t('Abbrechen'), kind: 'ghost' },
+          {
+            label: t('Umstellen'),
+            kind: 'primary',
+            handler: async () => {
+              const blocks = c.units.flatMap((u) => [
+                { type: 'title', data: { content: u.title } },
+                { type: 'h5p', data: { unitId: u.id } }
+              ]);
+              await api(`/courses/${c.id}/blocks`, { method: 'PUT', body: { blocks, draft: true } });
+              render();
+            }
+          }
+        ]
+      })
+    );
     el.querySelector('#course-more')?.addEventListener('click', () => {
       const nextLang = c.language === 'de' ? 'en' : 'de';
       dialog({

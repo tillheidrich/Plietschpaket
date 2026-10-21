@@ -1,0 +1,650 @@
+[
+  {
+    "name": "intro",
+    "type": "group",
+    "label": "Start screen",
+    "importance": "high",
+    "expanded": true,
+    "fields": [
+      {
+        "name": "kicker",
+        "type": "text",
+        "label": "Label above the title",
+        "optional": true,
+        "default": "Role-play",
+        "maxLength": 60
+      },
+      {
+        "name": "text",
+        "type": "text",
+        "label": "Introduction",
+        "widget": "textarea",
+        "optional": true,
+        "maxLength": 600,
+        "description": "One or two sentences on the situation and what the learner should practise."
+      },
+      {
+        "name": "cover",
+        "type": "image",
+        "label": "Cover image",
+        "optional": true,
+        "description": "Optional. Without a cover the first scene is shown in the background."
+      }
+    ]
+  },
+  {
+    "name": "characters",
+    "type": "list",
+    "label": "Characters",
+    "importance": "high",
+    "entity": "character",
+    "min": 1,
+    "max": 6,
+    "field": {
+      "name": "character",
+      "type": "group",
+      "label": "Character",
+      "importance": "high",
+      "fields": [
+        {
+          "name": "key",
+          "type": "text",
+          "label": "Short key",
+          "importance": "high",
+          "maxLength": 30,
+          "regexp": {
+            "pattern": "^[a-z0-9_-]+$",
+            "modifiers": ""
+          },
+          "description": "Lower case, no spaces, e.g. customer. Scenes refer to the character by this key."
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "label": "Name shown in the speech bubble",
+          "importance": "high",
+          "maxLength": 40
+        },
+        {
+          "name": "look",
+          "type": "select",
+          "label": "Look",
+          "options": [
+            {
+              "value": "amara",
+              "label": "Amara"
+            },
+            {
+              "value": "ben",
+              "label": "Ben"
+            },
+            {
+              "value": "chen",
+              "label": "Chen"
+            },
+            {
+              "value": "jonas",
+              "label": "Jonas"
+            },
+            {
+              "value": "lea",
+              "label": "Lea"
+            },
+            {
+              "value": "mira",
+              "label": "Mira"
+            },
+            {
+              "value": "sofia",
+              "label": "Sofia"
+            },
+            {
+              "value": "yusuf",
+              "label": "Yusuf"
+            },
+            {
+              "value": "custom",
+              "label": "Own image"
+            }
+          ],
+          "default": "chen",
+          "description": "Built-in illustrated characters, or your own image."
+        },
+        {
+          "name": "image",
+          "type": "image",
+          "label": "Own image",
+          "optional": true,
+          "description": "PNG with transparent background, full body, standing. Used when the look is set to own image."
+        },
+        {
+          "name": "color",
+          "type": "text",
+          "label": "Name colour",
+          "optional": true,
+          "default": "#c4b5fd",
+          "description": "Hex colour, e.g. #c4b5fd."
+        }
+      ]
+    }
+  },
+  {
+    "name": "scenes",
+    "type": "list",
+    "label": "Scenes",
+    "importance": "high",
+    "entity": "scene",
+    "min": 1,
+    "max": 60,
+    "description": "The first scene is where the role-play starts. Each choice points to the key of the next scene or of an ending.",
+    "field": {
+      "name": "scene",
+      "type": "group",
+      "label": "Scene",
+      "importance": "high",
+      "fields": [
+        {
+          "name": "key",
+          "type": "text",
+          "label": "Short key",
+          "importance": "high",
+          "maxLength": 40,
+          "regexp": {
+            "pattern": "^[a-z0-9_-]+$",
+            "modifiers": ""
+          },
+          "description": "Lower case, no spaces, e.g. greeting."
+        },
+        {
+          "name": "situation",
+          "type": "text",
+          "label": "Situation",
+          "optional": true,
+          "maxLength": 280,
+          "description": "Short stage direction at the top, e.g. 'An angry customer approaches the desk.'"
+        },
+        {
+          "name": "background",
+          "type": "select",
+          "label": "Background",
+          "options": [
+            {
+              "value": "service",
+              "label": "Service desk"
+            },
+            {
+              "value": "office",
+              "label": "Open-plan office"
+            },
+            {
+              "value": "meeting",
+              "label": "Meeting room"
+            },
+            {
+              "value": "shop",
+              "label": "Shop"
+            },
+            {
+              "value": "warehouse",
+              "label": "Warehouse"
+            },
+            {
+              "value": "clinic",
+              "label": "Reception / clinic"
+            },
+            {
+              "value": "custom",
+              "label": "Own image"
+            }
+          ],
+          "default": "office"
+        },
+        {
+          "name": "backgroundImage",
+          "type": "image",
+          "label": "Own background image",
+          "optional": true,
+          "description": "Landscape, at least 1600 px wide. Used when the background is set to own image."
+        },
+        {
+          "name": "character",
+          "type": "text",
+          "label": "Character key",
+          "optional": true,
+          "maxLength": 30,
+          "description": "Key of the character who speaks. Leave empty for a scene without a character."
+        },
+        {
+          "name": "expression",
+          "type": "select",
+          "label": "Expression",
+          "options": [
+            {
+              "value": "neutral",
+              "label": "Neutral"
+            },
+            {
+              "value": "happy",
+              "label": "Happy"
+            },
+            {
+              "value": "angry",
+              "label": "Angry"
+            },
+            {
+              "value": "worried",
+              "label": "Worried"
+            },
+            {
+              "value": "thinking",
+              "label": "Thinking"
+            },
+            {
+              "value": "surprised",
+              "label": "Surprised"
+            }
+          ],
+          "default": "neutral"
+        },
+        {
+          "name": "pose",
+          "type": "select",
+          "label": "Pose",
+          "options": [
+            {
+              "value": "auto",
+              "label": "Matching the expression"
+            },
+            {
+              "value": "neutral",
+              "label": "Arms down"
+            },
+            {
+              "value": "hips",
+              "label": "Hands on hips"
+            },
+            {
+              "value": "crossed",
+              "label": "Arms crossed"
+            },
+            {
+              "value": "explain",
+              "label": "Explaining"
+            }
+          ],
+          "default": "auto"
+        },
+        {
+          "name": "position",
+          "type": "select",
+          "label": "Position",
+          "options": [
+            {
+              "value": "right",
+              "label": "Right"
+            },
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Centre"
+            }
+          ],
+          "default": "right"
+        },
+        {
+          "name": "line",
+          "type": "text",
+          "label": "What the character says",
+          "widget": "textarea",
+          "optional": true,
+          "maxLength": 600
+        },
+        {
+          "name": "audio",
+          "type": "audio",
+          "label": "Narration audio",
+          "optional": true,
+          "description": "Optional. Without audio the browser reads the texts aloud if that is switched on."
+        },
+        {
+          "name": "choices",
+          "type": "list",
+          "label": "Choices",
+          "entity": "choice",
+          "min": 0,
+          "max": 4,
+          "optional": true,
+          "description": "Two to four options. Without choices the scene continues to 'Next scene'.",
+          "field": {
+            "name": "choice",
+            "type": "group",
+            "label": "Choice",
+            "fields": [
+              {
+                "name": "text",
+                "type": "text",
+                "label": "Answer",
+                "importance": "high",
+                "maxLength": 240
+              },
+              {
+                "name": "next",
+                "type": "text",
+                "label": "Leads to (key of a scene or ending)",
+                "importance": "high",
+                "maxLength": 40
+              },
+              {
+                "name": "feedback",
+                "type": "text",
+                "label": "Consequence shown after the choice",
+                "widget": "textarea",
+                "optional": true,
+                "maxLength": 400
+              },
+              {
+                "name": "points",
+                "type": "number",
+                "label": "Points",
+                "default": 0,
+                "min": -10,
+                "max": 10
+              },
+              {
+                "name": "tone",
+                "type": "select",
+                "label": "Rating",
+                "options": [
+                  {
+                    "value": "good",
+                    "label": "Good"
+                  },
+                  {
+                    "value": "neutral",
+                    "label": "Neutral"
+                  },
+                  {
+                    "value": "bad",
+                    "label": "Bad"
+                  }
+                ],
+                "default": "neutral"
+              }
+            ]
+          }
+        },
+        {
+          "name": "nextScene",
+          "type": "text",
+          "label": "Next scene (if there are no choices)",
+          "optional": true,
+          "maxLength": 40
+        }
+      ]
+    }
+  },
+  {
+    "name": "endings",
+    "type": "list",
+    "label": "Endings",
+    "importance": "high",
+    "entity": "ending",
+    "min": 1,
+    "max": 12,
+    "field": {
+      "name": "ending",
+      "type": "group",
+      "label": "Ending",
+      "importance": "high",
+      "fields": [
+        {
+          "name": "key",
+          "type": "text",
+          "label": "Short key",
+          "importance": "high",
+          "maxLength": 40,
+          "regexp": {
+            "pattern": "^[a-z0-9_-]+$",
+            "modifiers": ""
+          }
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "label": "Title",
+          "importance": "high",
+          "maxLength": 120
+        },
+        {
+          "name": "text",
+          "type": "text",
+          "label": "What happened",
+          "widget": "textarea",
+          "optional": true,
+          "maxLength": 800
+        },
+        {
+          "name": "rating",
+          "type": "select",
+          "label": "Rating",
+          "options": [
+            {
+              "value": "good",
+              "label": "Good"
+            },
+            {
+              "value": "mixed",
+              "label": "Mixed"
+            },
+            {
+              "value": "bad",
+              "label": "Bad"
+            }
+          ],
+          "default": "good"
+        }
+      ]
+    }
+  },
+  {
+    "name": "theme",
+    "type": "group",
+    "label": "Look",
+    "importance": "low",
+    "fields": [
+      {
+        "name": "mode",
+        "type": "select",
+        "label": "Mode",
+        "options": [
+          {
+            "value": "dark",
+            "label": "Dark"
+          },
+          {
+            "value": "light",
+            "label": "Light"
+          }
+        ],
+        "default": "dark"
+      },
+      {
+        "name": "accent",
+        "type": "text",
+        "label": "Accent colour",
+        "default": "#7c6cf0",
+        "description": "Hex colour for buttons and progress."
+      }
+    ]
+  },
+  {
+    "name": "behaviour",
+    "type": "group",
+    "label": "Behaviour",
+    "importance": "low",
+    "fields": [
+      {
+        "name": "scoring",
+        "type": "select",
+        "label": "Scoring",
+        "options": [
+          {
+            "value": "points",
+            "label": "Points of the chosen answers"
+          },
+          {
+            "value": "none",
+            "label": "No score"
+          }
+        ],
+        "default": "points"
+      },
+      {
+        "name": "passPercent",
+        "type": "number",
+        "label": "Pass mark in percent of the best path",
+        "default": 70,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "name": "tts",
+        "type": "boolean",
+        "label": "Read texts aloud with the browser voice when there is no audio",
+        "default": true
+      },
+      {
+        "name": "autoNarrate",
+        "type": "boolean",
+        "label": "Start narration automatically in each scene",
+        "default": false
+      },
+      {
+        "name": "showFeedback",
+        "type": "boolean",
+        "label": "Show the consequence after each choice",
+        "default": true
+      },
+      {
+        "name": "allowRetry",
+        "type": "boolean",
+        "label": "Allow another attempt at the end",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "l10n",
+    "type": "group",
+    "label": "Texts of the user interface",
+    "importance": "low",
+    "common": true,
+    "fields": [
+      {
+        "name": "start",
+        "type": "text",
+        "label": "Start button",
+        "default": "Start"
+      },
+      {
+        "name": "resume",
+        "type": "text",
+        "label": "Resume button",
+        "default": "Continue where you left off"
+      },
+      {
+        "name": "narration",
+        "type": "text",
+        "label": "Narration label",
+        "default": "Narration"
+      },
+      {
+        "name": "play",
+        "type": "text",
+        "label": "Play button (screen reader)",
+        "default": "Play narration"
+      },
+      {
+        "name": "pause",
+        "type": "text",
+        "label": "Pause button (screen reader)",
+        "default": "Pause narration"
+      },
+      {
+        "name": "next",
+        "type": "text",
+        "label": "Continue button",
+        "default": "Continue"
+      },
+      {
+        "name": "choose",
+        "type": "text",
+        "label": "Prompt above the choices",
+        "default": "What do you do?"
+      },
+      {
+        "name": "decision",
+        "type": "text",
+        "label": "Decision counter",
+        "default": "Decision :num"
+      },
+      {
+        "name": "endingGood",
+        "type": "text",
+        "label": "Heading for a good ending",
+        "default": "Strong result"
+      },
+      {
+        "name": "endingMixed",
+        "type": "text",
+        "label": "Heading for a mixed ending",
+        "default": "Room to improve"
+      },
+      {
+        "name": "endingBad",
+        "type": "text",
+        "label": "Heading for a bad ending",
+        "default": "That went wrong"
+      },
+      {
+        "name": "score",
+        "type": "text",
+        "label": "Score line",
+        "default": "Score: :score of :max"
+      },
+      {
+        "name": "passed",
+        "type": "text",
+        "label": "Passed",
+        "default": "Passed"
+      },
+      {
+        "name": "failed",
+        "type": "text",
+        "label": "Not passed",
+        "default": "Not passed yet"
+      },
+      {
+        "name": "again",
+        "type": "text",
+        "label": "Retry button",
+        "default": "Try again"
+      },
+      {
+        "name": "recap",
+        "type": "text",
+        "label": "Heading of the decision recap",
+        "default": "Your decisions"
+      },
+      {
+        "name": "back",
+        "type": "text",
+        "label": "Back",
+        "default": "Back"
+      }
+    ]
+  }
+]

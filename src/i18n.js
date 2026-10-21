@@ -74,7 +74,21 @@ const PATTERNS = [
   [/^Inhaltstyp "?([^"]+)"? ist nicht installiert\.(.*)$/, (m) => `Content type ${m[1]} is not installed.`],
   [/^(.+): Pflichtfeld fehlt \((.+)\)\.$/, (m) => `${m[1]}: required field missing (${m[2]}).`],
   [/^(.+): mindestens (\d+) Einträge( erforderlich)?\.$/, (m) => `${m[1]}: at least ${m[2]} entries required.`],
-  [/^(.+): höchstens (\d+) Einträge\.$/, (m) => `${m[1]}: at most ${m[2]} entries.`]
+  [/^(.+): höchstens (\d+) Einträge\.$/, (m) => `${m[1]}: at most ${m[2]} entries.`],
+  [/^(.+): Pflichtfeld fehlt\.$/, (m) => `${m[1]}: required field missing.`],
+  [/^(.+): höchstens (\d+) Zeichen\.$/, (m) => `${m[1]}: at most ${m[2]} characters.`],
+  [/^(.+): Text ist zu lang\.$/, (m) => `${m[1]}: text is too long.`],
+  [/^(.+): Adresse fehlt\.$/, (m) => `${m[1]}: address missing.`],
+  [/^(.+): nur https-Adressen sind erlaubt\.$/, (m) => `${m[1]}: only https addresses are allowed.`],
+  [/^(.+): Datei fehlt .*$/, (m) => `${m[1]}: file missing (upload it first).`],
+  [/^(.+): Datei "(.+)" gibt es in diesem Kurs nicht\.$/, (m) => `${m[1]}: file "${m[2]}" does not exist in this course.`],
+  [/^(.+): Zahl erwartet\.$/, (m) => `${m[1]}: number expected.`],
+  [/^(.+): mindestens eine richtige Antwort .*$/, (m) => `${m[1]}: mark at least one correct answer.`],
+  [/^(.+): Lücken in eckigen Klammern markieren.*$/, (m) => `${m[1]}: mark blanks in square brackets, e.g. [answer|alternative].`],
+  [/^(.+): Video-Datei oder YouTube-\/Vimeo-Adresse angeben\.$/, (m) => `${m[1]}: add a video file or a YouTube/Vimeo address.`],
+  [/^(.+): nur YouTube oder Vimeo\.$/, (m) => `${m[1]}: YouTube or Vimeo only.`],
+  [/^(.+): Einheit gibt es in diesem Kurs nicht\.$/, (m) => `${m[1]}: this unit does not exist in this course.`],
+  [/^(\d+) (Block ist|Blöcke sind) noch unvollständig\.$/, (m) => `${m[1]} ${m[1] === '1' ? 'block is' : 'blocks are'} still incomplete.`]
 ];
 
 export function tr(message, lang) {

@@ -17,6 +17,7 @@ import { toH5pUser } from './h5p.js';
 import { AUTHORING_GUIDE } from './guide.js';
 import { jobGate } from './limits.js';
 import { kindMatches } from './sniff.js';
+import { blockCatalog, PLAYER_DESIGNS, THEME_PRESETS, FONTS } from './blocks.js';
 
 const VERSION = '0.1.0';
 
@@ -57,7 +58,7 @@ export function buildMcpServer(user) {
     {
       instructions:
         'Plietschpaket baut interaktive Lernkurse aus H5P-Inhalten und exportiert sie als SCORM-Paket. ' +
-        'Struktur: Projekt → Kurs → Einheiten (je ein H5P-Inhalt). Vor dem ersten Inhalt get_authoring_guide lesen. ' +
+        'Zwei Kursarten: (1) Einheiten-Kurs: Projekt → Kurs → Einheiten (je ein H5P-Inhalt). (2) Block-Kurs (settings.mode blocks): Lektionen aus Blöcken wie Text, Bild, Quiz, Zuordnung, Prüfung, mit eigenem Player-Design; H5P-Einheiten lassen sich als Block h5p einbetten. Vor dem ersten Inhalt get_authoring_guide lesen. ' +
         'Für jeden Inhaltstyp mit get_content_schema die Felder prüfen; Oberflächentexte werden automatisch befüllt. ' +
         'Antworten des Nutzers sind auf Deutsch zu verfassen, sofern der Kurs nicht anders verlangt.'
     }
@@ -173,7 +174,8 @@ export function buildMcpServer(user) {
       completion: z.enum(['all', 'viewed']).optional(),
       masteryScore: z.number().min(0).max(100).optional(),
       navigation: z.enum(['free', 'linear']).optional(),
-      showUnitList: z.boolean().optional()
+      showUnitList: z.boolean().optional(),
+      mode: z.enum(['units', 'blocks']).optional()
     })
     .optional();
 
@@ -340,6 +342,142 @@ export function buildMcpServer(user) {
       }
       return ok(kind === 'image' || kind === 'file' ? result : { path: result.path, mime: result.mime });
     })
+  );
+
+  // ---------------------------------------------------------------- block courses
+  const blockSchema = z.object({ type: z.string(), data: z.record(z.string(), z.any()).optional(), narration: z.string().max(240).optional() }).passthrough();
+  const courseSummary = (c) => ({
+    id: c.id,
+    title: c.title,
+    mode: c.settings?.mode,
+    updatedAt: c.updatedAt || c.updated_at,
+    blocks: (c.blocks || []).map((b) => ({ id: b.id, type: b.type, data: b.data, ...(b.narration ? { narration: b.narration } : {}), ...(b.issues ? { issues: b.issues } : {}) })),
+    outline: c.outline,
+    design: c.design,
+    liveUrl: appLink(`/live/${c.id}`),
+    editUrl: appLink(`/courses/${c.id}`)
+  });
+
+  server.registerTool(
+    'list_block_types',
+    {
+      title: 'Blocktypen',
+      description:
+        'Alle Blocktypen für Block-Kurse mit Kategorie, Feldern (Name mit ? = optional) und Beispiel. Block-Kurse sind eine flache Liste von Blöcken; ein "title"-Block beginnt eine neue Lektion. Bewertete Blöcke (graded) fließen in die Punktzahl ein. Medienfelder erwarten "media:<datei>" aus upload_course_media. Text-Felder (html) erlauben <p>, <strong>, <em>, <ul>, <ol>, <li>, <a href="https://…">, <br>.',
+      inputSchema: { language: z.enum(['de', 'en']).optional() },
+      annotations: ro
+    },
+    wrap(async ({ language }) => ok({ designs: PLAYER_DESIGNS, presets: Object.keys(THEME_PRESETS), fonts: FONTS, types: blockCatalog(language || 'de') }))
+  );
+
+  server.registerTool(
+    'get_blocks',
+    {
+      title: 'Blöcke eines Kurses lesen',
+      description: 'Blöcke (mit IDs), Gliederung in Lektionen, Design und Live-Vorschau-Link eines Block-Kurses.',
+      inputSchema: { course_id: z.string() },
+      annotations: ro
+    },
+    wrap(async ({ course_id }) => ok(courseSummary(svc.getCourse(user, course_id))))
+  );
+
+  server.registerTool(
+    'save_blocks',
+    {
+      title: 'Alle Blöcke ersetzen',
+      description:
+        'Ersetzt die komplette Blockliste eines Kurses und stellt den Kurs auf Block-Modus um. Gut für den ersten Entwurf eines Kurses. Blöcke ohne id bekommen eine. Fehler kommen als Liste mit Blockindex und Feld zurück; dann wird nichts gespeichert.',
+      inputSchema: { course_id: z.string(), blocks: z.array(blockSchema).max(800) },
+      annotations: rw
+    },
+    wrap(async ({ course_id, blocks }) => ok(courseSummary(svc.saveBlocks(user, course_id, blocks, {}, via)), 'Blöcke gespeichert.'))
+  );
+
+  server.registerTool(
+    'insert_blocks',
+    {
+      title: 'Blöcke einfügen',
+      description: 'Fügt Blöcke nach dem Block after_id ein (ohne after_id: an position, sonst am Ende). Gibt die IDs der neuen Blöcke zurück.',
+      inputSchema: { course_id: z.string(), blocks: z.array(blockSchema).min(1).max(200), after_id: z.string().optional(), position: z.number().int().min(0).optional() },
+      annotations: rw
+    },
+    wrap(async ({ course_id, blocks, after_id, position }) => {
+      const r = svc.insertBlocks(user, course_id, blocks, { afterId: after_id, position }, via);
+      return ok({ inserted: r.inserted, outline: r.course.outline, liveUrl: appLink(`/live/${course_id}`) }, 'Blöcke eingefügt.');
+    })
+  );
+
+  server.registerTool(
+    'update_block',
+    {
+      title: 'Block ändern',
+      description: 'Ersetzt data (vollständig) und/oder den Typ eines Blocks; narration = Vertonung als Audiodatei "media:…" aus upload_course_media (leerer String = entfernen).',
+      inputSchema: { course_id: z.string(), block_id: z.string(), data: z.record(z.string(), z.any()).optional(), type: z.string().optional(), narration: z.string().max(240).optional() },
+      annotations: rw
+    },
+    wrap(async ({ course_id, block_id, data, type, narration }) => {
+      const c = svc.updateBlock(user, course_id, block_id, { data, type, narration }, via);
+      return ok(c.blocks.find((b) => b.id === block_id), 'Block geändert.');
+    })
+  );
+
+  server.registerTool(
+    'move_block',
+    {
+      title: 'Block verschieben',
+      description: 'Verschiebt einen Block hinter after_id (leerer String = an den Anfang) oder an position.',
+      inputSchema: { course_id: z.string(), block_id: z.string(), after_id: z.string().optional(), position: z.number().int().min(0).optional() },
+      annotations: rw
+    },
+    wrap(async ({ course_id, block_id, after_id, position }) => ok({ outline: svc.moveBlock(user, course_id, block_id, { afterId: after_id, position }, via).outline }))
+  );
+
+  server.registerTool(
+    'delete_blocks',
+    {
+      title: 'Blöcke löschen',
+      description: 'Löscht Blöcke endgültig.',
+      inputSchema: { course_id: z.string(), block_ids: z.array(z.string()).min(1) },
+      annotations: destructive
+    },
+    wrap(async ({ course_id, block_ids }) => ok({ deleted: block_ids, outline: svc.deleteBlocks(user, course_id, block_ids, via).outline }))
+  );
+
+  server.registerTool(
+    'set_course_design',
+    {
+      title: 'Design und Player festlegen',
+      description:
+        `Teiländerung des Designs eines Block-Kurses (wird zusammengeführt). player: ${PLAYER_DESIGNS.join('|')}. ` +
+        `theme: { preset: ${Object.keys(THEME_PRESETS).join('|')}|custom, mode: light|dark, primary/accent/background: #hex (nur mit preset custom), font: ${FONTS.join('|')}, fontSize: small|medium|large, radius: sharp|rounded|pill }. ` +
+        'cover: { show, image: "media:…", kicker, duration }. logo: "media:…". direction: ltr|rtl. completion: { message, nextUrl (https), nextLabel, restart }. labels: eigene Beschriftungen für Player-Knöpfe (ersetzt alle bisherigen; Schlüssel z. B. start, next, finish, complete, completeText).',
+      inputSchema: { course_id: z.string(), design: z.record(z.string(), z.any()) },
+      annotations: rw
+    },
+    wrap(async ({ course_id, design }) => ok(svc.setDesign(user, course_id, design, via), 'Design gespeichert.'))
+  );
+
+  server.registerTool(
+    'upload_course_media',
+    {
+      title: 'Medien für Block-Kurs hochladen',
+      description:
+        `Lädt ein Bild (jpg, png, webp, gif, svg), Audio (mp3, m4a, ogg, wav), Video (mp4, webm), PDF oder Untertitel (vtt) als Base64 in die Mediathek eines Kurses (max. ${Math.round(config.mcpUploadBytes / 1048576)} MB). ` +
+        'Ergebnis "ref" (media:<datei>) direkt in Blockfelder einsetzen.',
+      inputSchema: { course_id: z.string(), filename: z.string().max(200), base64: z.string().max(Math.ceil(config.mcpUploadBytes * 1.37) + 1024) },
+      annotations: rw
+    },
+    wrap(async ({ course_id, filename, base64 }) => {
+      const data = Buffer.from(base64.replace(/^data:[^;]+;base64,/, ''), 'base64');
+      const saved = svc.uploadCourseMedia(user, course_id, filename, data, config.mcpUploadBytes, via);
+      return ok({ ...saved, ref: `media:${saved.name}` });
+    })
+  );
+
+  server.registerTool(
+    'list_course_media',
+    { title: 'Mediathek eines Kurses', description: 'Hochgeladene Medien eines Block-Kurses.', inputSchema: { course_id: z.string() }, annotations: ro },
+    wrap(async ({ course_id }) => ok(svc.courseMedia(user, course_id).map((m) => ({ ...m, ref: `media:${m.name}` }))))
   );
 
   server.registerTool(
