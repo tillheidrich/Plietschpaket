@@ -1463,6 +1463,7 @@
     var wrap = el('div', 'pp-block pp-t-' + block.type + (block.issues ? ' is-draft' : ''));
     wrap.id = 'block-' + block.id;
     wrap.dataset.block = block.id;
+    if (root.PP_MARKS && root.PP_MARKS[block.id]) wrap.setAttribute('data-comments', String(root.PP_MARKS[block.id]));
     try {
       if (block.issues && ctx.preview) {
         // editor preview of a draft: never render half-filled media or questions

@@ -646,7 +646,7 @@ route(
 );
 
 // ------------------------------------------------------------------ course
-const formatLabel = (f) => (f === 'html' ? 'HTML' : f === 'scorm2004' ? 'SCORM 2004' : 'SCORM 1.2');
+const formatLabel = (f) => ({ html: 'HTML', scorm2004: 'SCORM 2004', xapi: 'xAPI', cmi5: 'cmi5' })[f] || 'SCORM 1.2';
 
 route(
   '/courses/:id',
@@ -704,6 +704,8 @@ route(
               <div class="segmented" role="group" aria-label="${te('Format')}">
                 <button type="button" data-fmt="scorm12" class="${s.scormVersion === '1.2' ? 'is-on' : ''}">SCORM 1.2</button>
                 <button type="button" data-fmt="scorm2004" class="${s.scormVersion === '2004' ? 'is-on' : ''}">SCORM 2004</button>
+                <button type="button" data-fmt="xapi">xAPI</button>
+                <button type="button" data-fmt="cmi5">cmi5</button>
                 <button type="button" data-fmt="html">HTML</button>
               </div>
               <button class="btn accent" id="export" ${c.units.length ? '' : 'disabled'}>${icon('download')}${te('Paket erstellen')}</button>

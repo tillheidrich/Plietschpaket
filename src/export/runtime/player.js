@@ -991,9 +991,21 @@
         setTimeout(function () { t.classList.remove('pp-flash'); }, 1400);
       }
     };
+    var applyMarks = function () {
+      var marks = window.PP_MARKS || {};
+      [].forEach.call(doc.querySelectorAll('.pp-block[data-block]'), function (b) {
+        var n = marks[b.dataset.block] || 0;
+        if (n) b.setAttribute('data-comments', String(n));
+        else b.removeAttribute('data-comments');
+      });
+    };
     window.addEventListener('message', function (e) {
-      if (e.origin !== location.origin || !e.data || e.data.type !== 'pp-goto') return;
-      gotoBlock(String(e.data.blockId || ''));
+      if (e.origin !== location.origin || !e.data) return;
+      if (e.data.type === 'pp-goto') gotoBlock(String(e.data.blockId || ''));
+      if (e.data.type === 'pp-marks') {
+        window.PP_MARKS = e.data.counts || {};
+        applyMarks();
+      }
     });
     doc.addEventListener('click', function (e) {
       var b = e.target && e.target.closest && e.target.closest('[data-block]');

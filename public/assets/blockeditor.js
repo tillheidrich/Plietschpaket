@@ -82,6 +82,7 @@ const UI = {
   mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
   warn: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
   edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/>',
   play: '<path d="M8 5v14l11-7z"/>'
 };
 const svg = (paths, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${paths}</svg>`;
@@ -138,7 +139,12 @@ const LABEL_KEYS = ['start', 'resume', 'next', 'prev', 'finish', 'complete', 'co
 export async function blockEditor(el, courseId, ctx) {
   const { api, t, te, esc, toast, fail, dialog, confirmDialog, navigate, state, fmtSize, fmtDate, langOptions } = ctx;
   el.innerHTML = `<div class="be-loading"><div class="skeleton" style="width:260px;height:26px"></div></div>`;
-  const [course, catalog, mediaList] = await Promise.all([api(`/courses/${courseId}`), api('/block-types'), api(`/courses/${courseId}/media`)]);
+  const [course, catalog, mediaList, commentList] = await Promise.all([
+    api(`/courses/${courseId}`),
+    api('/block-types'),
+    api(`/courses/${courseId}/media`),
+    api(`/courses/${courseId}/comments`).catch(() => [])
+  ]);
   if (!ctx.alive()) return;
 
   const TYPES = Object.fromEntries(catalog.types.map((x) => [x.type, x]));
@@ -147,6 +153,8 @@ export async function blockEditor(el, courseId, ctx) {
   let design = clone(course.design);
   let units = course.units;
   let media = mediaList;
+  let comments = commentList;
+  let commentFilter = 'open';
   let updatedAt = course.updatedAt;
   let sel = blocks[0]?.id || null;
   let tab = 'content';
@@ -181,7 +189,7 @@ export async function blockEditor(el, courseId, ctx) {
         <h1 class="be-title">${esc(course.title)}</h1>
       </div>
       <div class="be-tabs" role="tablist">
-        ${[['content', 'Inhalt'], ['design', 'Design'], ['settings', 'Einstellungen'], ['media', 'Medien']].map(([k, l]) => `<button role="tab" data-tab="${k}">${te(l)}</button>`).join('')}
+        ${[['content', 'Inhalt'], ['design', 'Design'], ['review', 'Review'], ['settings', 'Einstellungen'], ['media', 'Medien']].map(([k, l]) => `<button role="tab" data-tab="${k}">${te(l)}${k === 'review' ? `<span class="be-tab-count" id="be-review-count"></span>` : ''}</button>`).join('')}
       </div>
       <div class="be-bar-right">
         <span class="be-status" id="be-status" aria-live="polite"></span>
@@ -241,7 +249,8 @@ export async function blockEditor(el, courseId, ctx) {
   function paint() {
     el.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
     el.querySelector('#be-toggle-preview').classList.toggle('is-on', previewOpen);
-    el.querySelector('#be-toggle-preview').hidden = tab === 'settings' || tab === 'media';
+    el.querySelector('#be-toggle-preview').hidden = !['content', 'design'].includes(tab);
+    reviewCount();
     body.className = `be-body is-${tab}${previewOpen && (tab === 'content' || tab === 'design') ? ' has-preview' : ''}`;
     if (tab === 'content') {
       body.innerHTML = `<aside class="be-side" id="be-side"></aside><section class="be-canvas" id="be-canvas" aria-label="${te('Blöcke')}"></section>${previewOpen ? previewHtml() : ''}`;
@@ -250,6 +259,9 @@ export async function blockEditor(el, courseId, ctx) {
     } else if (tab === 'design') {
       body.innerHTML = `<section class="be-form-col" id="be-design"></section>${previewOpen ? previewHtml() : ''}`;
       paintDesign();
+    } else if (tab === 'review') {
+      body.innerHTML = `<section class="be-page" id="be-review"></section>`;
+      paintReview();
     } else if (tab === 'settings') {
       body.innerHTML = `<section class="be-page" id="be-settings"></section>`;
       paintSettings();
@@ -423,6 +435,7 @@ export async function blockEditor(el, courseId, ctx) {
         ${svg(BI[b.type] || BI.text, 'be-ic')}
         <div class="be-card-name"><span class="be-card-type">${esc(ty.label)}${ty.graded ? `<em class="be-graded-tag">${te('bewertet')}</em>` : ''}</span>${open ? '' : `<span class="be-card-sum">${esc(summary(b))}</span>`}</div>
         ${b.issues ? `<span class="be-issue-pill" title="${esc(b.issues.join('\n'))}">${svg(UI.warn)}${te('unvollständig')}</span>` : ''}
+        ${openComments(b.id) ? `<button type="button" class="be-comment-pill" data-comments-of="${esc(b.id)}" title="${te('Offene Review-Kommentare')}">${svg(UI.chat)}${openComments(b.id)}</button>` : ''}
         ${
           canEdit
             ? `<div class="be-card-actions">
@@ -440,8 +453,15 @@ export async function blockEditor(el, courseId, ctx) {
   function bindCard(b) {
     const card = body.querySelector(`[data-card="${cssId(b.id)}"]`);
     if (!card) return;
+    card.querySelector('[data-comments-of]')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      tab = 'review';
+      commentFilter = 'open';
+      paint();
+      body.querySelector(`[data-thread-block="${cssId(b.id)}"]`)?.scrollIntoView({ block: 'center' });
+    });
     card.querySelector('[data-head]').addEventListener('click', (e) => {
-      if (e.target.closest('[data-act]')) return;
+      if (e.target.closest('[data-act], [data-comments-of]')) return;
       select(b.id === sel ? null : b.id, { goto: true });
     });
     card.querySelectorAll('[data-act]').forEach((btn) => {
@@ -1704,7 +1724,7 @@ export async function blockEditor(el, courseId, ctx) {
         ${
           course.exports.length
             ? `<ul class="rows">${course.exports
-                .map((x) => `<li class="row"><div><span class="stamp"><b>v${x.version}</b>${esc(x.format === 'html' ? 'HTML' : x.format === 'scorm2004' ? 'SCORM 2004' : 'SCORM 1.2')}</span><span class="row-meta" style="margin-top:6px"><span>${fmtDate(x.createdAt)}</span><span>${fmtSize(x.size)}</span></span></div>
+                .map((x) => `<li class="row"><div><span class="stamp"><b>v${x.version}</b>${esc({ html: 'HTML', scorm2004: 'SCORM 2004', xapi: 'xAPI', cmi5: 'cmi5' }[x.format] || 'SCORM 1.2')}</span><span class="row-meta" style="margin-top:6px"><span>${fmtDate(x.createdAt)}</span><span>${fmtSize(x.size)}</span></span></div>
               <div class="actions"><a class="btn small ghost" href="/exports/${esc(x.id)}/preview">${te('LMS-Vorschau')}</a><a class="btn small" href="/api/exports/${esc(x.id)}/download" download>${te('Herunterladen')}</a></div></li>`)
                 .join('')}</ul>`
             : `<p class="panel-body muted">${te('Noch kein Export.')}</p>`
@@ -1781,6 +1801,153 @@ export async function blockEditor(el, courseId, ctx) {
     });
   }
 
+  // ---------------------------------------------------------------- review
+  function openComments(blockId) {
+    return comments.filter((c) => c.blockId === blockId && c.status === 'open').length;
+  }
+  function reviewCount() {
+    const n = comments.filter((c) => c.status === 'open').length;
+    const badge = el.querySelector('#be-review-count');
+    if (badge) badge.textContent = n ? String(n) : '';
+  }
+  async function reloadComments() {
+    comments = await api(`/courses/${courseId}/comments`).catch(() => comments);
+    reviewCount();
+  }
+
+  async function paintReview() {
+    const c = body.querySelector('#be-review');
+    let links = [];
+    try {
+      links = await api(`/courses/${courseId}/review-links`);
+    } catch (err) {
+      fail(err);
+    }
+    if (!c.isConnected) return;
+    const blockOf = (id) => blocks.find((b) => b.id === id);
+    const list = comments.filter((x) => commentFilter === 'all' || x.status === commentFilter);
+    const counts = { open: comments.filter((x) => x.status === 'open').length, resolved: comments.filter((x) => x.status === 'resolved').length, all: comments.length };
+    const thread = (x) => {
+      const b = x.blockId ? blockOf(x.blockId) : null;
+      return `<article class="be-thread ${x.status === 'resolved' ? 'is-done' : ''}" data-thread="${esc(x.id)}" ${x.blockId ? `data-thread-block="${esc(x.blockId)}"` : ''}>
+        <header><b>${esc(x.author)}</b>${x.team ? `<span class="badge">${te('Team')}</span>` : ''}<time>${fmtDate(x.createdAt)}</time></header>
+        <button type="button" class="be-thread-ref" ${b ? `data-goto-block="${esc(b.id)}"` : 'disabled'}>${b ? `${svg(BI[b.type] || BI.text, 'be-ic')}<span>${esc(summary(b) || typeLabel(b.type))}</span>` : x.blockId ? te('Block wurde gelöscht') : te('Allgemein zum Kurs')}</button>
+        <p>${esc(x.body).replace(/\n/g, '<br>')}</p>
+        ${x.replies.map((r) => `<div class="be-reply"><header><b>${esc(r.author)}</b>${r.team ? `<span class="badge">${te('Team')}</span>` : ''}<time>${fmtDate(r.createdAt)}</time></header><p>${esc(r.body).replace(/\n/g, '<br>')}</p></div>`).join('')}
+        ${
+          canEdit
+            ? `<div class="be-thread-actions">
+          <form class="be-reply-form" data-reply-form="${esc(x.id)}"><input class="input" maxlength="2000" placeholder="${te('Antworten …')}"><button class="btn small" type="submit">${te('Senden')}</button></form>
+          <button class="btn small ${x.status === 'open' ? 'primary' : ''}" data-status="${x.status === 'open' ? 'resolved' : 'open'}" data-cid="${esc(x.id)}">${x.status === 'open' ? `${svg(UI.check)}${te('Erledigt')}` : te('Wieder öffnen')}</button>
+          <button class="icon-btn small" data-del-comment="${esc(x.id)}" aria-label="${te('Löschen')}" title="${te('Löschen')}">${svg(UI.trash)}</button></div>`
+            : ''
+        }
+      </article>`;
+    };
+    c.innerHTML = `<div class="be-review">
+      <section class="panel">
+        <div class="panel-head"><h2>${te('Review-Links')}</h2>${canEdit ? `<button class="btn small primary" id="rl-new">${svg(UI.plus)}${te('Link erzeugen')}</button>` : ''}</div>
+        <div class="panel-body"><p class="muted small">${te('Wer den Link hat, sieht den aktuellen Stand des Kurses ohne Konto und kann einzelne Blöcke kommentieren. Links laufen ab und lassen sich jederzeit sperren.')}</p></div>
+        ${
+          links.length
+            ? `<ul class="rows">${links
+                .map(
+                  (l) => `<li class="row"><div><span class="row-title">${esc(l.label || t('Review-Link'))}</span><span class="row-meta"><span>${l.active ? te('gültig bis {date}', { date: fmtDate(l.expiresAt) }) : `<span class="badge">${l.revoked ? te('gesperrt') : te('abgelaufen')}</span>`}</span><span>${te('{n} Kommentare', { n: l.comments })}</span></span></div>
+                  <div class="actions">${l.active && canEdit ? `<button class="btn small ghost" data-revoke="${esc(l.id)}">${te('Sperren')}</button>` : ''}</div></li>`
+                )
+                .join('')}</ul>`
+            : ''
+        }
+      </section>
+      <section class="be-threads">
+        <div class="be-threads-head"><h2>${te('Kommentare')}</h2>
+          <div class="segmented" role="group">${[['open', 'Offen'], ['resolved', 'Erledigt'], ['all', 'Alle']].map(([k, l]) => `<button type="button" data-filter="${k}" class="${commentFilter === k ? 'is-on' : ''}">${te(l)} <span class="muted">${counts[k]}</span></button>`).join('')}</div>
+        </div>
+        ${list.length ? list.slice().reverse().map(thread).join('') : `<div class="be-review-empty">${svg(UI.chat)}<p class="muted">${commentFilter === 'open' ? te('Keine offenen Kommentare.') : te('Noch keine Kommentare.')}</p></div>`}
+      </section>
+    </div>`;
+    c.querySelectorAll('[data-filter]').forEach((b) => (b.onclick = () => ((commentFilter = b.dataset.filter), paintReview())));
+    c.querySelectorAll('[data-goto-block]').forEach((b) => {
+      b.onclick = () => {
+        tab = 'content';
+        sel = b.dataset.gotoBlock;
+        paint();
+        scrollToCard(sel);
+      };
+    });
+    c.querySelector('#rl-new')?.addEventListener('click', () =>
+      dialog({
+        title: t('Review-Link erzeugen'),
+        body: `<div class="field"><label for="rlb">${te('Bezeichnung (optional)')}</label><input class="input" id="rlb" maxlength="80" placeholder="${te('z. B. Fachabteilung Service')}"></div>
+          <div class="field"><label for="rld">${te('Gültig für')}</label><select class="input" id="rld"><option value="7">${te('7 Tage')}</option><option value="30" selected>${te('30 Tage')}</option><option value="90">${te('90 Tage')}</option></select></div>`,
+        actions: [
+          { label: t('Abbrechen'), kind: 'ghost' },
+          {
+            label: t('Erzeugen'),
+            kind: 'primary',
+            handler: async (d) => {
+              const link = await api(`/courses/${courseId}/review-links`, { method: 'POST', body: { label: d.querySelector('#rlb').value, days: Number(d.querySelector('#rld').value) } });
+              dialog({
+                title: t('Review-Link'),
+                body: `<p class="muted">${te('Der Link wird nur jetzt angezeigt. Kopiere ihn und gib ihn an die Prüfer weiter.')}</p><div class="be-linkbox"><input class="input mono" readonly value="${esc(link.url)}" id="rlu"><button class="btn primary" id="rlc">${te('Kopieren')}</button></div>`,
+                onOpen: (dd) => {
+                  const inp = dd.querySelector('#rlu');
+                  inp.select();
+                  dd.querySelector('#rlc').onclick = async () => {
+                    try {
+                      await navigator.clipboard.writeText(link.url);
+                      toast(t('Link kopiert.'));
+                    } catch {
+                      inp.select();
+                    }
+                  };
+                },
+                actions: [{ label: t('Fertig'), kind: 'primary' }]
+              });
+              paintReview();
+            }
+          }
+        ]
+      })
+    );
+    c.querySelectorAll('[data-revoke]').forEach((b) => {
+      b.onclick = async () => {
+        if (!(await confirmDialog(t('Link sperren?'), t('Wer den Link hat, kommt danach nicht mehr in den Kurs. Die Kommentare bleiben erhalten.'), t('Sperren')))) return;
+        await api(`/courses/${courseId}/review-links/${b.dataset.revoke}`, { method: 'DELETE' }).catch(fail);
+        paintReview();
+      };
+    });
+    c.querySelectorAll('[data-status]').forEach((b) => {
+      b.onclick = async () => {
+        await api(`/courses/${courseId}/comments/${b.dataset.cid}`, { method: 'PATCH', body: { status: b.dataset.status } }).catch(fail);
+        await reloadComments();
+        paintReview();
+      };
+    });
+    c.querySelectorAll('[data-del-comment]').forEach((b) => {
+      b.onclick = async () => {
+        if (!(await confirmDialog(t('Kommentar löschen?'), t('Der Kommentar und alle Antworten werden entfernt.')))) return;
+        await api(`/courses/${courseId}/comments/${b.dataset.delComment}`, { method: 'DELETE' }).catch(fail);
+        await reloadComments();
+        paintReview();
+      };
+    });
+    c.querySelectorAll('[data-reply-form]').forEach((f) => {
+      f.onsubmit = async (e) => {
+        e.preventDefault();
+        const v = f.querySelector('input').value.trim();
+        if (!v) return;
+        try {
+          await api(`/courses/${courseId}/comments`, { method: 'POST', body: { body: v, parentId: f.dataset.replyForm } });
+          await reloadComments();
+          paintReview();
+        } catch (err) {
+          fail(err);
+        }
+      };
+    });
+  }
+
   // ---------------------------------------------------------------- export
   function exportDialog() {
     const open = blocks.filter((b) => b.issues);
@@ -1806,7 +1973,7 @@ export async function blockEditor(el, courseId, ctx) {
     let format = course.settings.scormVersion === '2004' ? 'scorm2004' : 'scorm12';
     dialog({
       title: t('Paket erstellen'),
-      body: `<div class="segmented" role="group" id="xf">${[['scorm12', 'SCORM 1.2'], ['scorm2004', 'SCORM 2004'], ['html', 'HTML']].map(([k, l]) => `<button type="button" data-f="${k}" class="${format === k ? 'is-on' : ''}">${l}</button>`).join('')}</div>
+      body: `<div class="segmented" role="group" id="xf">${[['scorm12', 'SCORM 1.2'], ['scorm2004', 'SCORM 2004'], ['xapi', 'xAPI'], ['cmi5', 'cmi5'], ['html', 'HTML']].map(([k, l]) => `<button type="button" data-f="${k}" class="${format === k ? 'is-on' : ''}">${l}</button>`).join('')}</div>
         <p class="muted small" style="margin-top:12px">${te('Danach öffnet sich die LMS-Vorschau: Sie zeigt genau, welche Werte das Paket an das LMS sendet.')}</p>`,
       onOpen: (d) =>
         d.querySelectorAll('[data-f]').forEach((b) => {

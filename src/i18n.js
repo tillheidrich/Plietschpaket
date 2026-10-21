@@ -69,7 +69,18 @@ const EN = {
   'Leserichtung muss ltr oder rtl sein.': 'Reading direction must be ltr or rtl.',
   'Basissprache muss eine eingebaute Sprache sein.': 'The base language must be a built-in language.',
   'Diese Sprache gibt es schon.': 'This language already exists.',
-  'Sprache nicht gefunden.': 'Language not found.'
+  'Sprache nicht gefunden.': 'Language not found.',
+  'Review-Links gibt es für Block-Kurse.': 'Review links are available for block courses.',
+  'Link nicht gefunden.': 'Link not found.',
+  'Dieser Review-Link ist ungültig oder abgelaufen.': 'This review link is invalid or has expired.',
+  'Der Kommentar ist leer.': 'The comment is empty.',
+  'Bitte einen Namen angeben.': 'Please enter a name.',
+  'Antwort auf unbekannten Kommentar.': 'Reply to an unknown comment.',
+  'Diesen Block gibt es nicht mehr.': 'This block no longer exists.',
+  'Zu viele Kommentare in diesem Kurs.': 'Too many comments in this course.',
+  'Status muss open oder resolved sein.': 'Status must be open or resolved.',
+  'Kommentar nicht gefunden.': 'Comment not found.',
+  'Zu viele Kommentare in kurzer Zeit. Bitte kurz warten.': 'Too many comments in a short time. Please wait a moment.'
 };
 
 const PATTERNS = [

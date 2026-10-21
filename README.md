@@ -3,7 +3,7 @@
 *Deutsche Fassung: [README.de.md](README.de.md) · Website: [plietschpaket.heidrich-digital.de](https://plietschpaket.heidrich-digital.de/)*
 
 Plietschpaket is a self-hosted authoring tool for interactive e-learning. You build courses from H5P content in the
-browser, or you let Claude build them for you over MCP, and you get a SCORM 1.2, SCORM 2004 or HTML package that any
+browser, or you let Claude build them for you over MCP, and you get a SCORM 1.2, SCORM 2004, xAPI, cmi5 or HTML package that any
 LMS can import.
 
 The name is Low German. *Plietsch* (say "pleetch") means clever, so a *Plietschpaket* is a clever package.
@@ -55,7 +55,11 @@ Other things that matter in day-to-day work:
   into a new language version that keeps all media.
 - Import takes `.h5p` files (from Lumi, for example), ZIP files with several of them, Plietschpaket project exports and
   "click practice" packages (`course.json` plus screenshots), which become editable app simulations.
-- Every export opens in an LMS simulator that shows exactly which SCORM values the package sends.
+- Every export opens in an LMS simulator that shows exactly which SCORM values the package sends. xAPI and cmi5
+  packages talk to the LRS directly (statements for initialized, completed, passed/failed and terminated, resume state
+  through the State API, cmi5 auth token, launch data and mastery score).
+- Review links let colleagues without an account look at the current course and comment on single blocks. Comments
+  show up in the editor and over MCP, where they can be answered and resolved.
 
 ![Course with export panel](docs/screenshots/course-en.png)
 

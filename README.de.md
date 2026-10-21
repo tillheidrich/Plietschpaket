@@ -3,7 +3,7 @@
 *English version: [README.md](README.md) · Website: [plietschpaket.heidrich-digital.de/de](https://plietschpaket.heidrich-digital.de/de/)*
 
 Plietschpaket ist ein Autorenwerkzeug im Browser für interaktive E-Learning-Kurse. Aus H5P-Inhalten entsteht ein
-Paket für SCORM 1.2, SCORM 2004 oder HTML. Menschen arbeiten in der Oberfläche, KI-Assistenten wie Claude über MCP mit OAuth.
+Paket für SCORM 1.2, SCORM 2004, xAPI, cmi5 oder HTML. Menschen arbeiten in der Oberfläche, KI-Assistenten wie Claude über MCP mit OAuth.
 *Plietsch* ist Plattdeutsch und heißt schlau, aufgeweckt.
 
 ![Projektübersicht](docs/screenshots/projects-de.png)
@@ -15,7 +15,8 @@ Paket für SCORM 1.2, SCORM 2004 oder HTML. Menschen arbeiten in der Oberfläche
 - **Block-Kurse:** Lektionen aus 38 Blocktypen (Text, Medien, Wissensfragen, Zuordnen, Lückentext, Abschlusstest, Diagramme …), Block-Editor mit Live-Vorschau, 8 Player-Designs, eigene Farben, Titelseite, Vertonung je Block. App-Simulation, Rollenspiel und interaktives Video als H5P-Blöcke.
 - **Import:** `.h5p` (z. B. aus Lumi: Datei → Speichern), ZIP mit mehreren `.h5p`, Plietschpaket-Projekt-ZIP, Klick-Übungs-Pakete (`course.json` + Screenshots) → bearbeitbare App-Simulation.
 - **Varianten:** Sprachfassung eines Kurses mit einem Klick (in jede Kurssprache, Oberflächentexte und Medien werden übernommen), danach Texte und Screenshots tauschen.
-- **Export:** SCORM 1.2, SCORM 2004 4th Ed., HTML. Eingebauter LMS-Simulator zeigt, was ein LMS erhalten würde.
+- **Export:** SCORM 1.2, SCORM 2004 4th Ed., xAPI (Tin Can), cmi5, HTML. Eingebauter LMS-Simulator zeigt, was ein LMS erhalten würde.
+- **Review:** Review-Links für Prüfer ohne Konto, Kommentare je Block, Antworten und Erledigt-Status im Editor und über MCP.
 - **Lizenz:** GPL-3.0-or-later (wegen @lumieducation/h5p-server, GPL-3.0).
 
 ## Betrieb mit Docker

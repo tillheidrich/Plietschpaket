@@ -528,3 +528,15 @@ export function blockCatalog(lang = 'de', { withSpec = false } = {}) {
     };
   });
 }
+
+/** Short plain-text summary of a block (review sidebar, MCP comment lists). */
+export function blockSummary(b) {
+  const d = (b && b.data) || {};
+  const first = (arr, key) => (Array.isArray(arr) && arr.length ? (typeof arr[0] === 'string' ? arr[0] : arr[0] && arr[0][key]) : '');
+  const v =
+    d.content || d.question || d.heading || d.title || d.prompt || d.caption || d.name || d.label || d.text ||
+    first(d.items, 'heading') || first(d.items, 'title') || first(d.cards, 'front') || first(d.steps, 'title') || first(d.tabs, 'title') ||
+    first(d.pairs, 'left') || (Array.isArray(d.questions) ? `${d.questions.length} ?` : '') || (Array.isArray(d.rows) && Array.isArray(d.rows[0]) ? d.rows[0].join(' · ') : '') || '';
+  const s = String(v).replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+  return s.length > 90 ? `${s.slice(0, 88)}…` : s;
+}

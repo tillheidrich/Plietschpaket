@@ -8,13 +8,16 @@ import { db } from './db.js';
 import { seedAdmin, sessionMiddleware, purgeExpired } from './auth.js';
 import { createH5P, toH5pUser } from './h5p.js';
 import { contentRole, atLeast } from './access.js';
-import { setH5P, getCourse, courseMediaFile } from './services.js';
+import { setH5P, getCourse, getCourseForReview, courseMediaFile } from './services.js';
+import { resolveReviewToken, reviewComments, addReviewComment } from './review.js';
+import { RateLimit, limitByIp } from './limits.js';
+import { tr } from './i18n.js';
 import { apiRouter, downloadHandler, exportForUser } from './routes/api.js';
 import { oauthRouter, bearerAuth, MCP_PATH } from './oauth.js';
 import { handleMcp } from './mcp.js';
 import { extensionHandler } from './extension.js';
 import { ensurePreview, playerHtml } from './export/scorm.js';
-import { mediaMime, PLAYER_DESIGNS } from './blocks.js';
+import { mediaMime, mediaPath, blockSummary, PLAYER_DESIGNS } from './blocks.js';
 import { previewPage } from './preview.js';
 import { scheduleCleanup } from './cleanup.js';
 import { checkUploadFile } from './sniff.js';
@@ -211,42 +214,112 @@ app.get('/course-media/:courseId/:name', (req, res, next) => {
     if (!req.user) return res.status(401).send('Nicht angemeldet.');
     const file = courseMediaFile(req.user, req.params.courseId, req.params.name);
     if (!file) return res.status(404).send('Nicht gefunden.');
-    const mime = mediaMime(req.params.name);
-    const inline = /^(image|video|audio)\//.test(mime) || mime === 'text/vtt' || mime === 'application/pdf';
     // User files are never executable; PDFs may be framed by our own pages (PDF block).
-    res.set('Content-Security-Policy', mime === 'application/pdf' ? "default-src 'none'; frame-ancestors 'self'" : FILE_CSP);
-    res.set('X-Frame-Options', 'SAMEORIGIN');
-    res.set('Cache-Control', 'private, max-age=300');
-    if (!inline) res.set('Content-Disposition', 'attachment');
-    res.type(mime).sendFile(file);
+    sendMedia(res, file, req.params.name);
   } catch (err) {
     next(err);
   }
 });
+function livePlayer(full, { design: designName, mediaBase }) {
+  const design = { ...full.design };
+  if (PLAYER_DESIGNS.includes(designName)) design.player = designName;
+  const units = Object.fromEntries(full.units.map((u) => [u.id, { title: u.title, library: String(u.library).split(' ')[0], href: null }]));
+  const payload = {
+    title: full.title,
+    description: full.description,
+    language: full.language,
+    packageUuid: full.packageUuid,
+    scormVersion: full.settings.scormVersion,
+    settings: { completion: full.settings.completion, masteryScore: full.settings.masteryScore, navigation: full.settings.navigation },
+    design,
+    blocks: full.blocks,
+    units,
+    mediaBase,
+    preview: true
+  };
+  return playerHtml(full, payload, { assetBase: '/runtime/' });
+}
+function sendMedia(res, file, name) {
+  const mime = mediaMime(name);
+  const inline = /^(image|video|audio)\//.test(mime) || mime === 'text/vtt' || mime === 'application/pdf';
+  res.set('Content-Security-Policy', mime === 'application/pdf' ? "default-src 'none'; frame-ancestors 'self'" : FILE_CSP);
+  res.set('X-Frame-Options', 'SAMEORIGIN');
+  res.set('Cache-Control', 'private, max-age=300');
+  if (!inline) res.set('Content-Disposition', 'attachment');
+  res.type(mime).sendFile(file);
+}
 app.get('/live/:courseId', (req, res, next) => {
   try {
     if (!req.user) return res.redirect(302, `/login?next=${encodeURIComponent(req.originalUrl)}`);
     const full = getCourse(req.user, req.params.courseId);
-    const design = { ...full.design };
-    if (PLAYER_DESIGNS.includes(req.query.design)) design.player = req.query.design;
-    const units = Object.fromEntries(full.units.map((u) => [u.id, { title: u.title, library: String(u.library).split(' ')[0], href: null }]));
-    const payload = {
-      title: full.title,
-      description: full.description,
-      language: full.language,
-      packageUuid: full.packageUuid,
-      scormVersion: full.settings.scormVersion,
-      settings: { completion: full.settings.completion, masteryScore: full.settings.masteryScore, navigation: full.settings.navigation },
-      design,
-      blocks: full.blocks,
-      units,
-      mediaBase: `/course-media/${encodeURIComponent(full.id)}/`,
-      preview: true
-    };
     res.set('Cache-Control', 'no-store');
-    res.send(playerHtml(full, payload, { assetBase: '/runtime/' }));
+    res.send(livePlayer(full, { design: req.query.design, mediaBase: `/course-media/${encodeURIComponent(full.id)}/` }));
   } catch (err) {
     next(err);
+  }
+});
+
+// --------------------------------------------------------------- review links (no account; token in the path)
+const reviewIpLimit = limitByIp(new RateLimit({ windowMs: 60_000, max: 120 }));
+const reviewPostLimit = limitByIp(new RateLimit({ windowMs: 10 * 60_000, max: 40 }), 'Zu viele Kommentare in kurzer Zeit. Bitte kurz warten.');
+const reviewNotFound = (res) => res.status(404).type('text/plain').send('Dieser Review-Link ist ungültig oder abgelaufen.');
+function reviewLink(req, res) {
+  try {
+    return resolveReviewToken(req.params.token);
+  } catch {
+    reviewNotFound(res);
+    return null;
+  }
+}
+app.get('/review/:token', reviewIpLimit, (req, res) => {
+  const link = reviewLink(req, res);
+  if (!link) return;
+  res.set('Cache-Control', 'no-store');
+  res.sendFile(path.join(APP_ROOT, 'public/review.html'));
+});
+app.get('/review/:token/player', reviewIpLimit, (req, res, next) => {
+  const link = reviewLink(req, res);
+  if (!link) return;
+  try {
+    const full = getCourseForReview(link.course_id);
+    res.set('Cache-Control', 'no-store');
+    res.send(livePlayer(full, { mediaBase: `/review/${encodeURIComponent(req.params.token)}/media/` }));
+  } catch (err) {
+    next(err);
+  }
+});
+app.get('/review/:token/media/:name', reviewIpLimit, (req, res) => {
+  const link = reviewLink(req, res);
+  if (!link) return;
+  const file = mediaPath(link.course_id, req.params.name);
+  if (!file) return res.status(404).send('Nicht gefunden.');
+  sendMedia(res, file, req.params.name);
+});
+app.get('/review-api/:token', reviewIpLimit, (req, res, next) => {
+  const link = reviewLink(req, res);
+  if (!link) return;
+  try {
+    const full = getCourseForReview(link.course_id);
+    res.set('Cache-Control', 'no-store');
+    res.json({
+      course: { title: full.title, language: full.language, ui: ['de', 'en'].includes(full.language) ? full.language : 'en' },
+      link: { label: link.label, expiresAt: link.expires_at },
+      blocks: full.blocks.map((b) => ({ id: b.id, type: b.type, summary: blockSummary(b) })),
+      comments: reviewComments(link)
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+app.post('/review-api/:token/comments', reviewPostLimit, express.json({ limit: '16kb' }), (req, res) => {
+  const link = reviewLink(req, res);
+  if (!link) return;
+  try {
+    const c = addReviewComment(link, { name: req.body?.name, body: req.body?.body, blockId: req.body?.blockId, parentId: req.body?.parentId });
+    res.status(201).json(c);
+  } catch (err) {
+    const lang = /^de/i.test(req.get('accept-language') || '') ? 'de' : 'en';
+    res.status(err.status || 500).json({ error: err.status ? tr(err.message, lang) : 'Error' });
   }
 });
 

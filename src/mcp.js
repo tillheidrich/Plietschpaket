@@ -17,8 +17,9 @@ import { toH5pUser } from './h5p.js';
 import { AUTHORING_GUIDE } from './guide.js';
 import { jobGate } from './limits.js';
 import { kindMatches } from './sniff.js';
-import { blockCatalog, PLAYER_DESIGNS, THEME_PRESETS, FONTS } from './blocks.js';
+import { blockCatalog, blockSummary, PLAYER_DESIGNS, THEME_PRESETS, FONTS } from './blocks.js';
 import { listLanguages } from './languages.js';
+import * as reviewSvc from './review.js';
 
 const VERSION = '0.1.0';
 
@@ -491,6 +492,58 @@ export function buildMcpServer(user) {
     wrap(async ({ course_id }) => ok(svc.courseMedia(user, course_id).map((m) => ({ ...m, ref: `media:${m.name}` }))))
   );
 
+  // ---------------------------------------------------------------- review
+  server.registerTool(
+    'create_review_link',
+    {
+      title: 'Review-Link erzeugen',
+      description: 'Erzeugt einen Link, mit dem Personen ohne Konto einen Block-Kurs ansehen und Blöcke kommentieren können. days: Gültigkeit (1–365, Standard 30). Der Link wird nur jetzt angezeigt.',
+      inputSchema: { course_id: z.string(), label: z.string().max(80).optional(), days: z.number().int().min(1).max(365).optional() },
+      annotations: rw
+    },
+    wrap(async ({ course_id, label, days }) => {
+      const link = reviewSvc.createReviewLink(user, course_id, { label, days }, via);
+      return ok({ id: link.id, label: link.label, expiresAt: link.expiresAt, url: appLink(`/review/${link.token}`) }, 'Review-Link erstellt. Bitte an die Prüfer weitergeben.');
+    })
+  );
+
+  server.registerTool(
+    'list_review_comments',
+    {
+      title: 'Review-Kommentare lesen',
+      description: 'Kommentare zu einem Block-Kurs mit Block-ID, Blocktyp und Kurzinhalt des Blocks, Autor, Status (open/resolved) und Antworten. status filtert.',
+      inputSchema: { course_id: z.string(), status: z.enum(['open', 'resolved']).optional() },
+      annotations: ro
+    },
+    wrap(async ({ course_id, status }) => {
+      const course = svc.getCourse(user, course_id);
+      const byId = Object.fromEntries(course.blocks.map((b, i) => [b.id, { index: i, type: b.type, summary: blockSummary(b) }]));
+      return ok(reviewSvc.courseComments(user, course_id, { status }).map((c) => ({ ...c, block: c.blockId ? byId[c.blockId] || null : null })));
+    })
+  );
+
+  server.registerTool(
+    'reply_review_comment',
+    {
+      title: 'Auf Kommentar antworten',
+      description: 'Antwortet im Namen des angemeldeten Nutzers auf einen Review-Kommentar (öffnet ihn wieder, falls erledigt). Ohne parent_id: neuer Kommentar, optional zu block_id.',
+      inputSchema: { course_id: z.string(), body: z.string().min(1).max(2000), parent_id: z.string().optional(), block_id: z.string().optional() },
+      annotations: rw
+    },
+    wrap(async ({ course_id, body, parent_id, block_id }) => ok(reviewSvc.addTeamComment(user, course_id, { body, parentId: parent_id, blockId: block_id }, via)))
+  );
+
+  server.registerTool(
+    'resolve_review_comment',
+    {
+      title: 'Kommentar erledigen',
+      description: 'Setzt einen Review-Kommentar auf resolved (oder mit status open wieder auf offen). Erst erledigen, wenn die Änderung im Kurs gemacht ist.',
+      inputSchema: { course_id: z.string(), comment_id: z.string(), status: z.enum(['open', 'resolved']).optional() },
+      annotations: rw
+    },
+    wrap(async ({ course_id, comment_id, status }) => ok(reviewSvc.setCommentStatus(user, course_id, comment_id, status || 'resolved', via)))
+  );
+
   server.registerTool(
     'export_course',
     {
@@ -498,7 +551,7 @@ export function buildMcpServer(user) {
       description: `Erzeugt ein Paket und liefert einen Download-Link (1 h gültig). Formate: ${Object.entries(FORMATS)
         .map(([k, v]) => `${k} (${v.label})`)
         .join(', ')}. Ohne format wird die SCORM-Version aus den Kurseinstellungen genommen.`,
-      inputSchema: { course_id: z.string(), format: z.enum(['scorm12', 'scorm2004', 'html']).optional() },
+      inputSchema: { course_id: z.string(), format: z.enum(['scorm12', 'scorm2004', 'html', 'xapi', 'cmi5']).optional() },
       annotations: rw
     },
     wrap(async ({ course_id, format }) => {

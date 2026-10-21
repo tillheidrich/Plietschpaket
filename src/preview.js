@@ -13,14 +13,15 @@ const esc = (s) =>
  * SCORM API via scorm-again, showing every value the package sends to the LMS.
  */
 const TEXT = {
-  de: { title: 'LMS-Vorschau', back: '← Zurück zum Kurs', html: 'HTML-Export ohne LMS', version: 'Version', resume: 'Abbrechen &amp; fortsetzen', restart: 'Neu starten', download: 'Paket herunterladen', frame: 'Kursvorschau', lms: 'Das bekäme das LMS', of: 'von', chars: 'Zeichen', log: 'Aufrufprotokoll', notes: 'Hinweise zum Paket', locale: 'de-DE' },
-  en: { title: 'LMS preview', back: '← Back to course', html: 'HTML export without LMS', version: 'Version', resume: 'Abort &amp; resume', restart: 'Restart', download: 'Download package', frame: 'Course preview', lms: 'What the LMS receives', of: 'of', chars: 'characters', log: 'Call log', notes: 'Package notes', locale: 'en-GB' }
+  de: { title: 'LMS-Vorschau', back: '← Zurück zum Kurs', html: 'HTML-Export ohne LMS', version: 'Version', resume: 'Abbrechen &amp; fortsetzen', restart: 'Neu starten', download: 'Paket herunterladen', frame: 'Kursvorschau', lms: 'Das bekäme das LMS', of: 'von', chars: 'Zeichen', xapi: 'Werte, aus denen die Statements entstehen', log: 'Aufrufprotokoll', notes: 'Hinweise zum Paket', locale: 'de-DE' },
+  en: { title: 'LMS preview', back: '← Back to course', html: 'HTML export without LMS', version: 'Version', resume: 'Abort &amp; resume', restart: 'Restart', download: 'Download package', frame: 'Course preview', lms: 'What the LMS receives', of: 'of', chars: 'characters', xapi: 'values the statements are built from', log: 'Call log', notes: 'Package notes', locale: 'en-GB' }
 };
 
 export function previewPage(row, lang = 'de') {
   const T = TEXT[lang] || TEXT.de;
   const report = parseJson(row.report, {});
-  const is2004 = row.format === 'scorm2004';
+  const isX = row.format === 'xapi' || row.format === 'cmi5';
+  const is2004 = row.format === 'scorm2004' || isX;
   const isHtml = row.format === 'html';
   const lib = is2004 ? 'scorm2004.min.js' : 'scorm12.min.js';
   const keys = is2004
@@ -39,7 +40,7 @@ export function previewPage(row, lang = 'de') {
   <a class="btn ghost" href="/courses/${esc(row.course_id)}">${T.back}</a>
   <div class="preview-title">
     <strong>${T.title}</strong>
-    <span class="muted">${esc(isHtml ? T.html : is2004 ? 'SCORM 2004 (4th Ed.)' : 'SCORM 1.2')} · ${T.version} ${esc(row.version)}</span>
+    <span class="muted">${esc(isHtml ? T.html : isX ? `${row.format === 'cmi5' ? 'cmi5' : 'xAPI'} · ${T.xapi}` : is2004 ? 'SCORM 2004 (4th Ed.)' : 'SCORM 1.2')} · ${T.version} ${esc(row.version)}</span>
   </div>
   ${isHtml ? '' : `<button class="btn" id="pv-resume" type="button">${T.resume}</button><button class="btn ghost" id="pv-reset" type="button">${T.restart}</button>`}
   <a class="btn primary" href="/api/exports/${esc(row.id)}/download">${T.download}</a>

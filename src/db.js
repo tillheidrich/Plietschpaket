@@ -163,6 +163,35 @@ const migrations = [
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+  `,
+  // 6: review links (token hashed) and review comments on blocks
+  `
+  CREATE TABLE review_links (
+    id TEXT PRIMARY KEY,
+    course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    label TEXT NOT NULL DEFAULT '',
+    token_hash TEXT NOT NULL UNIQUE,
+    created_by TEXT REFERENCES users(id) ON DELETE SET NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    expires_at TEXT,
+    revoked INTEGER NOT NULL DEFAULT 0
+  );
+  CREATE INDEX review_links_course ON review_links(course_id);
+  CREATE TABLE review_comments (
+    id TEXT PRIMARY KEY,
+    course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    link_id TEXT REFERENCES review_links(id) ON DELETE SET NULL,
+    block_id TEXT,
+    parent_id TEXT REFERENCES review_comments(id) ON DELETE CASCADE,
+    author_name TEXT NOT NULL,
+    author_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    body TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'open',
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    resolved_at TEXT,
+    resolved_by TEXT
+  );
+  CREATE INDEX review_comments_course ON review_comments(course_id, created_at);
   `
 ];
 

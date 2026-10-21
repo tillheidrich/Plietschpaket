@@ -203,6 +203,19 @@ function courseSummary(c) {
 
 export function getCourse(user, courseId) {
   const { course, role, project } = assertCourse(user, courseId);
+  return fullCourse(course, project, role);
+}
+
+/** Full course for a valid review link (the caller has checked the token; no user involved). */
+export function getCourseForReview(courseId) {
+  const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(courseId);
+  if (!course) throw Object.assign(new Error('Nicht gefunden.'), { status: 404 });
+  const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(course.project_id);
+  return fullCourse(course, project, 'reviewer');
+}
+
+function fullCourse(course, project, role) {
+  const courseId = course.id;
   const units = db.prepare('SELECT * FROM units WHERE course_id = ? ORDER BY position, created_at').all(courseId);
   const exportsList = db
     .prepare('SELECT id, format, version, size, created_at, report FROM exports WHERE course_id = ? ORDER BY created_at DESC LIMIT 10')

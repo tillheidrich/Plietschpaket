@@ -33,7 +33,7 @@ def ticker(items):
 
 EN = {
     "title": "Plietschpaket · Software training people actually click through",
-    "description": "Self-hosted authoring tool for interactive e-learning. Product video plus hands-on app simulation, exported as SCORM 1.2, SCORM 2004 or HTML. Claude can build the courses over MCP.",
+    "description": "Self-hosted authoring tool for interactive e-learning. Product video plus hands-on app simulation, exported as SCORM 1.2, SCORM 2004, xAPI, cmi5 or HTML. Claude can build the courses over MCP.",
     "skip": "Skip to content", "nav_label": "Main", "menu": "Menu",
     "nav_how": "How it works", "nav_features": "Features", "nav_host": "Self-hosting",
     "eyebrow": "Low German for “the clever package”",
@@ -58,7 +58,7 @@ EN = {
     "s2_l1": "Tap tasks, notes, info steps and explore steps with hover hints", "s2_l2": "Phone, tablet or desktop frame", "s2_l3": "Resume where they left off, keyboard alternative included",
     "s2_alt": "App simulation running in the LMS preview",
     "s3_h": "Report to the LMS",
-    "s3_p": "Export SCORM 1.2, SCORM 2004 or plain HTML. Before you upload anything, the built-in LMS simulator shows exactly which values the package will send: status, score, bookmark, suspend data.",
+    "s3_p": "Export SCORM 1.2, SCORM 2004, xAPI, cmi5 or plain HTML. Before you upload anything, the built-in LMS simulator shows exactly which values the package will send: status, score, bookmark, suspend data.",
     "s3_l1": "Completion rules and pass mark per course", "s3_l2": "One SCO, so every LMS handles it the same way", "s3_l3": "Version numbers on every export",
     "lms_title": "What the LMS receives",
     "feat_eyebrow": "Everything else", "feat_h2": "Built for the people who make the training",
@@ -103,7 +103,7 @@ EN = {
 DE = dict(EN)
 DE.update({
     "title": "Plietschpaket · Softwareschulungen, die man selbst durchklickt",
-    "description": "Selbst gehostetes Autorenwerkzeug für interaktives E-Learning. Produktvideo und App-Simulation zum Mitmachen, exportiert als SCORM 1.2, SCORM 2004 oder HTML. Claude baut die Kurse auf Wunsch über MCP.",
+    "description": "Selbst gehostetes Autorenwerkzeug für interaktives E-Learning. Produktvideo und App-Simulation zum Mitmachen, exportiert als SCORM 1.2, SCORM 2004, xAPI, cmi5 oder HTML. Claude baut die Kurse auf Wunsch über MCP.",
     "skip": "Zum Inhalt", "nav_label": "Hauptmenü", "menu": "Menü",
     "nav_how": "So geht's", "nav_features": "Funktionen", "nav_host": "Selbst betreiben",
     "eyebrow": "Plattdeutsch für „das schlaue Paket“",
@@ -128,7 +128,7 @@ DE.update({
     "s2_l1": "Aufgaben, Hinweise, Info- und Erkunden-Schritte", "s2_l2": "Rahmen für Telefon, Tablet oder Desktop", "s2_l3": "Fortsetzen nach Unterbrechung, Tastatur-Alternative inklusive",
     "s2_alt": "App-Simulation in der LMS-Vorschau",
     "s3_h": "Ans LMS melden",
-    "s3_p": "Export als SCORM 1.2, SCORM 2004 oder einfaches HTML. Noch vor dem Hochladen zeigt der eingebaute LMS-Simulator, welche Werte das Paket sendet: Status, Punkte, Lesezeichen, Fortschritt.",
+    "s3_p": "Export als SCORM 1.2, SCORM 2004, xAPI, cmi5 oder einfaches HTML. Noch vor dem Hochladen zeigt der eingebaute LMS-Simulator, welche Werte das Paket sendet: Status, Punkte, Lesezeichen, Fortschritt.",
     "s3_l1": "Abschlussregel und Bestehensgrenze je Kurs", "s3_l2": "Ein SCO, damit jedes LMS gleich damit umgeht", "s3_l3": "Versionsnummer an jedem Export",
     "lms_title": "Das bekäme das LMS",
     "feat_eyebrow": "Alles andere", "feat_h2": "Gebaut für die Leute, die Schulungen machen",

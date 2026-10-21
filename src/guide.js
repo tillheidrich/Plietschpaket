@@ -158,7 +158,8 @@ Ein Block-Kurs ist eine flache Liste von Blöcken. Jeder Block "title" beginnt e
 3. Ersten Entwurf mit save_blocks schicken, danach gezielt mit insert_blocks, update_block, move_block, delete_blocks ändern.
 4. Bilder und PDFs mit upload_course_media hochladen und "media:<datei>" in die Felder setzen. Bilder brauchen alt-Text.
 5. set_course_design: Player-Design, Farbschema (preset), Schrift, Titelbild (cover), Logo, Abschlussmeldung.
-6. Live-Vorschau: liveUrl aus get_blocks an den Menschen geben. Export wie gewohnt mit export_course.
+6. Live-Vorschau: liveUrl aus get_blocks an den Menschen geben. Export wie gewohnt mit export_course (scorm12, scorm2004, xapi, cmi5, html).
+7. Fachliche Abnahme: create_review_link erzeugen und weitergeben. Rückmeldungen mit list_review_comments lesen, im Kurs umsetzen, mit reply_review_comment kurz antworten und mit resolve_review_comment erledigen.
 
 Bewertung: Blöcke mit graded=true (quiz, matching, sorting, fillBlanks, bucketSort, assessment) und bewertete H5P-Einheiten ergeben die Gesamtnote; masteryScore gilt wie bei Einheiten-Kursen. Gibt es keinen bewerteten Block, ist der Kurs abgeschlossen, sobald alle Lektionen gesehen sind.
 H5P-Einheiten (App-Simulation, Szenario, interaktives Video) erst mit create_unit im selben Kurs anlegen und dann als Block {"type":"h5p","data":{"unitId":"u_…"}} einbetten.

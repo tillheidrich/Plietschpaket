@@ -25,6 +25,7 @@ import { importFile, exportProjectZip } from '../projectio.js';
 import { listConnections, revokeConnection } from '../oauth.js';
 import { listApiTokens, createApiToken, revokeApiToken } from '../apitokens.js';
 import { tr, requestLanguage, UI_LANGUAGES } from '../i18n.js';
+import { createReviewLink, listReviewLinks, revokeReviewLink, courseComments, addTeamComment, setCommentStatus, deleteComment } from '../review.js';
 import { listLanguages, saveLanguage, deleteLanguage, PLAYER_LABEL_KEYS, SHELL_LABEL_KEYS } from '../languages.js';
 import { PLAYER, SHELL } from '../export/labels.js';
 import { RateLimit, limitByIp, jobGate } from '../limits.js';
@@ -336,6 +337,23 @@ export function apiRouter() {
   r.delete('/courses/:id/blocks/:blockId', (req, res) => res.json(svc.deleteBlocks(req.user, req.params.id, [req.params.blockId])));
   r.post('/courses/:id/blocks/:blockId/move', (req, res) => res.json(svc.moveBlock(req.user, req.params.id, req.params.blockId, req.body)));
   r.put('/courses/:id/design', (req, res) => res.json(svc.setDesign(req.user, req.params.id, req.body || {})));
+  // review links and comments
+  r.get('/courses/:id/review-links', (req, res) => res.json(listReviewLinks(req.user, req.params.id)));
+  r.post('/courses/:id/review-links', (req, res) => {
+    const link = createReviewLink(req.user, req.params.id, req.body || {});
+    res.status(201).json({ ...link, url: `${config.publicUrl}/review/${link.token}` });
+  });
+  r.delete('/courses/:id/review-links/:linkId', (req, res) => {
+    revokeReviewLink(req.user, req.params.id, req.params.linkId);
+    res.json({ ok: true });
+  });
+  r.get('/courses/:id/comments', (req, res) => res.json(courseComments(req.user, req.params.id, { status: req.query.status })));
+  r.post('/courses/:id/comments', (req, res) => res.status(201).json(addTeamComment(req.user, req.params.id, req.body || {})));
+  r.patch('/courses/:id/comments/:cid', (req, res) => res.json(setCommentStatus(req.user, req.params.id, req.params.cid, req.body?.status)));
+  r.delete('/courses/:id/comments/:cid', (req, res) => {
+    deleteComment(req.user, req.params.id, req.params.cid);
+    res.json({ ok: true });
+  });
   r.get('/courses/:id/media', (req, res) => res.json(svc.courseMedia(req.user, req.params.id)));
   r.post(
     '/courses/:id/media',

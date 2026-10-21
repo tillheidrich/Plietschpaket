@@ -365,3 +365,4 @@ a.row:hover .row-chev { color: var(--seal); transform: translateX(3px); }
 .lang-texts[open] { max-height: 52vh; overflow: auto; }
 .lang-texts h3 { margin-top: 6px; color: var(--ink-2); }
 .dialog-body .form-grid.two { align-items: start; }
+.segmented { flex-wrap: wrap; }

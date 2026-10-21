@@ -21,8 +21,53 @@ const FONT_FILE = path.join(here, '..', '..', 'public', 'assets', 'fonts', 'Geis
 export const FORMATS = {
   scorm12: { label: 'SCORM 1.2', ext: 'zip' },
   scorm2004: { label: 'SCORM 2004 (4th Ed.)', ext: 'zip' },
-  html: { label: 'HTML (ohne LMS)', ext: 'zip' }
+  html: { label: 'HTML (ohne LMS)', ext: 'zip' },
+  xapi: { label: 'xAPI (Tin Can)', ext: 'zip' },
+  cmi5: { label: 'cmi5', ext: 'zip' }
 };
+const XAPI_FORMATS = new Set(['xapi', 'cmi5']);
+
+/** Stable activity IRI of a course (same across versions and languages of one package id). */
+export const activityIri = (course) => `${config.publicUrl.replace(/\/$/, '')}/xapi/activities/PP-${course.package_uuid}`;
+
+function xapiScript(payload, base = 'runtime/') {
+  return payload.xapi ? `<script>window.PP_XAPI = ${jsonForScript(payload.xapi)};</script>\n<script src="${base}xapi.js"></script>\n` : '';
+}
+
+function tincanXml(course) {
+  const lang = esc(course.language);
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<tincan xmlns="http://projecttincan.com/tincan.xsd">
+  <activities>
+    <activity id="${esc(activityIri(course))}" type="http://adlnet.gov/expapi/activities/course">
+      <name lang="${lang}">${esc(course.title)}</name>
+      <description lang="${lang}">${esc(course.description || course.title)}</description>
+      <launch lang="${lang}">index.html</launch>
+    </activity>
+  </activities>
+</tincan>
+`;
+}
+
+function cmi5Xml(course, scoredAny, settings) {
+  const lang = esc(course.language);
+  const iri = activityIri(course);
+  const scored = scoredAny && settings.completion === 'all';
+  const mastery = scored ? ` masteryScore="${Math.round(settings.masteryScore) / 100}"` : '';
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<courseStructure xmlns="https://w3id.org/xapi/profiles/cmi5/v1/CourseStructure.xsd">
+  <course id="${esc(iri)}/course">
+    <title><langstring lang="${lang}">${esc(course.title)}</langstring></title>
+    <description><langstring lang="${lang}">${esc(course.description || course.title)}</langstring></description>
+  </course>
+  <au id="${esc(iri)}" moveOn="${scored ? 'CompletedAndPassed' : 'Completed'}"${mastery} launchMethod="AnyWindow">
+    <title><langstring lang="${lang}">${esc(course.title)}</langstring></title>
+    <description><langstring lang="${lang}">${esc(course.description || course.title)}</langstring></description>
+    <url>index.html</url>
+  </au>
+</courseStructure>
+`;
+}
 
 /** Libraries that report a score themselves. */
 const SCORED = new Set([
@@ -126,7 +171,7 @@ ${vars.length ? `<style>:root{${vars.join(';')}}</style>` : ''}
   <button type="button" class="ss-nav is-primary" id="ss-next">${esc(labels.next)}</button>
 </footer>
 <script>window.SS_COURSE = ${jsonForScript(payload)};</script>
-<script src="runtime/shell.js"></script>
+${xapiScript(payload)}<script src="runtime/shell.js"></script>
 </body>
 </html>`;
 }
@@ -147,7 +192,7 @@ export function playerHtml(course, payload, { assetBase = 'runtime/' } = {}) {
 <div id="pp-app"></div>
 <noscript>JavaScript is required.</noscript>
 <script>window.PP_COURSE = ${jsonForScript(payload)};</script>
-<script src="${assetBase}blocks.js"></script>
+${xapiScript(payload, assetBase)}<script src="${assetBase}blocks.js"></script>
 <script src="${assetBase}player.js"></script>
 </body>
 </html>`;
@@ -304,7 +349,7 @@ export async function buildPackage(user, courseId, format) {
     unitsPayload.push({ id: unit.id, title: unit.title, href: `units/${folder}/index.html`, weight: unit.weight, scored, finish, library: String(unit.library).split(' ')[0] });
   }
 
-  const scormVersion = format === 'scorm2004' ? '2004' : '1.2';
+  const scormVersion = format === 'scorm2004' || XAPI_FORMATS.has(format) ? '2004' : '1.2';
   if (blockMode) return finishBlockPackage({ dir, course, full, settings, unitsPayload, format, scormVersion, warnings });
 
   const scoredAny = unitsPayload.some((u) => u.scored);
@@ -326,11 +371,13 @@ export async function buildPackage(user, courseId, format) {
     scormVersion,
     settings: { completion: settings.completion, masteryScore: settings.masteryScore, navigation: settings.navigation, showUnitList: settings.showUnitList },
     units: unitsPayload,
-    labels
+    labels,
+    ...(XAPI_FORMATS.has(format) ? { xapi: xapiConfig(course, format, scoredAny, settings) } : {})
   };
   await fs.promises.writeFile(path.join(dir, 'index.html'), shellHtml(course, project, payload, labels));
+  await writeXapiFiles(dir, course, format, scoredAny, settings);
 
-  if (format !== 'html') {
+  if (format === 'scorm12' || format === 'scorm2004') {
     const schemaSrc = path.join(SCHEMA_DIR, format === 'scorm2004' ? 'scorm2004' : 'scorm12');
     for (const f of fs.readdirSync(schemaSrc)) await fs.promises.copyFile(path.join(schemaSrc, f), path.join(dir, f));
   }
@@ -346,14 +393,32 @@ export async function buildPackage(user, courseId, format) {
       language: course.language,
       units: unitsPayload.length,
       scoredUnits: unitsPayload.filter((u) => u.scored).length,
-      files: files.length + (format === 'html' ? 0 : 1),
+      files: files.length + (format === 'scorm12' || format === 'scorm2004' ? 1 : 0),
       completion: settings.completion,
       masteryScore: settings.masteryScore,
-      scormVersion: format === 'html' ? null : scormVersion,
+      scormVersion: format === 'scorm12' || format === 'scorm2004' ? scormVersion : null,
+      ...(XAPI_FORMATS.has(format) ? { activityId: activityIri(course) } : {}),
       packageId: `PP-${course.package_uuid}`,
       warnings
     }
   };
+}
+
+function xapiConfig(course, format, scoredAny, settings) {
+  return {
+    mode: format,
+    activityId: activityIri(course),
+    title: course.title,
+    language: course.language,
+    masteryScore: scoredAny && settings.completion === 'all' ? settings.masteryScore / 100 : null
+  };
+}
+
+async function writeXapiFiles(dir, course, format, scoredAny, settings) {
+  if (!XAPI_FORMATS.has(format)) return;
+  await fs.promises.copyFile(path.join(RUNTIME_DIR, 'xapi.js'), path.join(dir, 'runtime', 'xapi.js'));
+  if (format === 'xapi') await fs.promises.writeFile(path.join(dir, 'tincan.xml'), tincanXml(course));
+  else await fs.promises.writeFile(path.join(dir, 'cmi5.xml'), cmi5Xml(course, scoredAny, settings));
 }
 
 const GRADED_BLOCKS = new Set(['quiz', 'matching', 'sorting', 'fillBlanks', 'bucketSort', 'assessment']);
@@ -392,10 +457,12 @@ async function finishBlockPackage({ dir, course, full, settings, unitsPayload, f
     design: full.design,
     blocks: full.blocks,
     units,
-    mediaBase: 'media/'
+    mediaBase: 'media/',
+    ...(XAPI_FORMATS.has(format) ? { xapi: xapiConfig(course, format, scoredAny, settings) } : {})
   };
   await fs.promises.writeFile(path.join(dir, 'index.html'), playerHtml(course, payload));
-  if (format !== 'html') {
+  await writeXapiFiles(dir, course, format, scoredAny, settings);
+  if (format === 'scorm12' || format === 'scorm2004') {
     const schemaSrc = path.join(SCHEMA_DIR, format === 'scorm2004' ? 'scorm2004' : 'scorm12');
     for (const f of fs.readdirSync(schemaSrc)) await fs.promises.copyFile(path.join(schemaSrc, f), path.join(dir, f));
   }
@@ -416,10 +483,11 @@ async function finishBlockPackage({ dir, course, full, settings, unitsPayload, f
       scoredUnits: scoredUnits + gradedBlocks,
       gradedBlocks,
       media: media.length,
-      files: files.length + (format === 'html' ? 0 : 1),
+      files: files.length + (format === 'scorm12' || format === 'scorm2004' ? 1 : 0),
       completion: settings.completion,
       masteryScore: settings.masteryScore,
-      scormVersion: format === 'html' ? null : scormVersion,
+      scormVersion: format === 'scorm12' || format === 'scorm2004' ? scormVersion : null,
+      ...(XAPI_FORMATS.has(format) ? { activityId: activityIri(course) } : {}),
       packageId: `PP-${course.package_uuid}`,
       warnings
     }
