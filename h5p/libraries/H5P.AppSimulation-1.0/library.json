@@ -1,0 +1,40 @@
+{
+  "title": "App Simulation",
+  "description": "Step-by-step software simulation on screenshots: learners tap the right spot, explore hints and finish with a completion screen.",
+  "machineName": "H5P.AppSimulation",
+  "majorVersion": 1,
+  "minorVersion": 0,
+  "patchVersion": 6,
+  "runnable": 1,
+  "author": "Heidrich Digital",
+  "license": "MIT",
+  "coreApi": {
+    "majorVersion": 1,
+    "minorVersion": 24
+  },
+  "embedTypes": [
+    "iframe"
+  ],
+  "fullscreen": 0,
+  "metadataSettings": {
+    "disable": 0,
+    "disableExtraTitleField": 1
+  },
+  "preloadedJs": [
+    {
+      "path": "scripts/appsim.js"
+    }
+  ],
+  "preloadedCss": [
+    {
+      "path": "styles/appsim.css"
+    }
+  ],
+  "editorDependencies": [
+    {
+      "machineName": "H5PEditor.AppSimArea",
+      "majorVersion": 1,
+      "minorVersion": 0
+    }
+  ]
+}

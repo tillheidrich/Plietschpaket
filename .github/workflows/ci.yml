@@ -1,0 +1,37 @@
+# Install from lockfile, dependency audit, secret scan, integration tests.
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # actions pinned to commit SHAs (A03)
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: node scripts/build-vendor.mjs
+      - name: Dependency audit (high/critical in shipped code blocks, documented exceptions in SECURITY.md)
+        run: npm audit --omit=dev --audit-level=critical
+      - name: Secret scan
+        run: |
+          curl -sSL -o gl.tgz https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_linux_x64.tar.gz
+          echo "$(sha256sum gl.tgz)"
+          tar xzf gl.tgz gitleaks && ./gitleaks git . --no-banner --redact
+      - name: Integration tests against a real instance (SQLite)
+        env:
+          DATA_DIR: /tmp/ci-data
+          PORT: 8099
+          PUBLIC_URL: http://localhost:8099
+          ADMIN_EMAIL: admin@example.com
+          ADMIN_PASSWORD: ci-admin-password-123
+        run: |
+          node src/server.js > /tmp/server.log 2>&1 &
+          for i in $(seq 1 60); do curl -fs localhost:8099/healthz && break; sleep 1; done
+          BASE=http://localhost:8099 EMAIL=admin@example.com PASSWORD=ci-admin-password-123 node test/smoke.mjs
+          BASE=http://localhost:8099 EMAIL=admin@example.com PASSWORD=ci-admin-password-123 node test/security.mjs
+          BASE=http://localhost:8099 EMAIL=admin@example.com PASSWORD=ci-admin-password-123 node test/appsim.mjs

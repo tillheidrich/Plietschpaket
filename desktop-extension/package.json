@@ -1,0 +1,14 @@
+{
+  "name": "plietschpaket-desktop-bridge",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Lokale stdio-MCP-Br\u00fccke von Claude Desktop zu Plietschpaket",
+  "license": "GPL-3.0-or-later",
+  "bin": {
+    "plietschpaket-bridge": "server/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

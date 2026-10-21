@@ -1,0 +1,9 @@
+node_modules
+data
+.git
+test
+docs
+business_logic
+public/vendor
+public/assets/fonts
+*.log

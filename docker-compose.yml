@@ -1,0 +1,28 @@
+# Minimal setup for IT departments. Put a TLS reverse proxy (Traefik, nginx, Caddy …) in front.
+# Secrets come from a .env file next to this file (not committed), e.g.:
+#   ADMIN_PASSWORD=<at least 10 characters>
+#   APP_SECRET=<openssl rand -hex 32>
+services:
+  plietschpaket:
+    image: ${PLIETSCHPAKET_IMAGE:-plietschpaket:latest}
+    build: .
+    restart: unless-stopped
+    ports:
+      # Only reachable from the host itself – the reverse proxy on the same host forwards to it.
+      # If the proxy runs elsewhere, bind to the internal interface instead of 0.0.0.0.
+      - "127.0.0.1:8080:8080"
+    environment:
+      PUBLIC_URL: "https://kurse.example.com"   # external URL incl. https, no trailing slash (required)
+      ADMIN_EMAIL: "admin@example.com"          # first admin, only used while no account exists
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?ADMIN_PASSWORD in .env setzen}"
+      APP_SECRET: "${APP_SECRET:?APP_SECRET in .env setzen}"
+      TRUST_PROXY: "1"                          # number of reverse proxies in front (for client IPs / rate limits)
+      UI_LANGUAGE: "de"                         # default H5P editor language (de|en)
+      LIBRARY_INSTALL: "admin"                  # who may install NEW H5P content types (contain JavaScript!): admin | all
+      ALLOW_HUB: "false"                        # true = allow downloading content types from the H5P Hub
+      MAX_UPLOAD_MB: "512"
+      # OAUTH_REDIRECT_HOSTS: "claude.ai,claude.com"   # allowed OAuth callback hosts (plus localhost)
+    volumes:
+      - plietschpaket-data:/data
+volumes:
+  plietschpaket-data:

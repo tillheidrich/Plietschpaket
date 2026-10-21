@@ -1,0 +1,311 @@
+{
+  "semantics": [
+    {
+      "label": "Startbildschirm",
+      "fields": [
+        {
+          "label": "Kennzeichnung über dem Titel",
+          "description": "Kurzes Etikett, z. B. Produkt und „Training“.",
+          "default": "Training"
+        },
+        {
+          "label": "Untertitel",
+          "description": "z. B. Plattform und Sprache: „iOS · Deutsch“."
+        },
+        {
+          "label": "Einleitung",
+          "description": "Ein bis zwei Sätze: Was kann die lernende Person danach?"
+        },
+        {
+          "label": "Logo",
+          "description": "Wird in der Seitenleiste gezeigt (PNG/JPG, hell auf dunklem Grund)."
+        }
+      ]
+    },
+    {
+      "label": "Kapitel",
+      "entity": "Kapitel",
+      "field": {
+        "label": "Kapitel",
+        "fields": [
+          {
+            "label": "Kapiteltitel"
+          },
+          {
+            "label": "Schritte",
+            "entity": "Schritt",
+            "field": {
+              "label": "Schritt",
+              "fields": [
+                {
+                  "label": "Anweisung",
+                  "description": "Kurz und aktiv, z. B. „Einstellungen öffnen“."
+                },
+                {
+                  "label": "Detail",
+                  "description": "Optionale zweite Zeile, z. B. „Tippe auf das Zahnrad.“"
+                },
+                {
+                  "label": "Art des Schritts",
+                  "options": [
+                    {
+                      "label": "Aufgabe: richtige Stelle antippen"
+                    },
+                    {
+                      "label": "Info: Bereich hervorheben, weiter mit „Weiter“"
+                    },
+                    {
+                      "label": "Hinweis: wichtige Anmerkung, weiter mit „Weiter“"
+                    },
+                    {
+                      "label": "Erkunden: mehrere Hinweise auf dem Bildschirm, weiter mit „Weiter“"
+                    }
+                  ]
+                },
+                {
+                  "label": "Screenshot",
+                  "description": "Leer lassen, um den Screenshot des vorherigen Schritts zu verwenden."
+                },
+                {
+                  "label": "Bereich auf dem Screenshot",
+                  "description": "Rechteck auf dem Screenshot aufziehen. Bei Aufgaben muss hier getippt werden, bei Info-Schritten wird der Bereich hervorgehoben.",
+                  "fields": [
+                    {
+                      "label": "Form",
+                      "options": [
+                        {
+                          "label": "Rechteck"
+                        },
+                        {
+                          "label": "Kreis/Ellipse"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Links (0–1)"
+                    },
+                    {
+                      "label": "Oben (0–1)"
+                    },
+                    {
+                      "label": "Breite (0–1)"
+                    },
+                    {
+                      "label": "Höhe (0–1)"
+                    }
+                  ]
+                },
+                {
+                  "label": "Hinweise auf dem Bildschirm (Erkunden-Schritte)",
+                  "description": "Jeder Hinweis ist ein markierter Bereich; beim Darüberfahren oder Antippen erscheint der Text.",
+                  "entity": "Hinweis",
+                  "field": {
+                    "label": "Hinweis",
+                    "fields": [
+                      {
+                        "label": "Hinweistext"
+                      },
+                      {
+                        "label": "Bereich",
+                        "fields": [
+                          {
+                            "label": "Form",
+                            "options": [
+                              {
+                                "label": "Rechteck"
+                              },
+                              {
+                                "label": "Kreis/Ellipse"
+                              }
+                            ]
+                          },
+                          {
+                            "label": "Links (0–1)"
+                          },
+                          {
+                            "label": "Oben (0–1)"
+                          },
+                          {
+                            "label": "Breite (0–1)"
+                          },
+                          {
+                            "label": "Höhe (0–1)"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "Optionales Video vor der Übung",
+      "description": "Meist nicht nötig: Video separat anbieten und dieses Paket für die Übung nutzen. Entweder Videodatei oder YouTube-/Vimeo-Link.",
+      "fields": [
+        {
+          "label": "Videodatei"
+        },
+        {
+          "label": "YouTube- oder Vimeo-Link",
+          "description": "Alternative zur Datei. Lädt live von YouTube/Vimeo (das Netz der Lernenden braucht Internetzugang)."
+        },
+        {
+          "label": "Untertitel (WebVTT .vtt)"
+        },
+        {
+          "label": "Sprachcode der Untertitel",
+          "default": "en"
+        }
+      ]
+    },
+    {
+      "label": "Darstellung",
+      "fields": [
+        {
+          "label": "Geräterahmen",
+          "options": [
+            {
+              "label": "Smartphone"
+            },
+            {
+              "label": "Tablet"
+            },
+            {
+              "label": "Ohne Rahmen (Desktop-App, Web)"
+            }
+          ]
+        },
+        {
+          "label": "Farbe der Seitenleiste",
+          "default": "#1d2230"
+        },
+        {
+          "label": "Akzentfarbe (Markierungen, Fortschritt)",
+          "default": "#e3a33b"
+        },
+        {
+          "label": "Farbe der Schaltflächen",
+          "default": "#b3312c"
+        },
+        {
+          "label": "Fußzeile"
+        }
+      ]
+    },
+    {
+      "label": "Verhalten",
+      "fields": [
+        {
+          "label": "Punkte",
+          "description": "„Erster Versuch“: Jede Aufgabe ohne Fehltipp gibt einen Punkt. Es gilt die Bestehensgrenze des Kurses.",
+          "options": [
+            {
+              "label": "Punkte für Aufgaben, die beim ersten Versuch gelöst wurden"
+            },
+            {
+              "label": "Keine Punkte, nur Abschluss"
+            }
+          ]
+        },
+        {
+          "label": "Lösung zeigen nach … Fehltipps"
+        },
+        {
+          "label": "Toleranz beim Antippen (%)",
+          "description": "Vergrößert den Tippbereich, damit Tipps knapp daneben zählen."
+        },
+        {
+          "label": "Zurückgehen erlauben"
+        },
+        {
+          "label": "Video auf dem Startbildschirm anbieten"
+        }
+      ]
+    },
+    {
+      "label": "Texte der Oberfläche",
+      "fields": [
+        {
+          "label": "Start-Schaltfläche",
+          "default": "Starten"
+        },
+        {
+          "label": "Fortsetzen-Schaltfläche",
+          "default": "Dort weitermachen, wo du aufgehört hast"
+        },
+        {
+          "label": "Schaltfläche Video ansehen",
+          "default": "Video ansehen"
+        },
+        {
+          "label": "Schaltfläche nach dem Video",
+          "default": "Jetzt selbst üben"
+        },
+        {
+          "label": "Weiter-Schaltfläche",
+          "default": "Weiter"
+        },
+        {
+          "label": "Zurück-Schaltfläche (Screenreader)",
+          "default": "Zurück"
+        },
+        {
+          "label": "Aufforderung bei Aufgaben",
+          "default": "Tippe auf die richtige Stelle auf dem Bildschirm."
+        },
+        {
+          "label": "Aufforderung bei Erkunden-Schritten",
+          "default": "Zeige auf die markierten Bereiche oder tippe sie an, um mehr zu erfahren."
+        },
+        {
+          "label": "Rückmeldung: Fehltipp",
+          "default": "Nicht ganz. Versuch es noch einmal."
+        },
+        {
+          "label": "Rückmeldung: Lösung gezeigt",
+          "default": "Hier ist es: Tippe auf die markierte Stelle."
+        },
+        {
+          "label": "Rückmeldung: richtig",
+          "default": "Richtig."
+        },
+        {
+          "label": "Tastatur-Alternative: Schritt zeigen",
+          "default": "Diesen Schritt zeigen"
+        },
+        {
+          "label": "Kapitelzähler",
+          "default": "Kapitel :num von :total"
+        },
+        {
+          "label": "Schrittzähler (Screenreader)",
+          "default": "Schritt :num von :total"
+        },
+        {
+          "label": "Titel beim Abschluss",
+          "default": "Gut gemacht!"
+        },
+        {
+          "label": "Text beim Abschluss",
+          "default": "Du hast dieses Training abgeschlossen. Weitere Trainings findest du in deiner Lernplattform."
+        },
+        {
+          "label": "Punkte-Text",
+          "default": "Beim ersten Versuch gelöst: :score von :total"
+        },
+        {
+          "label": "Neustart-Schaltfläche",
+          "default": "Noch einmal starten"
+        },
+        {
+          "label": "Bildschirmbeschreibung (Screenreader)",
+          "default": "App-Bildschirm"
+        }
+      ]
+    }
+  ]
+}

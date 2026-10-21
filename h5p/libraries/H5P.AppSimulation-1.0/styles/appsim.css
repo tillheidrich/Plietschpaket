@@ -1,0 +1,219 @@
+.h5p-appsim-container { background: #f1f4f7; }
+.h5p-appsim {
+  --as-side: #1d2230;
+  --as-accent: #e3a33b;
+  --as-button: #b3312c;
+  --as-ink: #1a1a1a;
+  --as-muted: #cbd6e2;
+  --as-bg: #f1f4f7;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(280px, 36%) 1fr;
+  min-height: 560px;
+  height: min(100vh, 860px);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--as-ink);
+  background: var(--as-bg);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.h5p-appsim *, .h5p-appsim *::before, .h5p-appsim *::after { box-sizing: border-box; }
+.h5p-appsim [hidden] { display: none !important; }
+
+/* ---------- sidebar ---------- */
+.h5p-appsim .as-side {
+  background: var(--as-side);
+  color: #fff;
+  padding: 28px 30px 22px;
+  display: flex;
+  flex-direction: column;
+  border-left: 8px solid var(--as-accent);
+  overflow-y: auto;
+  min-height: 0;
+}
+.h5p-appsim .as-side > * { flex-shrink: 0; }
+.h5p-appsim .as-logo { max-width: 160px; max-height: 64px; object-fit: contain; align-self: flex-start; margin-bottom: 26px; }
+.h5p-appsim .as-kicker {
+  display: inline-block;
+  align-self: flex-start;
+  background: var(--as-button);
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  padding: 7px 11px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.h5p-appsim .as-title { font-size: clamp(22px, 2.4vw, 34px); line-height: 1.1; margin: 14px 0 0; font-weight: 700; color: #fff; }
+.h5p-appsim .as-meta { color: var(--as-accent); font-weight: 700; margin-top: 8px; font-size: 15px; }
+.h5p-appsim .as-bars { display: flex; gap: 6px; margin-top: 26px; }
+.h5p-appsim .as-bars i { flex: 1; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.14); transition: background 0.3s; }
+.h5p-appsim .as-bars i.done { background: rgba(255, 255, 255, 0.55); }
+.h5p-appsim .as-bars i.on { background: var(--as-accent); }
+.h5p-appsim .as-chap { margin-top: 10px; font-size: 15px; opacity: 0.88; }
+.h5p-appsim .as-chap b { color: var(--as-accent); margin-right: 4px; }
+.h5p-appsim .as-stepbox { margin-top: 28px; }
+.h5p-appsim .as-num {
+  --p: 0;
+  display: inline-flex; width: 52px; height: 52px; border-radius: 50%;
+  background:
+    radial-gradient(closest-side, #fff calc(100% - 5px), transparent calc(100% - 4px)),
+    conic-gradient(var(--as-accent) calc(var(--p) * 1turn), rgba(255, 255, 255, 0.16) 0);
+  color: var(--as-side); font-weight: 700; align-items: center; justify-content: center; font-size: 19px;
+  font-variant-numeric: tabular-nums; transition: --p 0.5s ease;
+}
+.h5p-appsim .as-num.is-note {
+  background:
+    radial-gradient(closest-side, var(--as-side) calc(100% - 5px), transparent calc(100% - 4px)),
+    conic-gradient(var(--as-accent) calc(var(--p) * 1turn), rgba(255, 255, 255, 0.16) 0);
+  color: #fff;
+}
+@property --p { syntax: '<number>'; inherits: true; initial-value: 0; }
+.h5p-appsim .as-label { font-size: clamp(20px, 1.9vw, 30px); font-weight: 700; margin: 14px 0 0; line-height: 1.15; color: #fff; outline: none; }
+.h5p-appsim .as-detail { color: var(--as-muted); font-size: 17px; margin: 8px 0 0; line-height: 1.4; }
+.h5p-appsim .as-feedback { margin-top: 20px; min-height: 48px; font-size: 16px; line-height: 1.4; color: var(--as-muted); display: flex; gap: 10px; align-items: flex-start; padding: 11px 13px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+.h5p-appsim .as-feedback:empty { background: none; box-shadow: none; }
+.h5p-appsim .as-feedback svg { width: 20px; height: 20px; flex: none; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.h5p-appsim .as-feedback.is-err { color: #fff; background: color-mix(in srgb, var(--as-button) 90%, transparent); box-shadow: none; animation: as-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.h5p-appsim .as-feedback.is-ok { color: #fff; background: color-mix(in srgb, var(--as-accent) 52%, var(--as-side)); box-shadow: none; animation: as-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes as-pop { from { opacity: 0; transform: translateY(4px) scale(0.98); } }
+.h5p-appsim .as-nav { margin-top: auto; display: flex; gap: 10px; flex-wrap: wrap; padding-top: 22px; align-items: center; }
+.h5p-appsim .as-footer { font-size: 12px; color: rgba(255, 255, 255, 0.5); margin-top: 16px; }
+
+/* ---------- buttons ---------- */
+.h5p-appsim .as-btn {
+  font: inherit;
+  cursor: pointer;
+  background: var(--as-button);
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 16px;
+  transition: transform 0.15s ease, filter 0.2s ease;
+}
+.h5p-appsim .as-btn:hover { filter: brightness(1.08); }
+.h5p-appsim .as-btn:active { transform: translateY(1px) scale(0.98); }
+.h5p-appsim .as-btn { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16); }
+.h5p-appsim .as-btn.as-sec { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.45); }
+.h5p-appsim .as-next:not([hidden]) { animation: as-pop 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.h5p-appsim .as-btn:disabled { opacity: 0.35; cursor: default; }
+.h5p-appsim .as-btn.as-sec { background: transparent; color: #fff; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5); }
+.h5p-appsim .as-back { padding: 12px 18px; }
+.h5p-appsim .as-showme { font-size: 14px; padding: 10px 16px; font-weight: 600; }
+.h5p-appsim .as-next { margin-left: auto; }
+.h5p-appsim .as-btn:focus-visible, .h5p-appsim .as-hint:focus-visible { outline: 3px solid var(--as-accent); outline-offset: 3px; }
+
+/* ---------- device ---------- */
+.h5p-appsim .as-main {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+  background-image: radial-gradient(color-mix(in srgb, var(--as-side) 12%, transparent) 1.4px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+.h5p-appsim .as-device { position: relative; max-width: 100%; }
+.h5p-appsim.frame-phone .as-device { padding: 2.6%; border-radius: 9% / 4.4%; background: #15181c; box-shadow: 0 30px 60px color-mix(in srgb, var(--as-side) 28%, transparent); }
+.h5p-appsim.frame-tablet .as-device { padding: 2.2%; border-radius: 5%; background: #15181c; box-shadow: 0 30px 60px color-mix(in srgb, var(--as-side) 28%, transparent); }
+.h5p-appsim.frame-none .as-device { box-shadow: 0 20px 50px color-mix(in srgb, var(--as-side) 22%, transparent); border-radius: 8px; overflow: hidden; }
+.h5p-appsim .as-screen { position: relative; width: 100%; aspect-ratio: 9 / 19.5; overflow: hidden; background: #fff; user-select: none; }
+.h5p-appsim.frame-phone .as-screen { border-radius: 8% / 3.8%; }
+.h5p-appsim.frame-tablet .as-screen { border-radius: 3%; }
+.h5p-appsim .as-screen.is-task { cursor: pointer; }
+.h5p-appsim .as-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; -webkit-user-drag: none; pointer-events: none; }
+.h5p-appsim .as-mark {
+  position: absolute;
+  border: 4px solid var(--as-accent);
+  border-radius: 12px;
+  box-shadow: 0 0 0 2000px color-mix(in srgb, var(--as-side) 38%, transparent), 0 0 22px color-mix(in srgb, var(--as-accent) 55%, transparent);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.h5p-appsim .as-mark.is-round, .h5p-appsim .as-hint.is-round { border-radius: 50%; }
+.h5p-appsim .as-mark { transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.h5p-appsim .as-mark.is-hidden { opacity: 0; transform: scale(1.08); }
+.h5p-appsim .as-mark:not(.is-hidden)::after { content: ''; position: absolute; inset: -4px; border-radius: inherit; border: 2px solid var(--as-accent); animation: as-ripple 1.2s ease-out 1; opacity: 0; }
+@keyframes as-ripple { from { opacity: 0.8; transform: scale(1); } to { opacity: 0; transform: scale(1.25); } }
+.h5p-appsim .as-screen.is-shake { animation: as-shake 0.35s; }
+@keyframes as-shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+/* explore hints */
+.h5p-appsim .as-hints { position: absolute; inset: 0; }
+.h5p-appsim .as-hint {
+  position: absolute;
+  border: 3px dashed var(--as-accent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--as-accent) 10%, transparent);
+  cursor: help;
+  padding: 0;
+  animation: as-pulse 2.4s ease-in-out infinite;
+}
+.h5p-appsim .as-hint:hover, .h5p-appsim .as-hint.is-open, .h5p-appsim .as-hint:focus-visible { background: color-mix(in srgb, var(--as-accent) 22%, transparent); animation: none; z-index: 2; }
+.h5p-appsim .as-tip {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 10px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 240px;
+  background: var(--as-side);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.35;
+  padding: 9px 12px;
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  text-align: left;
+}
+.h5p-appsim .as-hint:hover .as-tip, .h5p-appsim .as-hint.is-open .as-tip, .h5p-appsim .as-hint:focus-visible .as-tip { opacity: 1; }
+@keyframes as-pulse { 50% { background: color-mix(in srgb, var(--as-accent) 20%, transparent); } }
+
+/* ---------- overlays ---------- */
+.h5p-appsim .as-overlay { position: absolute; inset: 0; background: radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--as-accent) 16%, var(--as-side)) 0%, var(--as-side) 55%); color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 6%; z-index: 5; overflow-y: auto; }
+.h5p-appsim .as-big { font-size: clamp(30px, 3.8vw, 58px); line-height: 1.05; margin: 16px 0 0; color: #fff; font-weight: 700; }
+.h5p-appsim .as-lead { color: var(--as-muted); font-size: 19px; margin: 16px 0 0; max-width: 640px; line-height: 1.45; }
+.h5p-appsim .as-score { font-size: 17px; margin: 14px 0 0; color: var(--as-muted); }
+.h5p-appsim .as-ring {
+  --p: 0; width: 132px; height: 132px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 22px;
+  background: radial-gradient(closest-side, var(--as-side) calc(100% - 10px), transparent calc(100% - 9px)), conic-gradient(var(--as-accent) calc(var(--p) * 1turn), rgba(255, 255, 255, 0.12) 0);
+  animation: as-fill 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.h5p-appsim .as-ring b { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+@keyframes as-fill { from { --p: 0; } }
+.h5p-appsim .as-startmeta { margin-top: 18px; display: flex; gap: 8px; }
+.h5p-appsim .as-startmeta span { font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.06em; text-transform: uppercase; padding: 6px 9px; border-radius: 4px; border: 1px dashed rgba(255, 255, 255, 0.35); color: var(--as-muted); }
+.h5p-appsim .as-chapters { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 8px; max-width: 520px; counter-reset: none; }
+.h5p-appsim .as-chapters li { display: grid; grid-template-columns: 36px 1fr; align-items: baseline; padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, 0.1); color: #fff; font-size: 16px; animation: as-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.h5p-appsim .as-chapters li:nth-child(2) { animation-delay: 50ms; } .h5p-appsim .as-chapters li:nth-child(3) { animation-delay: 100ms; }
+.h5p-appsim .as-chapters li:nth-child(4) { animation-delay: 150ms; } .h5p-appsim .as-chapters li:nth-child(n+5) { animation-delay: 200ms; }
+.h5p-appsim .as-chapnum { font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--as-accent); }
+.h5p-appsim .as-row { display: flex; gap: 14px; margin-top: 32px; flex-wrap: wrap; }
+.h5p-appsim .as-videowrap { background: #000; padding: 0; align-items: center; }
+.h5p-appsim .as-videowrap video, .h5p-appsim .as-embed { width: 100%; height: 100%; background: #000; border: 0; }
+.h5p-appsim .as-embed { height: calc(100% - 72px); }
+.h5p-appsim .as-videobar { position: absolute; left: 0; right: 0; bottom: 56px; display: flex; justify-content: flex-end; padding: 14px; }
+
+/* ---------- narrow screens: sidebar on top ---------- */
+@media (max-width: 760px) {
+  .h5p-appsim { grid-template-columns: 1fr; grid-template-rows: auto minmax(420px, 1fr); height: auto; min-height: 0; }
+  .h5p-appsim .as-side { border-left: 0; border-top: 8px solid var(--as-accent); padding: 20px; }
+  .h5p-appsim .as-logo, .h5p-appsim .as-bars { display: none; }
+  .h5p-appsim .as-main { padding: 18px 0; min-height: 70vh; }
+  .h5p-appsim .as-overlay { position: fixed; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .h5p-appsim *, .h5p-appsim *::before, .h5p-appsim *::after { animation: none !important; transition: none !important; }
+}
+
+/* start / done screen: the sidebar only carries identity, no step controls */
+.h5p-appsim.is-overlay .as-chap, .h5p-appsim.is-overlay .as-stepbox, .h5p-appsim.is-overlay .as-feedback, .h5p-appsim.is-overlay .as-nav { visibility: hidden; }
+.h5p-appsim .as-chapters { width: min(520px, 100%); }
+.h5p-appsim .as-overlay > .as-big:first-child { margin-top: 0; }

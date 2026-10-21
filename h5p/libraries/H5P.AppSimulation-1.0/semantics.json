@@ -1,0 +1,558 @@
+[
+  {
+    "name": "intro",
+    "type": "group",
+    "label": "Start screen",
+    "importance": "high",
+    "expanded": true,
+    "fields": [
+      {
+        "name": "kicker",
+        "type": "text",
+        "label": "Label above the title",
+        "description": "Short badge, e.g. product and \"Training\".",
+        "default": "Training",
+        "optional": true,
+        "maxLength": 60
+      },
+      {
+        "name": "subtitle",
+        "type": "text",
+        "label": "Subtitle",
+        "description": "e.g. platform and language: \"iOS · English\".",
+        "optional": true,
+        "maxLength": 80
+      },
+      {
+        "name": "text",
+        "type": "text",
+        "label": "Introduction",
+        "description": "One or two sentences: what will the learner be able to do afterwards?",
+        "optional": true,
+        "maxLength": 400
+      },
+      {
+        "name": "logo",
+        "type": "image",
+        "label": "Logo",
+        "description": "Shown in the sidebar (PNG or SVG-free image, light on dark).",
+        "optional": true
+      }
+    ]
+  },
+  {
+    "name": "chapters",
+    "type": "list",
+    "label": "Chapters",
+    "importance": "high",
+    "entity": "chapter",
+    "min": 1,
+    "defaultNum": 1,
+    "field": {
+      "name": "chapter",
+      "type": "group",
+      "label": "Chapter",
+      "importance": "high",
+      "fields": [
+        {
+          "name": "title",
+          "type": "text",
+          "label": "Chapter title",
+          "importance": "high",
+          "maxLength": 80
+        },
+        {
+          "name": "steps",
+          "type": "list",
+          "label": "Steps",
+          "importance": "high",
+          "entity": "step",
+          "min": 1,
+          "defaultNum": 1,
+          "field": {
+            "name": "step",
+            "type": "group",
+            "label": "Step",
+            "importance": "high",
+            "fields": [
+              {
+                "name": "label",
+                "type": "text",
+                "label": "Instruction",
+                "description": "Short and active, e.g. \"Open Settings\".",
+                "importance": "high",
+                "maxLength": 120
+              },
+              {
+                "name": "detail",
+                "type": "text",
+                "label": "Detail",
+                "description": "Optional second line, e.g. \"Tap the gear wheel.\"",
+                "optional": true,
+                "maxLength": 300
+              },
+              {
+                "name": "kind",
+                "type": "select",
+                "label": "Step type",
+                "importance": "high",
+                "default": "click",
+                "options": [
+                  {
+                    "value": "click",
+                    "label": "Task: tap the right spot"
+                  },
+                  {
+                    "value": "info",
+                    "label": "Info: highlight an area, continue with Next"
+                  },
+                  {
+                    "value": "note",
+                    "label": "Note: important hint, continue with Next"
+                  },
+                  {
+                    "value": "explore",
+                    "label": "Explore: several hints on the screen, continue with Next"
+                  }
+                ]
+              },
+              {
+                "name": "screenshot",
+                "type": "image",
+                "label": "Screenshot",
+                "description": "Leave empty to reuse the screenshot of the previous step.",
+                "optional": true
+              },
+              {
+                "name": "area",
+                "type": "group",
+                "label": "Area on the screenshot",
+                "description": "Drag a rectangle on the screenshot. For tasks this is where the learner has to tap; for info steps it is highlighted.",
+                "widget": "appSimArea",
+                "optional": true,
+                "fields": [
+                  {
+                    "name": "shape",
+                    "type": "select",
+                    "label": "Shape",
+                    "default": "rect",
+                    "options": [
+                      {
+                        "value": "rect",
+                        "label": "Rectangle"
+                      },
+                      {
+                        "value": "ellipse",
+                        "label": "Circle/ellipse"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "x",
+                    "type": "number",
+                    "label": "Left (0–1)",
+                    "min": 0,
+                    "max": 1,
+                    "decimals": 4,
+                    "default": 0.1
+                  },
+                  {
+                    "name": "y",
+                    "type": "number",
+                    "label": "Top (0–1)",
+                    "min": 0,
+                    "max": 1,
+                    "decimals": 4,
+                    "default": 0.1
+                  },
+                  {
+                    "name": "w",
+                    "type": "number",
+                    "label": "Width (0–1)",
+                    "min": 0,
+                    "max": 1,
+                    "decimals": 4,
+                    "default": 0.3
+                  },
+                  {
+                    "name": "h",
+                    "type": "number",
+                    "label": "Height (0–1)",
+                    "min": 0,
+                    "max": 1,
+                    "decimals": 4,
+                    "default": 0.06
+                  }
+                ]
+              },
+              {
+                "name": "hints",
+                "type": "list",
+                "label": "Hints on the screen (explore steps)",
+                "description": "Each hint is a marked area; learners hover or tap it to read the text.",
+                "entity": "hint",
+                "optional": true,
+                "field": {
+                  "name": "hint",
+                  "type": "group",
+                  "label": "Hint",
+                  "fields": [
+                    {
+                      "name": "text",
+                      "type": "text",
+                      "label": "Hint text",
+                      "maxLength": 200
+                    },
+                    {
+                      "name": "area",
+                      "type": "group",
+                      "label": "Area",
+                      "widget": "appSimArea",
+                      "fields": [
+                        {
+                          "name": "shape",
+                          "type": "select",
+                          "label": "Shape",
+                          "default": "rect",
+                          "options": [
+                            {
+                              "value": "rect",
+                              "label": "Rectangle"
+                            },
+                            {
+                              "value": "ellipse",
+                              "label": "Circle/ellipse"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "x",
+                          "type": "number",
+                          "label": "Left (0–1)",
+                          "min": 0,
+                          "max": 1,
+                          "decimals": 4,
+                          "default": 0.1
+                        },
+                        {
+                          "name": "y",
+                          "type": "number",
+                          "label": "Top (0–1)",
+                          "min": 0,
+                          "max": 1,
+                          "decimals": 4,
+                          "default": 0.1
+                        },
+                        {
+                          "name": "w",
+                          "type": "number",
+                          "label": "Width (0–1)",
+                          "min": 0,
+                          "max": 1,
+                          "decimals": 4,
+                          "default": 0.3
+                        },
+                        {
+                          "name": "h",
+                          "type": "number",
+                          "label": "Height (0–1)",
+                          "min": 0,
+                          "max": 1,
+                          "decimals": 4,
+                          "default": 0.06
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "video",
+    "type": "group",
+    "label": "Optional video before the practice",
+    "description": "Usually not needed: offer the video separately and keep this package for the interactive practice. Use either a video file or a YouTube/Vimeo link.",
+    "importance": "low",
+    "optional": true,
+    "fields": [
+      {
+        "name": "files",
+        "type": "video",
+        "label": "Video file",
+        "optional": true
+      },
+      {
+        "name": "url",
+        "type": "text",
+        "label": "YouTube or Vimeo link",
+        "description": "Alternative to the file. Loads live from YouTube/Vimeo (needs internet access in the learner's network).",
+        "optional": true,
+        "maxLength": 300,
+        "regexp": {
+          "pattern": "^(https://(www\\.)?(youtube\\.com|youtube-nocookie\\.com|youtu\\.be|vimeo\\.com|player\\.vimeo\\.com)/.*)?$"
+        }
+      },
+      {
+        "name": "captions",
+        "type": "file",
+        "label": "Captions (WebVTT .vtt)",
+        "optional": true
+      },
+      {
+        "name": "captionsLanguage",
+        "type": "text",
+        "label": "Captions language code",
+        "default": "en",
+        "optional": true,
+        "maxLength": 10
+      }
+    ]
+  },
+  {
+    "name": "theme",
+    "type": "group",
+    "label": "Look",
+    "importance": "low",
+    "fields": [
+      {
+        "name": "frame",
+        "type": "select",
+        "label": "Device frame",
+        "default": "phone",
+        "options": [
+          {
+            "value": "phone",
+            "label": "Phone"
+          },
+          {
+            "value": "tablet",
+            "label": "Tablet"
+          },
+          {
+            "value": "none",
+            "label": "No frame (desktop app, web)"
+          }
+        ]
+      },
+      {
+        "name": "sidebarColor",
+        "type": "text",
+        "label": "Sidebar colour",
+        "default": "#1d2230",
+        "maxLength": 7,
+        "regexp": {
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      },
+      {
+        "name": "accentColor",
+        "type": "text",
+        "label": "Accent colour (highlights, progress)",
+        "default": "#e3a33b",
+        "maxLength": 7,
+        "regexp": {
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      },
+      {
+        "name": "buttonColor",
+        "type": "text",
+        "label": "Button colour",
+        "default": "#b3312c",
+        "maxLength": 7,
+        "regexp": {
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      },
+      {
+        "name": "footer",
+        "type": "text",
+        "label": "Footer text",
+        "optional": true,
+        "maxLength": 80
+      }
+    ]
+  },
+  {
+    "name": "behaviour",
+    "type": "group",
+    "label": "Behaviour",
+    "importance": "low",
+    "fields": [
+      {
+        "name": "scoring",
+        "type": "select",
+        "label": "Score",
+        "description": "\"First try\": every task solved without a wrong tap earns a point. The course mastery score applies.",
+        "default": "firstTry",
+        "options": [
+          {
+            "value": "firstTry",
+            "label": "Points for tasks solved on the first try"
+          },
+          {
+            "value": "none",
+            "label": "No score, completion only"
+          }
+        ]
+      },
+      {
+        "name": "hintAfter",
+        "type": "number",
+        "label": "Show the solution after … wrong taps",
+        "default": 2,
+        "min": 1,
+        "max": 5
+      },
+      {
+        "name": "tolerance",
+        "type": "number",
+        "label": "Tap tolerance (%)",
+        "description": "Enlarges the tap area so that taps close to the edge count.",
+        "default": 25,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "name": "allowBack",
+        "type": "boolean",
+        "label": "Allow going back",
+        "default": true
+      },
+      {
+        "name": "showVideoFirst",
+        "type": "boolean",
+        "label": "Offer the video on the start screen",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "l10n",
+    "type": "group",
+    "label": "Texts of the user interface",
+    "importance": "low",
+    "common": true,
+    "fields": [
+      {
+        "name": "start",
+        "type": "text",
+        "label": "Start button",
+        "default": "Start"
+      },
+      {
+        "name": "resume",
+        "type": "text",
+        "label": "Resume button",
+        "default": "Continue where you left off"
+      },
+      {
+        "name": "watch",
+        "type": "text",
+        "label": "Watch video button",
+        "default": "Watch the video"
+      },
+      {
+        "name": "toPractice",
+        "type": "text",
+        "label": "Button after the video",
+        "default": "Now practise it"
+      },
+      {
+        "name": "next",
+        "type": "text",
+        "label": "Next button",
+        "default": "Next"
+      },
+      {
+        "name": "back",
+        "type": "text",
+        "label": "Back button (screen reader)",
+        "default": "Back"
+      },
+      {
+        "name": "doIt",
+        "type": "text",
+        "label": "Prompt for tasks",
+        "default": "Tap the right spot on the screen."
+      },
+      {
+        "name": "explore",
+        "type": "text",
+        "label": "Prompt for explore steps",
+        "default": "Point at or tap the marked areas to learn more."
+      },
+      {
+        "name": "miss",
+        "type": "text",
+        "label": "Feedback: wrong tap",
+        "default": "Not quite. Try again."
+      },
+      {
+        "name": "hint",
+        "type": "text",
+        "label": "Feedback: solution shown",
+        "default": "Here it is: tap the highlighted spot."
+      },
+      {
+        "name": "good",
+        "type": "text",
+        "label": "Feedback: correct",
+        "default": "Correct."
+      },
+      {
+        "name": "showMe",
+        "type": "text",
+        "label": "Keyboard alternative: show the step",
+        "default": "Show me this step"
+      },
+      {
+        "name": "chapter",
+        "type": "text",
+        "label": "Chapter counter",
+        "default": "Chapter :num of :total"
+      },
+      {
+        "name": "step",
+        "type": "text",
+        "label": "Step counter (screen reader)",
+        "default": "Step :num of :total"
+      },
+      {
+        "name": "doneTitle",
+        "type": "text",
+        "label": "Completion title",
+        "default": "Well done!"
+      },
+      {
+        "name": "doneText",
+        "type": "text",
+        "label": "Completion text",
+        "default": "You have completed this training. You will find more trainings in your learning platform."
+      },
+      {
+        "name": "score",
+        "type": "text",
+        "label": "Score text",
+        "default": "Solved on the first try: :score of :total"
+      },
+      {
+        "name": "again",
+        "type": "text",
+        "label": "Restart button",
+        "default": "Start again"
+      },
+      {
+        "name": "screenLabel",
+        "type": "text",
+        "label": "Screen description (screen reader)",
+        "default": "App screen"
+      }
+    ]
+  }
+]

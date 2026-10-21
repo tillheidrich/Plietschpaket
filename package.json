@@ -1,0 +1,46 @@
+{
+  "name": "plietschpaket",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/",
+    "check": "npm audit --omit=dev --audit-level=high || true"
+  },
+  "dependencies": {
+    "@lumieducation/h5p-express": "^10.0.5",
+    "@lumieducation/h5p-html-exporter": "^10.0.4",
+    "@lumieducation/h5p-server": "^10.0.4",
+    "@lumieducation/h5p-svg-sanitizer": "^10.0.4",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "adm-zip": "^0.6.1",
+    "archiver": "^8.0.0",
+    "better-sqlite3": "^13.0.3",
+    "express": "^5.3.0",
+    "express-fileupload": "^1.5.2",
+    "i18next": "^26.5.4",
+    "i18next-fs-backend": "^2.6.9",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@lumieducation/h5p-webcomponents": "^10.0.4",
+    "esbuild": "^0.28.2",
+    "geist": "^1.8.1",
+    "scorm-again": "^3.4.6"
+  },
+  "overrides": {
+    "@lumieducation/h5p-express": {
+      "express": "4.22.3"
+    },
+    "qs": "^6.16.1",
+    "underscore": "^1.13.8",
+    "path-to-regexp@0.1": "0.1.13",
+    "body-parser@1": "1.20.6"
+  }
+}

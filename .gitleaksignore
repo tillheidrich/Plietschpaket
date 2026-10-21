@@ -1,0 +1,2 @@
+# Third-party H5P library bundles: false positives in minified vendor code.
+h5p/libraries/H5P.AFrame-1.0/aframe.js:generic-api-key:887

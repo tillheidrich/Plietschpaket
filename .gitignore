@@ -1,0 +1,7 @@
+node_modules/
+data/
+public/vendor/
+public/assets/fonts/
+*.log
+.env
+site/dist/

@@ -1,0 +1,68 @@
+{
+  "manifest_version": "0.3",
+  "name": "plietschpaket",
+  "display_name": "Plietschpaket",
+  "version": "1.1.0",
+  "description": "Interaktive E-Learning-Kurse (H5P → SCORM) mit Claude bauen – direkt vom eigenen Rechner, auch wenn Plietschpaket nur im Firmennetz/VPN erreichbar ist.",
+  "long_description": "Verbindet Claude Desktop lokal mit einer Plietschpaket-Instanz. Die Verbindung läuft von diesem Rechner aus (stdio-Brücke), nicht über die Cloud – Plietschpaket muss also nicht öffentlich erreichbar sein. Anmeldung mit einem persönlichen Zugangsschlüssel aus Plietschpaket (Konto → Claude Desktop). Claude arbeitet immer mit den Rechten dieses Kontos.",
+  "author": {
+    "name": "Heidrich Digital",
+    "url": "https://heidrich-digital.de"
+  },
+  "license": "GPL-3.0-or-later",
+  "icon": "icon.png",
+  "keywords": [
+    "scorm",
+    "h5p",
+    "e-learning",
+    "lms",
+    "kurs"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.js"
+      ],
+      "env": {
+        "PLIETSCHPAKET_URL": "${user_config.server_url}",
+        "PLIETSCHPAKET_TOKEN": "${user_config.api_token}",
+        "PLIETSCHPAKET_CA": "${user_config.ca_file}"
+      }
+    }
+  },
+  "tools_generated": true,
+  "user_config": {
+    "server_url": {
+      "type": "string",
+      "title": "Plietschpaket-Adresse",
+      "description": "Basis-Adresse der Instanz, z. B. https://scorm.firma.intern (ohne /mcp).",
+      "required": true
+    },
+    "api_token": {
+      "type": "string",
+      "title": "Zugangsschlüssel",
+      "description": "In Plietschpaket unter Konto → Claude Desktop erzeugen (beginnt mit ssp_).",
+      "sensitive": true,
+      "required": true
+    },
+    "ca_file": {
+      "type": "file",
+      "title": "Internes Stammzertifikat (optional)",
+      "description": "Nur nötig, wenn der Server ein Zertifikat einer firmeneigenen Zertifizierungsstelle nutzt (PEM-Datei).",
+      "required": false
+    }
+  },
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}

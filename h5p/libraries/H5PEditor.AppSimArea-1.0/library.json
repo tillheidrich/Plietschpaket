@@ -1,0 +1,13 @@
+{
+  "title": "App Simulation area editor",
+  "machineName": "H5PEditor.AppSimArea",
+  "majorVersion": 1,
+  "minorVersion": 0,
+  "patchVersion": 0,
+  "runnable": 0,
+  "author": "Heidrich Digital",
+  "license": "MIT",
+  "coreApi": { "majorVersion": 1, "minorVersion": 24 },
+  "preloadedJs": [{ "path": "scripts/appsim-area.js" }],
+  "preloadedCss": [{ "path": "styles/appsim-area.css" }]
+}
