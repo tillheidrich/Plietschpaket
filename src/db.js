@@ -151,6 +151,18 @@ const migrations = [
   `
   ALTER TABLE courses ADD COLUMN blocks TEXT NOT NULL DEFAULT '[]';
   ALTER TABLE courses ADD COLUMN design TEXT NOT NULL DEFAULT '{}';
+  `,
+  // 5: custom course languages (admin-defined, on top of the built-in ones)
+  `
+  CREATE TABLE languages (
+    code TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    dir TEXT NOT NULL DEFAULT 'ltr',
+    base TEXT NOT NULL DEFAULT 'en',
+    labels TEXT NOT NULL DEFAULT '{}',
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
   `
 ];
 

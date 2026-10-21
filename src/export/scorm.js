@@ -10,6 +10,7 @@ import { assertCourse } from '../access.js';
 import { toH5pUser } from '../h5p.js';
 import { getCourse, getH5P } from '../services.js';
 import { referencedMedia, mediaPath } from '../blocks.js';
+import { h5pLanguage, shellLabels, playerLabels, languageDirection } from '../languages.js';
 
 const HtmlExporter = HtmlExporterModule.default || HtmlExporterModule;
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -59,12 +60,6 @@ export function isScored(library, params) {
   return found;
 }
 
-const LABELS = {
-  de: { progress: '{done} von {total} erledigt', score: 'Ergebnis: {score} %', prev: 'Zurück', next: 'Weiter', menu: 'Inhalt', lmsWarning: 'Die Verbindung zur Lernplattform konnte nicht hergestellt werden. Dein Fortschritt wird nur in diesem Browser gespeichert.' },
-  en: { progress: '{done} of {total} done', score: 'Score: {score} %', prev: 'Back', next: 'Next', menu: 'Contents', lmsWarning: 'Could not connect to the learning platform. Progress is only stored in this browser.' },
-  it: { progress: '{done} di {total} completati', score: 'Risultato: {score} %', prev: 'Indietro', next: 'Avanti', menu: 'Indice', lmsWarning: 'Impossibile connettersi alla piattaforma di apprendimento. I progressi vengono salvati solo in questo browser.' },
-  fr: { progress: '{done} sur {total} terminés', score: 'Résultat : {score} %', prev: 'Retour', next: 'Suivant', menu: 'Sommaire', lmsWarning: 'Connexion à la plateforme impossible. La progression est enregistrée uniquement dans ce navigateur.' }
-};
 
 const esc = (s) =>
   String(s ?? '')
@@ -77,7 +72,7 @@ const jsonForScript = (v) =>
 
 function unitTemplate(unitMeta, language) {
   return (integration, scriptsBundle, stylesBundle, contentId) => `<!doctype html>
-<html lang="${esc(language)}" class="h5p-iframe">
+<html lang="${esc(language)}" dir="${languageDirection(language)}" class="h5p-iframe">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -103,7 +98,7 @@ function shellHtml(course, project, payload, labels) {
   if (branding.fontFamily) vars.push(`--ss-font:${branding.fontFamily}`);
   const list = payload.settings.showUnitList !== false && payload.units.length > 1;
   return `<!doctype html>
-<html lang="${esc(course.language)}">
+<html lang="${esc(course.language)}" dir="${languageDirection(course.language)}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -138,8 +133,10 @@ ${vars.length ? `<style>:root{${vars.join(';')}}</style>` : ''}
 
 /** Entry page of a block course: the block player renders everything from PP_COURSE. */
 export function playerHtml(course, payload, { assetBase = 'runtime/' } = {}) {
+  const dir = payload.design.direction === 'rtl' || languageDirection(course.language) === 'rtl' ? 'rtl' : 'ltr';
+  payload = { ...payload, uiLabels: playerLabels(course.language), dir };
   return `<!doctype html>
-<html lang="${esc(course.language)}" dir="${payload.design.direction === 'rtl' ? 'rtl' : 'ltr'}">
+<html lang="${esc(course.language)}" dir="${dir}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -267,8 +264,8 @@ export async function buildPackage(user, courseId, format) {
   const settings = full.settings;
   const { editor } = getH5P();
   const h5pUser = toH5pUser(user);
-  const language = LABELS[course.language.slice(0, 2)] ? course.language.slice(0, 2) : 'de';
-  const labels = LABELS[language];
+  const language = h5pLanguage(course.language);
+  const labels = shellLabels(course.language);
 
   const dir = await fs.promises.mkdtemp(path.join(config.tmpDir, 'pkg-'));
   const warnings = [];

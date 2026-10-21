@@ -18,7 +18,7 @@ import { toH5pUser } from '../h5p.js';
 import { kindMatches } from '../sniff.js';
 
 const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', mp4: 'video/mp4', webm: 'video/webm', vtt: 'text/vtt' };
-const COURSE_LANGS = ['de', 'en', 'fr', 'it'];
+const COURSE_LANGS = ['de', 'en', 'fr', 'it', 'es', 'pt', 'nl', 'pl', 'cs', 'sv', 'tr', 'ar'];
 
 /** Returns the parsed course definition if the archive is a click-practice package, else null. */
 export function detectAppSimPackage(entries) {

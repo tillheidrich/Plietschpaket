@@ -62,10 +62,19 @@ const EN = {
   'Zu viele Anfragen. Bitte kurz warten.': 'Too many requests. Please wait a moment.',
   'Eine Datei im Archiv ist zu groß.': 'A file in the archive is too large.',
   'Das Archiv ist entpackt zu groß.': 'The archive is too large when unpacked.',
-  'Das Archiv ist ungewöhnlich stark komprimiert und wird aus Sicherheitsgründen abgelehnt.': 'The archive is unusually highly compressed and is rejected for security reasons.'
+  'Das Archiv ist ungewöhnlich stark komprimiert und wird aus Sicherheitsgründen abgelehnt.': 'The archive is unusually highly compressed and is rejected for security reasons.',
+  'Sprachcode ungültig. Beispiele: ja, de-ch, pt-br.': 'Invalid language code. Examples: ja, de-ch, pt-br.',
+  'Diese Sprache ist bereits eingebaut.': 'This language is already built in.',
+  'Name der Sprache fehlt.': 'Language name is missing.',
+  'Leserichtung muss ltr oder rtl sein.': 'Reading direction must be ltr or rtl.',
+  'Basissprache muss eine eingebaute Sprache sein.': 'The base language must be a built-in language.',
+  'Diese Sprache gibt es schon.': 'This language already exists.',
+  'Sprache nicht gefunden.': 'Language not found.'
 };
 
 const PATTERNS = [
+  [/^Unbekannte Kurssprache "([^"]*)"\..*$/, (m) => `Unknown course language "${m[1]}". Use a built-in language or one created under Administration.`],
+  [/^Die Sprache wird noch von (\d+) Kurs\(en\) verwendet\.$/, (m) => `The language is still used by ${m[1]} course(s).`],
   [/^Das Archiv enthält zu viele Dateien \(max\. (\d+)\)\.$/, (m) => `The archive contains too many files (max. ${m[1]}).`],
   [/^Höchstens (\d+) aktive Zugangsschlüssel\. Bitte zuerst einen alten widerrufen\.$/, (m) => `At most ${m[1]} active access keys. Please revoke an old one first.`],
   [/^(.+) fehlt\.$/, (m) => `${tr(m[1], 'en')} is missing.`],

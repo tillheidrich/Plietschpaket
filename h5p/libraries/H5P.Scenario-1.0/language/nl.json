@@ -1,0 +1,387 @@
+{
+  "semantics": [
+    {
+      "label": "Start screen",
+      "fields": [
+        {
+          "label": "Label above the title",
+          "default": "Rollenspel"
+        },
+        {
+          "label": "Introduction",
+          "description": "One or two sentences on the situation and what the learner should practise."
+        },
+        {
+          "label": "Cover image",
+          "description": "Optional. Without a cover the first scene is shown in the background."
+        }
+      ]
+    },
+    {
+      "label": "Characters",
+      "field": {
+        "label": "Character",
+        "fields": [
+          {
+            "label": "Short key",
+            "description": "Lower case, no spaces, e.g. customer. Scenes refer to the character by this key."
+          },
+          {
+            "label": "Name shown in the speech bubble"
+          },
+          {
+            "label": "Look",
+            "description": "Built-in illustrated characters, or your own image.",
+            "options": [
+              {
+                "label": "Amara"
+              },
+              {
+                "label": "Ben"
+              },
+              {
+                "label": "Chen"
+              },
+              {
+                "label": "Jonas"
+              },
+              {
+                "label": "Lea"
+              },
+              {
+                "label": "Mira"
+              },
+              {
+                "label": "Sofia"
+              },
+              {
+                "label": "Yusuf"
+              },
+              {
+                "label": "Own image"
+              }
+            ]
+          },
+          {
+            "label": "Own image",
+            "description": "PNG with transparent background, full body, standing. Used when the look is set to own image."
+          },
+          {
+            "label": "Name colour",
+            "description": "Hex colour, e.g. #c4b5fd.",
+            "default": "#c4b5fd"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Scenes",
+      "description": "The first scene is where the role-play starts. Each choice points to the key of the next scene or of an ending.",
+      "field": {
+        "label": "Scene",
+        "fields": [
+          {
+            "label": "Short key",
+            "description": "Lower case, no spaces, e.g. greeting."
+          },
+          {
+            "label": "Situation",
+            "description": "Short stage direction at the top, e.g. 'An angry customer approaches the desk.'"
+          },
+          {
+            "label": "Background",
+            "options": [
+              {
+                "label": "Service desk"
+              },
+              {
+                "label": "Open-plan office"
+              },
+              {
+                "label": "Meeting room"
+              },
+              {
+                "label": "Shop"
+              },
+              {
+                "label": "Warehouse"
+              },
+              {
+                "label": "Reception / clinic"
+              },
+              {
+                "label": "Own image"
+              }
+            ]
+          },
+          {
+            "label": "Own background image",
+            "description": "Landscape, at least 1600 px wide. Used when the background is set to own image."
+          },
+          {
+            "label": "Character key",
+            "description": "Key of the character who speaks. Leave empty for a scene without a character."
+          },
+          {
+            "label": "Expression",
+            "options": [
+              {
+                "label": "Neutral"
+              },
+              {
+                "label": "Happy"
+              },
+              {
+                "label": "Angry"
+              },
+              {
+                "label": "Worried"
+              },
+              {
+                "label": "Thinking"
+              },
+              {
+                "label": "Surprised"
+              }
+            ]
+          },
+          {
+            "label": "Pose",
+            "options": [
+              {
+                "label": "Matching the expression"
+              },
+              {
+                "label": "Arms down"
+              },
+              {
+                "label": "Hands on hips"
+              },
+              {
+                "label": "Arms crossed"
+              },
+              {
+                "label": "Explaining"
+              }
+            ]
+          },
+          {
+            "label": "Position",
+            "options": [
+              {
+                "label": "Right"
+              },
+              {
+                "label": "Left"
+              },
+              {
+                "label": "Centre"
+              }
+            ]
+          },
+          {
+            "label": "What the character says"
+          },
+          {
+            "label": "Narration audio",
+            "description": "Optional. Without audio the browser reads the texts aloud if that is switched on."
+          },
+          {
+            "label": "Choices",
+            "description": "Two to four options. Without choices the scene continues to 'Next scene'.",
+            "field": {
+              "label": "Choice",
+              "fields": [
+                {
+                  "label": "Answer"
+                },
+                {
+                  "label": "Leads to (key of a scene or ending)"
+                },
+                {
+                  "label": "Consequence shown after the choice"
+                },
+                {
+                  "label": "Points"
+                },
+                {
+                  "label": "Rating",
+                  "options": [
+                    {
+                      "label": "Good"
+                    },
+                    {
+                      "label": "Neutral"
+                    },
+                    {
+                      "label": "Bad"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "label": "Next scene (if there are no choices)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Endings",
+      "field": {
+        "label": "Ending",
+        "fields": [
+          {
+            "label": "Short key"
+          },
+          {
+            "label": "Title"
+          },
+          {
+            "label": "What happened"
+          },
+          {
+            "label": "Rating",
+            "options": [
+              {
+                "label": "Good"
+              },
+              {
+                "label": "Mixed"
+              },
+              {
+                "label": "Bad"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "Look",
+      "fields": [
+        {
+          "label": "Mode",
+          "options": [
+            {
+              "label": "Dark"
+            },
+            {
+              "label": "Light"
+            }
+          ]
+        },
+        {
+          "label": "Accent colour",
+          "description": "Hex colour for buttons and progress.",
+          "default": "#7c6cf0"
+        }
+      ]
+    },
+    {
+      "label": "Behaviour",
+      "fields": [
+        {
+          "label": "Scoring",
+          "options": [
+            {
+              "label": "Points of the chosen answers"
+            },
+            {
+              "label": "No score"
+            }
+          ]
+        },
+        {
+          "label": "Pass mark in percent of the best path"
+        },
+        {
+          "label": "Read texts aloud with the browser voice when there is no audio"
+        },
+        {
+          "label": "Start narration automatically in each scene"
+        },
+        {
+          "label": "Show the consequence after each choice"
+        },
+        {
+          "label": "Allow another attempt at the end"
+        }
+      ]
+    },
+    {
+      "label": "Texts of the user interface",
+      "fields": [
+        {
+          "label": "Start button",
+          "default": "Starten"
+        },
+        {
+          "label": "Resume button",
+          "default": "Verdergaan waar je was"
+        },
+        {
+          "label": "Narration label",
+          "default": "Voorlezen"
+        },
+        {
+          "label": "Play button (screen reader)",
+          "default": "Voorlezen starten"
+        },
+        {
+          "label": "Pause button (screen reader)",
+          "default": "Voorlezen pauzeren"
+        },
+        {
+          "label": "Continue button",
+          "default": "Verder"
+        },
+        {
+          "label": "Prompt above the choices",
+          "default": "Wat doe je?"
+        },
+        {
+          "label": "Decision counter",
+          "default": "Beslissing :num"
+        },
+        {
+          "label": "Heading for a good ending",
+          "default": "Sterk resultaat"
+        },
+        {
+          "label": "Heading for a mixed ending",
+          "default": "Kan beter"
+        },
+        {
+          "label": "Heading for a bad ending",
+          "default": "Dat ging mis"
+        },
+        {
+          "label": "Score line",
+          "default": "Score: :score van :max"
+        },
+        {
+          "label": "Passed",
+          "default": "Geslaagd"
+        },
+        {
+          "label": "Not passed",
+          "default": "Nog niet geslaagd"
+        },
+        {
+          "label": "Retry button",
+          "default": "Opnieuw proberen"
+        },
+        {
+          "label": "Heading of the decision recap",
+          "default": "Jouw beslissingen"
+        },
+        {
+          "label": "Back",
+          "default": "Terug"
+        }
+      ]
+    }
+  ]
+}

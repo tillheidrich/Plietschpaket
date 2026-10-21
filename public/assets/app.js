@@ -105,13 +105,29 @@ const fmtSize = (n) => {
   return `${Math.max(1, Math.round(n / 1024))} KB`;
 };
 const ROLE = () => ({ owner: t('Owner'), editor: t('Bearbeiten'), viewer: t('Lesen') });
-const COURSE_LANGS = () => [
-  ['de', t('Deutsch')],
-  ['en', t('Englisch')],
-  ['fr', t('Französisch')],
-  ['it', t('Italienisch')]
-];
-const langOptions = (selected) => COURSE_LANGS().map(([v, l]) => `<option value="${v}" ${v === selected ? 'selected' : ''}>${esc(l)}</option>`).join('');
+// Course languages come from /api/languages (built-in + admin-defined); this list is only the fallback.
+const COURSE_LANGS = () =>
+  state.languages
+    ? state.languages.map((l) => [l.code, l.builtin ? l.label : `${l.label} (${l.code})`, l.builtin])
+    : [['de', t('Deutsch'), true], ['en', t('Englisch'), true]];
+const langOptions = (selected) => {
+  const list = COURSE_LANGS();
+  if (selected && !list.some(([v]) => v === selected)) list.push([selected, selected, false]);
+  const opt = ([v, l]) => `<option value="${esc(v)}" ${v === selected ? 'selected' : ''}>${esc(l)}</option>`;
+  const own = list.filter((x) => !x[2]);
+  return list.filter((x) => x[2]).map(opt).join('') + (own.length ? `<optgroup label="${te('Eigene Sprachen')}">${own.map(opt).join('')}</optgroup>` : '');
+};
+async function loadLanguages(force = false) {
+  if (state.languages && !force && state.languagesFor === state.lang) return;
+  try {
+    const res = await api('/languages');
+    state.languages = res.languages;
+    state.languageMeta = res;
+    state.languagesFor = state.lang;
+  } catch {
+    /* keep fallback */
+  }
+}
 const coursesWord = () => (state.lang === 'en' ? 'Courses' : 'Kurse');
 
 class ApiError extends Error {
@@ -260,6 +276,7 @@ async function render() {
     }
   }
   if (match.r.admin && state.me?.role !== 'admin') return navigate('/', true);
+  if (state.me) await loadLanguages();
   if (match.r.public) {
     root.innerHTML = '';
   } else {
@@ -884,7 +901,7 @@ route(
           const sel = d.querySelector('#dl');
           const input = d.querySelector('#dt');
           sel.onchange = () => {
-            input.value = input.value.replace(/\((DE|EN|FR|IT)\)$/, `(${sel.value.toUpperCase()})`);
+            input.value = input.value.replace(/\(([A-Z]{2,3}(-[A-Z0-9]{2,8})*)\)$/, `(${sel.value.toUpperCase()})`);
           };
         },
         actions: [
@@ -1369,6 +1386,21 @@ route(
             .join('')}
         </aside>
       </div>
+      <section class="panel" style="margin-bottom:20px">
+        <div class="panel-head"><h2>${te('Kurssprachen')}</h2><button class="btn small" id="new-lang">${icon('plus')}${te('Sprache anlegen')}</button></div>
+        <div class="panel-body"><p class="muted small">${te('Eingebaut: {list}. Eigene Sprachen nutzen für H5P-Oberflächentexte ihre Basissprache; die Texte des Kursplayers kannst du selbst übersetzen.', { list: (state.languages || []).filter((l) => l.builtin).map((l) => l.label).join(', ') })}</p></div>
+        ${
+          (state.languages || []).some((l) => !l.builtin)
+            ? `<ul class="rows">${state.languages
+                .filter((l) => !l.builtin)
+                .map(
+                  (l) => `<li class="row"><div><span class="row-title">${esc(l.name)} <span class="mono muted">${esc(l.code)}</span></span><span class="row-meta"><span>${te('Basis')}: ${esc((state.languages.find((x) => x.code === l.base) || {}).label || l.base)}</span><span>${l.dir === 'rtl' ? te('rechts → links') : te('links → rechts')}</span><span>${te('{n} eigene Texte', { n: Object.keys(l.labels?.player || {}).length + Object.keys(l.labels?.shell || {}).length })}</span></span></div>
+                  <div class="actions"><button class="btn small" data-lang-edit="${esc(l.code)}">${te('Bearbeiten')}</button><button class="icon-btn" data-lang-del="${esc(l.code)}" aria-label="${te('Löschen')}">${icon('trash')}</button></div></li>`
+                )
+                .join('')}</ul>`
+            : ''
+        }
+      </section>
       <section class="panel">
         <div class="panel-head"><h2>${te('Letzte Aktivität')}</h2></div>
         <div class="table-wrap"><table class="table"><thead><tr><th>${te('Zeit')}</th><th>${te('Wer')}</th><th>${te('Aktion')}</th><th>${te('Über')}</th></tr></thead><tbody>
@@ -1376,6 +1408,62 @@ route(
         </tbody></table></div>
       </section>
     </div>`;
+    const langDialog = (lang) => {
+      const meta = state.languageMeta || { keys: { player: [], shell: [] }, defaults: { player: {}, shell: {} } };
+      const builtin = (state.languages || []).filter((l) => l.builtin);
+      const row = (scope, k) =>
+        `<div class="field"><label for="lt-${scope}-${k}" class="mono small">${esc(k)}</label><input class="input" id="lt-${scope}-${k}" data-scope="${scope}" data-key="${esc(k)}" maxlength="300" value="${esc(lang?.labels?.[scope]?.[k] || '')}" placeholder="${esc(meta.defaults[scope][k] || '')}"></div>`;
+      dialog({
+        title: lang ? t('Sprache bearbeiten') : t('Sprache anlegen'),
+        wide: true,
+        body: `<div class="form-grid two">
+            <div class="field"><label for="lc">${te('Sprachcode')}</label><input class="input mono" id="lc" maxlength="20" placeholder="ja, de-ch, pt-br" value="${esc(lang?.code || '')}" ${lang ? 'disabled' : ''}><span class="hint">${te('Kurzform nach BCP 47. Wird im Paket als Sprache angegeben.')}</span></div>
+            <div class="field"><label for="ln">${te('Name')}</label><input class="input" id="ln" maxlength="80" placeholder="${te('z. B. 日本語 oder Schweizerdeutsch')}" value="${esc(lang?.name || '')}"></div>
+          </div>
+          <div class="form-grid two">
+            <div class="field"><label for="lb">${te('Basissprache')}</label><select class="input" id="lb">${builtin.map((b) => `<option value="${esc(b.code)}" ${b.code === (lang?.base || 'en') ? 'selected' : ''}>${esc(b.label)}</option>`).join('')}</select><span class="hint">${te('Liefert die Texte von H5P-Inhalten und alle Player-Texte, die du unten leer lässt.')}</span></div>
+            <div class="field"><label for="ld">${te('Leserichtung')}</label><select class="input" id="ld"><option value="ltr">${te('links → rechts')}</option><option value="rtl" ${lang?.dir === 'rtl' ? 'selected' : ''}>${te('rechts → links')}</option></select></div>
+          </div>
+          <details class="lang-texts" ${lang ? 'open' : ''}><summary>${te('Texte des Kursplayers übersetzen')} <span class="muted small">(${meta.keys.player.length + meta.keys.shell.length})</span></summary>
+            <p class="muted small">${te('Platzhalter wie {num} oder {total} unverändert übernehmen. Leere Felder nutzen die Basissprache.')}</p>
+            <h3 class="small">${te('Block-Kurse')}</h3><div class="form-grid two">${meta.keys.player.map((k) => row('player', k)).join('')}</div>
+            <h3 class="small">${te('Einheiten-Kurse')}</h3><div class="form-grid two">${meta.keys.shell.map((k) => row('shell', k)).join('')}</div>
+          </details>`,
+        actions: [
+          { label: t('Abbrechen'), kind: 'ghost' },
+          {
+            label: t('Speichern'),
+            kind: 'primary',
+            handler: async (d) => {
+              const labels = { player: {}, shell: {} };
+              d.querySelectorAll('[data-scope]').forEach((i) => {
+                if (i.value.trim()) labels[i.dataset.scope][i.dataset.key] = i.value.trim();
+              });
+              const body = { code: d.querySelector('#lc').value.trim(), name: d.querySelector('#ln').value, base: d.querySelector('#lb').value, dir: d.querySelector('#ld').value, labels };
+              if (lang) await api(`/admin/languages/${encodeURIComponent(lang.code)}`, { method: 'PUT', body });
+              else await api('/admin/languages', { method: 'POST', body });
+              await loadLanguages(true);
+              toast(t('Gespeichert.'));
+              render();
+            }
+          }
+        ]
+      });
+    };
+    el.querySelector('#new-lang').onclick = () => langDialog(null);
+    el.querySelectorAll('[data-lang-edit]').forEach((b) => (b.onclick = () => langDialog(state.languages.find((l) => l.code === b.dataset.langEdit))));
+    el.querySelectorAll('[data-lang-del]').forEach((b) => {
+      b.onclick = async () => {
+        if (!(await confirmDialog(t('Sprache löschen?'), t('„{name}“ wird entfernt. Kurse in dieser Sprache müssen vorher umgestellt werden.', { name: b.dataset.langDel })))) return;
+        try {
+          await api(`/admin/languages/${encodeURIComponent(b.dataset.langDel)}`, { method: 'DELETE' });
+          await loadLanguages(true);
+          render();
+        } catch (err) {
+          fail(err);
+        }
+      };
+    });
     el.querySelector('#new-user').onclick = () =>
       dialog({
         title: t('Konto anlegen'),

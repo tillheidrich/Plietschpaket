@@ -31,11 +31,28 @@ course presentations, quizzes, drag and drop, fill in the blanks, hotspots and f
 
 ![Choosing a content type](docs/screenshots/content-types-en.png)
 
+### Block courses
+
+Besides courses made of H5P units there is a second kind of course: block courses. A lesson starts with a title and
+continues with blocks: text, callouts, lists, tabs, timelines, images, galleries, video, audio, knowledge checks,
+matching, sorting, fill in the blanks, bucket sort, hotspots, flip cards, a timed final test, tables, charts and more
+(38 block types). App simulations, role-plays and interactive videos sit in the same lesson as H5P blocks.
+
+The browser editor shows the outline, a block library and a live preview for desktop, tablet and phone side by side.
+It saves drafts as you type and refuses to export blocks that are still incomplete. Eight player designs (studio,
+classic, focus, stage, lesson, magazine, journey, hub), colour presets or your own colours, fonts, a cover page, a logo
+and a completion message are set in the design tab. Each block can carry a narration audio file.
+
+There is also a role-play content type (`H5P.Scenario`) with branching decisions, illustrated characters and an ending
+that depends on the choices.
+
 Other things that matter in day-to-day work:
 
 - Several people work on shared projects. An admin creates the accounts, and each project has owners, editors and viewers.
-- The interface is in German and English. Courses can be exported in German, English, French or Italian, and one click
-  turns an existing course into a new language version that keeps all media.
+- The interface is in German and English. Courses come in 12 languages out of the box (German, English, French,
+  Italian, Spanish, Portuguese, Dutch, Polish, Czech, Swedish, Turkish and Arabic, right to left). Admins can add more,
+  for example Japanese or Swiss German, and translate the player texts themselves. One click turns an existing course
+  into a new language version that keeps all media.
 - Import takes `.h5p` files (from Lumi, for example), ZIP files with several of them, Plietschpaket project exports and
   "click practice" packages (`course.json` plus screenshots), which become editable app simulations.
 - Every export opens in an LMS simulator that shows exactly which SCORM values the package sends.
@@ -45,7 +62,8 @@ Other things that matter in day-to-day work:
 ## Building courses with Claude
 
 Plietschpaket is its own OAuth 2.1 authorization server and speaks MCP over Streamable HTTP. Claude can create
-projects, look up the schema of a content type, write units, upload media, make language versions and export the
+projects, look up the schema of a content type, write units or block courses, set the design, upload media, make
+language versions and export the
 package. It always acts with the rights of the person who signed in.
 
 There are two ways to connect, and the **Connect Claude** page in the app walks you through both:

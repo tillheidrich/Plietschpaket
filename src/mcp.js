@@ -18,6 +18,7 @@ import { AUTHORING_GUIDE } from './guide.js';
 import { jobGate } from './limits.js';
 import { kindMatches } from './sniff.js';
 import { blockCatalog, PLAYER_DESIGNS, THEME_PRESETS, FONTS } from './blocks.js';
+import { listLanguages } from './languages.js';
 
 const VERSION = '0.1.0';
 
@@ -127,6 +128,16 @@ export function buildMcpServer(user) {
   );
 
   server.registerTool(
+    'list_languages',
+    {
+      title: 'Kurssprachen',
+      description: 'Alle Kurssprachen: eingebaute und von Admins angelegte, mit Code, Name und Leserichtung (ltr/rtl). Eigene Sprachen nutzen für H5P-Oberflächentexte ihre Basissprache.',
+      annotations: ro
+    },
+    wrap(async () => ok(listLanguages().map((l) => ({ code: l.code, name: l.name, dir: l.dir, builtin: l.builtin, ...(l.builtin ? {} : { base: l.base }) }))))
+  );
+
+  server.registerTool(
     'list_content_types',
     {
       title: 'Inhaltstypen',
@@ -184,7 +195,7 @@ export function buildMcpServer(user) {
     {
       title: 'Kurs anlegen',
       description:
-        'Neuer Kurs in einem Projekt. language: de|en|fr|it (Sprache der Kursoberfläche und der vorbelegten H5P-Texte). settings: scormVersion 1.2|2004, completion all (alle Einheiten erledigt, Fragen beantwortet) | viewed (alle geöffnet), masteryScore in Prozent, navigation free|linear.',
+        'Neuer Kurs in einem Projekt. language: Kurssprache (list_languages; eingebaut de, en, fr, it, es, pt, nl, pl, cs, sv, tr, ar plus eigene Sprachen der Verwaltung). Sie bestimmt die Texte der Kursoberfläche und die vorbelegten H5P-Texte; ar und eigene RTL-Sprachen laufen von rechts nach links. settings: scormVersion 1.2|2004, completion all (alle Einheiten erledigt, Fragen beantwortet) | viewed (alle geöffnet), masteryScore in Prozent, navigation free|linear.',
       inputSchema: {
         project_id: z.string(),
         title: z.string().min(1).max(200),
@@ -228,14 +239,14 @@ export function buildMcpServer(user) {
     {
       title: 'Sprachfassung anlegen',
       description:
-        'Kopiert einen Kurs mit allen Einheiten in eine andere Sprache (de, en, fr, it). Oberflächentexte der H5P-Inhalte (Buttons, Rückmeldungen) werden automatisch umgestellt; die eigentlichen Inhalte (Fragen, Texte) danach mit get_unit/update_unit übersetzen.',
-      inputSchema: { course_id: z.string(), language: z.enum(['de', 'en', 'fr', 'it']), title: z.string().max(200).optional() },
+        'Kopiert einen Kurs mit allen Einheiten, Blöcken und Medien in eine andere Kurssprache (Codes aus list_languages). Oberflächentexte der H5P-Inhalte (Buttons, Rückmeldungen) werden automatisch umgestellt; die eigentlichen Inhalte (Fragen, Texte) danach mit get_unit/update_unit übersetzen.',
+      inputSchema: { course_id: z.string(), language: z.string().max(20), title: z.string().max(200).optional() },
       annotations: rw
     },
     wrap(async ({ course_id, language, title }) => {
       const source = svc.getCourse(user, course_id);
       const copy = await svc.duplicateCourse(user, course_id, { language, title: title || `${source.title} (${language.toUpperCase()})` }, via);
-      return ok({ ...copy, url: appLink(`/courses/${copy.id}`) }, 'Sprachfassung angelegt. Jetzt die Inhalte der Einheiten übersetzen.');
+      return ok({ ...copy, url: appLink(`/courses/${copy.id}`) }, 'Sprachfassung angelegt. Jetzt die Inhalte übersetzen: Blöcke mit get_blocks/save_blocks, H5P-Einheiten mit get_unit/update_unit.');
     })
   );
 

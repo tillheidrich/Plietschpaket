@@ -11,9 +11,10 @@ Paket für SCORM 1.2, SCORM 2004 oder HTML. Menschen arbeiten in der Oberfläche
 - **App-Simulation (eigener Inhaltstyp `H5P.AppSimulation`):** Software-Training auf Screenshots. Lernende tippen die richtige Stelle an (Navigation sonst gesperrt), Info-/Hinweis-Schritte, Erkunden-Schritte mit Hover-Erklärungen, Abschlussbildschirm, Punkte für „beim ersten Versuch gelöst“, Fortsetzen, Tastatur-Alternative. Ohne Ton; Video (Datei oder YouTube/Vimeo) optional davor. Klickbereiche zieht man im Editor direkt auf dem Screenshot auf.
 - **Inhaltstypen:** 55 Typen, u. a. Interaktives Video (Pausen, Fragen, Buttons, Sprünge), Branching Scenario, Course Presentation, Quiz, Drag & Drop, Lückentext, Hotspots, Lernkarten.
 - **Mehrbenutzer:** Admin legt Konten an; Projekte mit Rollen Owner / Editor / Viewer.
-- **Sprachen:** Oberfläche Deutsch/Englisch; Kurse in DE, EN, FR, IT (inkl. Sprachfassung aus bestehendem Kurs).
+- **Sprachen:** Oberfläche Deutsch/Englisch; Kurse in 12 eingebauten Sprachen (DE, EN, FR, IT, ES, PT, NL, PL, CS, SV, TR und Arabisch von rechts nach links). Admins legen weitere Sprachen an und übersetzen die Player-Texte selbst.
+- **Block-Kurse:** Lektionen aus 38 Blocktypen (Text, Medien, Wissensfragen, Zuordnen, Lückentext, Abschlusstest, Diagramme …), Block-Editor mit Live-Vorschau, 8 Player-Designs, eigene Farben, Titelseite, Vertonung je Block. App-Simulation, Rollenspiel und interaktives Video als H5P-Blöcke.
 - **Import:** `.h5p` (z. B. aus Lumi: Datei → Speichern), ZIP mit mehreren `.h5p`, Plietschpaket-Projekt-ZIP, Klick-Übungs-Pakete (`course.json` + Screenshots) → bearbeitbare App-Simulation.
-- **Varianten:** Sprachfassung eines Kurses mit einem Klick (DE/EN/FR/IT, Oberflächentexte und Medien werden übernommen), danach Texte und Screenshots tauschen.
+- **Varianten:** Sprachfassung eines Kurses mit einem Klick (in jede Kurssprache, Oberflächentexte und Medien werden übernommen), danach Texte und Screenshots tauschen.
 - **Export:** SCORM 1.2, SCORM 2004 4th Ed., HTML. Eingebauter LMS-Simulator zeigt, was ein LMS erhalten würde.
 - **Lizenz:** GPL-3.0-or-later (wegen @lumieducation/h5p-server, GPL-3.0).
 

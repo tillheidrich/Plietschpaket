@@ -146,9 +146,10 @@ der jeweiligen Sprache einsetzen. Koordinaten bleiben gleich, solange die Screen
  "endscreens":[{"time":29,"label":"Ende"}]}}}
 SCORM 1.2 speichert höchstens 4096 Zeichen Fortschritt. Bei langen Videos mit vielen Fragen scormVersion "2004" wählen.
 
-## Sprachfassungen (DE, EN, FR, IT)
-- Kurssprache beim Anlegen setzen. Sie bestimmt die Sprache der Kursnavigation und die vorbelegten H5P-Oberflächentexte.
-- Für eine weitere Sprache: create_language_version, dann jede Einheit mit get_unit lesen, Inhalte übersetzen (Fragen, Antworten, Texte, Feedback) und mit update_unit vollständig zurückschreiben. Fachbegriffe und UI-Begriffe der Software exakt so übernehmen, wie sie in der jeweiligen Oberflächensprache heißen.
+## Sprachfassungen
+- Eingebaute Kurssprachen: de, en, fr, it, es, pt, nl, pl, cs, sv, tr, ar (ar von rechts nach links). Admins können weitere anlegen (z. B. ja, de-ch); list_languages zeigt alle.
+- Kurssprache beim Anlegen setzen. Sie bestimmt die Texte der Kursoberfläche (Navigation, Knöpfe, Rückmeldungen) und die vorbelegten H5P-Oberflächentexte.
+- Für eine weitere Sprache: create_language_version. Block-Kurse: get_blocks lesen, alle Texte übersetzen und mit save_blocks vollständig zurückschreiben (IDs behalten). H5P-Einheiten: get_unit lesen, Inhalte übersetzen (Fragen, Antworten, Texte, Feedback) und mit update_unit vollständig zurückschreiben. Fachbegriffe und UI-Begriffe der Software exakt so übernehmen, wie sie in der jeweiligen Oberflächensprache heißen.
 
 ## Block-Kurse (moderner Kurs mit eigenem Player)
 Ein Block-Kurs ist eine flache Liste von Blöcken. Jeder Block "title" beginnt eine neue Lektion; alles bis zum nächsten "title" gehört dazu. Der Player zeigt die Lektionen je nach Design als Seitenleiste (studio, classic), als Folgen von Bildschirmen (stage), als lange Seite (focus, lesson, magazine) oder mit Startseite (journey, hub).

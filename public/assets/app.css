@@ -360,3 +360,8 @@ a.row:hover .row-chev { color: var(--seal); transform: translateX(3px); }
   .page-head .actions .btn { flex: 1 1 auto; }
   .nav-link.is-active::before { display: none; }
 }
+.lang-texts { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 12px; }
+.lang-texts summary { cursor: pointer; font-weight: 600; }
+.lang-texts[open] { max-height: 52vh; overflow: auto; }
+.lang-texts h3 { margin-top: 6px; color: var(--ink-2); }
+.dialog-body .form-grid.two { align-items: start; }

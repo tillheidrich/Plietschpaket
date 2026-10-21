@@ -9,6 +9,7 @@ import { toH5pUser, resolveUbername } from './h5p.js';
 import { normalizeParams, relocalizeParams } from './schema.js';
 import { normalizeBlocks, normalizeDesign, outline, mediaPath, saveMedia, listMedia, courseMediaDir, newBlockId, DEFAULT_DESIGN } from './blocks.js';
 import fs from 'node:fs';
+import { isCourseLanguage, h5pLanguage } from './languages.js';
 
 export const DEFAULT_COURSE_SETTINGS = {
   scormVersion: '1.2', // '1.2' | '2004'
@@ -240,7 +241,11 @@ export function createCourse(user, projectId, { title, description = '', languag
   return getCourse(user, id);
 }
 
-const normalizeLanguage = (l) => (typeof l === 'string' && /^[a-z]{2}(-[A-Za-z]{2})?$/.test(l) ? l : 'de');
+function normalizeLanguage(l) {
+  const code = String(l || 'de').trim().toLowerCase();
+  if (!isCourseLanguage(code)) throw new ValidationError(`Unbekannte Kurssprache "${code}". Verfügbar sind die eingebauten Sprachen und die in der Verwaltung angelegten.`);
+  return code;
+}
 
 function sanitizeSettings(input = {}) {
   const s = { ...DEFAULT_COURSE_SETTINGS };
@@ -294,7 +299,7 @@ export async function duplicateCourse(user, courseId, { title, projectId, langua
   const unitMap = {};
   for (const unit of source.units) {
     const full = await getUnit(user, unit.id);
-    const params = await relocalizeParams(h5p.editor, full.library, full.params, source.language, copy.language);
+    const params = await relocalizeParams(h5p.editor, full.library, full.params, h5pLanguage(source.language), h5pLanguage(copy.language));
     const created = await createUnit(user, copy.id, { library: full.library, params, title: full.title, skipValidation: true }, via);
     await copyContentFiles(full.contentId, created.contentId, user);
     if (unit.weight !== 1) db.prepare('UPDATE units SET weight = ? WHERE id = ?').run(unit.weight, created.id);
@@ -369,14 +374,14 @@ export async function createUnit(user, courseId, { library, params, title, posit
   const unitTitle = requireText(title, 'Titel der Einheit');
   let finalParams = params;
   if (!skipValidation) {
-    const { params: normalized, errors } = await normalizeParams(h5p.editor, lib.ubername, params, course.language);
+    const { params: normalized, errors } = await normalizeParams(h5p.editor, lib.ubername, params, h5pLanguage(course.language));
     if (errors.length) throw new ValidationError('Die Parameter passen nicht zum Inhaltstyp.', errors);
     finalParams = normalized;
   }
   const { id: contentId } = await h5p.editor.saveOrUpdateContentReturnMetaData(
     undefined,
     finalParams,
-    baseMetadata(unitTitle, lib.ubername, course.language),
+    baseMetadata(unitTitle, lib.ubername, h5pLanguage(course.language)),
     lib.ubername,
     toH5pUser(user)
   );
@@ -388,7 +393,7 @@ export async function createDraftUnit(user, courseId, library, title, via = 'web
   const { course } = assertCourse(user, courseId, 'editor');
   const lib = await resolveUbername(h5p.editor, library);
   if (!lib) throw new ValidationError(`Inhaltstyp "${library}" ist nicht installiert.`);
-  const { params } = await normalizeParams(h5p.editor, lib.ubername, {}, course.language);
+  const { params } = await normalizeParams(h5p.editor, lib.ubername, {}, h5pLanguage(course.language));
   return createUnit(user, courseId, { library: lib.ubername, params, title: String(title || 'Neue Einheit').slice(0, 200), skipValidation: true }, via);
 }
 
@@ -427,13 +432,13 @@ export function attachContent(user, courseId, { contentId, title, library, posit
 export async function updateUnit(user, unitId, { params, title, weight, metadata }, via = 'web') {
   const { unit, course } = assertUnit(user, unitId, 'editor');
   if (params !== undefined) {
-    const { params: normalized, errors } = await normalizeParams(h5p.editor, unit.library, params, course.language);
+    const { params: normalized, errors } = await normalizeParams(h5p.editor, unit.library, params, h5pLanguage(course.language));
     if (errors.length) throw new ValidationError('Die Parameter passen nicht zum Inhaltstyp.', errors);
     const current = await h5p.editor.getContent(unit.content_id, toH5pUser(user));
     await h5p.editor.saveOrUpdateContentReturnMetaData(
       unit.content_id,
       normalized,
-      { ...baseMetadata(title || unit.title, unit.library, course.language), ...(current.params.metadata || {}), ...(metadata || {}), title: title || unit.title },
+      { ...baseMetadata(title || unit.title, unit.library, h5pLanguage(course.language)), ...(current.params.metadata || {}), ...(metadata || {}), title: title || unit.title },
       unit.library,
       toH5pUser(user)
     );

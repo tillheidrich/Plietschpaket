@@ -235,7 +235,7 @@ body.has-side { display: grid; grid-template-columns: 296px minmax(0, 1fr); }
 .pp-b-callout.v-success .pp-callout-icon, .pp-b-callout.v-success .pp-callout-title { color: var(--pp-ok); }
 .pp-mode-dark .pp-b-callout.v-warning { background: rgba(208, 138, 30, 0.14); }
 
-.pp-b-quote { margin: 0; padding: 8px 0 8px 28px; border-inline-start: 3px solid var(--pp-accent); }
+.pp-b-quote { margin: 0; padding-block: 8px; padding-inline: 28px 0; border-inline-start: 3px solid var(--pp-accent); }
 .pp-b-quote blockquote { margin: 0; font-size: 1.32em; line-height: 1.42; letter-spacing: -0.01em; font-weight: 520; }
 .pp-b-quote blockquote::before { content: "\201C"; color: var(--pp-accent); font-size: 1.4em; line-height: 0; vertical-align: -0.35em; margin-inline-end: 4px; }
 .pp-b-quote figcaption { display: flex; align-items: center; gap: 12px; margin-top: 16px; color: var(--pp-muted); font-size: 0.88em; font-weight: 560; }
@@ -264,7 +264,7 @@ body.has-side { display: grid; grid-template-columns: 296px minmax(0, 1fr); }
 .pp-tab-img { width: 100%; border-radius: var(--pp-r-sm); margin-bottom: 14px; }
 
 .pp-b-timeline { list-style: none; margin: 0; padding: 0 0 0 4px; display: grid; gap: 0; }
-.pp-b-timeline li { position: relative; padding: 0 0 26px 34px; border-inline-start: 2px solid var(--pp-line-2); }
+.pp-b-timeline li { position: relative; padding-block: 0 26px; padding-inline: 34px 0; border-inline-start: 2px solid var(--pp-line-2); }
 .pp-b-timeline li:last-child { border-color: transparent; padding-bottom: 0; }
 .pp-tl-dot { position: absolute; inset-inline-start: -8px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--pp-surface); box-shadow: inset 0 0 0 3px var(--pp-accent); }
 .pp-tl-date { display: block; font-size: 0.74em; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--pp-accent); }
@@ -606,3 +606,7 @@ figcaption { color: var(--pp-muted); font-size: 0.84em; margin-top: 10px; }
 .pp-block.is-draft { outline: 1px dashed color-mix(in srgb, var(--pp-accent) 60%, transparent); outline-offset: 8px; }
 .pp-draft { display: grid; gap: 4px; padding: 18px 20px; border: 1.5px dashed color-mix(in srgb, var(--pp-accent) 50%, transparent); border-radius: var(--pp-radius, 12px); color: var(--pp-muted, #666); font-size: 0.9em; }
 .pp-draft strong { color: var(--pp-text, inherit); }
+/* right-to-left: mirror the accent bar of every callout variant */
+[dir="rtl"] .pp-b-callout.v-key { box-shadow: inset -4px 0 0 var(--pp-accent); }
+[dir="rtl"] .pp-b-callout.v-warning { box-shadow: inset -4px 0 0 #d08a1e; }
+[dir="rtl"] .pp-b-callout.v-success { box-shadow: inset -4px 0 0 var(--pp-ok); }

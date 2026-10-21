@@ -1,0 +1,308 @@
+{
+  "semantics": [
+    {
+      "label": "Start screen",
+      "fields": [
+        {
+          "label": "Label above the title",
+          "description": "Short badge, e.g. product and \"Training\".",
+          "default": "Eğitim"
+        },
+        {
+          "label": "Subtitle",
+          "description": "e.g. platform and language: \"iOS · English\"."
+        },
+        {
+          "label": "Introduction",
+          "description": "One or two sentences: what will the learner be able to do afterwards?"
+        },
+        {
+          "label": "Logo",
+          "description": "Shown in the sidebar (PNG or SVG-free image, light on dark)."
+        }
+      ]
+    },
+    {
+      "label": "Chapters",
+      "field": {
+        "label": "Chapter",
+        "fields": [
+          {
+            "label": "Chapter title"
+          },
+          {
+            "label": "Steps",
+            "field": {
+              "label": "Step",
+              "fields": [
+                {
+                  "label": "Instruction",
+                  "description": "Short and active, e.g. \"Open Settings\"."
+                },
+                {
+                  "label": "Detail",
+                  "description": "Optional second line, e.g. \"Tap the gear wheel.\""
+                },
+                {
+                  "label": "Step type",
+                  "options": [
+                    {
+                      "label": "Task: tap the right spot"
+                    },
+                    {
+                      "label": "Info: highlight an area, continue with Next"
+                    },
+                    {
+                      "label": "Note: important hint, continue with Next"
+                    },
+                    {
+                      "label": "Explore: several hints on the screen, continue with Next"
+                    }
+                  ]
+                },
+                {
+                  "label": "Screenshot",
+                  "description": "Leave empty to reuse the screenshot of the previous step."
+                },
+                {
+                  "label": "Area on the screenshot",
+                  "description": "Drag a rectangle on the screenshot. For tasks this is where the learner has to tap; for info steps it is highlighted.",
+                  "fields": [
+                    {
+                      "label": "Shape",
+                      "options": [
+                        {
+                          "label": "Rectangle"
+                        },
+                        {
+                          "label": "Circle/ellipse"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Left (0–1)"
+                    },
+                    {
+                      "label": "Top (0–1)"
+                    },
+                    {
+                      "label": "Width (0–1)"
+                    },
+                    {
+                      "label": "Height (0–1)"
+                    }
+                  ]
+                },
+                {
+                  "label": "Hints on the screen (explore steps)",
+                  "description": "Each hint is a marked area; learners hover or tap it to read the text.",
+                  "field": {
+                    "label": "Hint",
+                    "fields": [
+                      {
+                        "label": "Hint text"
+                      },
+                      {
+                        "label": "Area",
+                        "fields": [
+                          {
+                            "label": "Shape",
+                            "options": [
+                              {
+                                "label": "Rectangle"
+                              },
+                              {
+                                "label": "Circle/ellipse"
+                              }
+                            ]
+                          },
+                          {
+                            "label": "Left (0–1)"
+                          },
+                          {
+                            "label": "Top (0–1)"
+                          },
+                          {
+                            "label": "Width (0–1)"
+                          },
+                          {
+                            "label": "Height (0–1)"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "Optional video before the practice",
+      "description": "Usually not needed: offer the video separately and keep this package for the interactive practice. Use either a video file or a YouTube/Vimeo link.",
+      "fields": [
+        {
+          "label": "Video file"
+        },
+        {
+          "label": "YouTube or Vimeo link",
+          "description": "Alternative to the file. Loads live from YouTube/Vimeo (needs internet access in the learner's network)."
+        },
+        {
+          "label": "Captions (WebVTT .vtt)"
+        },
+        {
+          "label": "Captions language code",
+          "default": "tr"
+        }
+      ]
+    },
+    {
+      "label": "Look",
+      "fields": [
+        {
+          "label": "Device frame",
+          "options": [
+            {
+              "label": "Phone"
+            },
+            {
+              "label": "Tablet"
+            },
+            {
+              "label": "No frame (desktop app, web)"
+            }
+          ]
+        },
+        {
+          "label": "Sidebar colour",
+          "default": "#1d2230"
+        },
+        {
+          "label": "Accent colour (highlights, progress)",
+          "default": "#e3a33b"
+        },
+        {
+          "label": "Button colour",
+          "default": "#b3312c"
+        },
+        {
+          "label": "Footer text"
+        }
+      ]
+    },
+    {
+      "label": "Behaviour",
+      "fields": [
+        {
+          "label": "Score",
+          "description": "\"First try\": every task solved without a wrong tap earns a point. The course mastery score applies.",
+          "options": [
+            {
+              "label": "Points for tasks solved on the first try"
+            },
+            {
+              "label": "No score, completion only"
+            }
+          ]
+        },
+        {
+          "label": "Show the solution after … wrong taps"
+        },
+        {
+          "label": "Tap tolerance (%)",
+          "description": "Enlarges the tap area so that taps close to the edge count."
+        },
+        {
+          "label": "Allow going back"
+        },
+        {
+          "label": "Offer the video on the start screen"
+        }
+      ]
+    },
+    {
+      "label": "Texts of the user interface",
+      "fields": [
+        {
+          "label": "Start button",
+          "default": "Başla"
+        },
+        {
+          "label": "Resume button",
+          "default": "Kaldığın yerden devam et"
+        },
+        {
+          "label": "Watch video button",
+          "default": "Videoyu izle"
+        },
+        {
+          "label": "Button after the video",
+          "default": "Şimdi uygula"
+        },
+        {
+          "label": "Next button",
+          "default": "İleri"
+        },
+        {
+          "label": "Back button (screen reader)",
+          "default": "Geri"
+        },
+        {
+          "label": "Prompt for tasks",
+          "default": "Ekranda doğru yere dokunun."
+        },
+        {
+          "label": "Prompt for explore steps",
+          "default": "Daha fazla bilgi için işaretli alanlara dokunun."
+        },
+        {
+          "label": "Feedback: wrong tap",
+          "default": "Tam olarak değil. Tekrar deneyin."
+        },
+        {
+          "label": "Feedback: solution shown",
+          "default": "Burada: vurgulanan yere dokunun."
+        },
+        {
+          "label": "Feedback: correct",
+          "default": "Doğru."
+        },
+        {
+          "label": "Keyboard alternative: show the step",
+          "default": "Bu adımı göster"
+        },
+        {
+          "label": "Chapter counter",
+          "default": "Bölüm :num / :total"
+        },
+        {
+          "label": "Step counter (screen reader)",
+          "default": "Adım :num / :total"
+        },
+        {
+          "label": "Completion title",
+          "default": "Tebrikler!"
+        },
+        {
+          "label": "Completion text",
+          "default": "Bu eğitimi tamamladınız. Diğer eğitimleri öğrenme platformunuzda bulabilirsiniz."
+        },
+        {
+          "label": "Score text",
+          "default": "İlk denemede çözülen: :score / :total"
+        },
+        {
+          "label": "Restart button",
+          "default": "Baştan başla"
+        },
+        {
+          "label": "Screen description (screen reader)",
+          "default": "Uygulama ekranı"
+        }
+      ]
+    }
+  ]
+}

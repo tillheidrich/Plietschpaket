@@ -25,6 +25,8 @@ import { importFile, exportProjectZip } from '../projectio.js';
 import { listConnections, revokeConnection } from '../oauth.js';
 import { listApiTokens, createApiToken, revokeApiToken } from '../apitokens.js';
 import { tr, requestLanguage, UI_LANGUAGES } from '../i18n.js';
+import { listLanguages, saveLanguage, deleteLanguage, PLAYER_LABEL_KEYS, SHELL_LABEL_KEYS } from '../languages.js';
+import { PLAYER, SHELL } from '../export/labels.js';
 import { RateLimit, limitByIp, jobGate } from '../limits.js';
 import { blockCatalog, BLOCK_CATEGORIES, PLAYER_DESIGNS, THEME_PRESETS, FONTS } from '../blocks.js';
 
@@ -213,6 +215,22 @@ export function apiRouter() {
       res.json({ temporaryPassword: password });
     })
   );
+
+  // ------------------------------------------------------------------ course languages
+  r.get('/languages', (req, res) => {
+    const ui = requestLanguage(req);
+    res.json({
+      languages: listLanguages().map((l) => ({ code: l.code, name: l.name, label: l.builtin ? l[ui] || l.name : l.name, dir: l.dir, builtin: l.builtin, base: l.base, ...(req.user.role === 'admin' && !l.builtin ? { labels: l.labels } : {}) })),
+      keys: { player: PLAYER_LABEL_KEYS, shell: SHELL_LABEL_KEYS },
+      defaults: { player: PLAYER.en, shell: SHELL.en }
+    });
+  });
+  r.post('/admin/languages', requireAdmin, (req, res) => res.status(201).json(saveLanguage(req.user, req.body || {}, { create: true })));
+  r.put('/admin/languages/:code', requireAdmin, (req, res) => res.json(saveLanguage(req.user, { ...(req.body || {}), code: req.params.code })));
+  r.delete('/admin/languages/:code', requireAdmin, (req, res) => {
+    deleteLanguage(req.user, req.params.code);
+    res.json({ ok: true });
+  });
 
   r.get('/admin/audit', requireAdmin, (req, res) => {
     const limit = Math.min(500, Number(req.query.limit || 100));
