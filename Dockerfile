@@ -22,7 +22,7 @@ COPY h5p ./h5p
 COPY src ./src
 COPY desktop-extension ./desktop-extension
 COPY public/index.html ./public/index.html
-COPY public/assets/app.js public/assets/i18n.js public/assets/app.css public/assets/favicon.svg ./public/assets/
+COPY public/assets/app.js public/assets/i18n.js public/assets/app.css public/assets/blockeditor.js public/assets/blockeditor.css public/assets/favicon.svg ./public/assets/
 USER node
 VOLUME ["/data"]
 EXPOSE 8080
