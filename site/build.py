@@ -12,7 +12,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 DIST = HERE / "dist"
-BASE = "https://tillheidrich.github.io/plietschpaket/"
+BASE = "https://plietschpaket.heidrich-digital.de/"
 if "--base" in sys.argv:
     BASE = sys.argv[sys.argv.index("--base") + 1].rstrip("/") + "/"
 

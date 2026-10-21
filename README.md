@@ -1,6 +1,6 @@
 # Plietschpaket
 
-*Deutsche Fassung: [README.de.md](README.de.md) · Website: [tillheidrich.github.io/plietschpaket](https://tillheidrich.github.io/plietschpaket/)*
+*Deutsche Fassung: [README.de.md](README.de.md) · Website: [plietschpaket.heidrich-digital.de](https://plietschpaket.heidrich-digital.de/)*
 
 Plietschpaket is a self-hosted authoring tool for interactive e-learning. You build courses from H5P content in the
 browser, or you let Claude build them for you over MCP, and you get a SCORM 1.2, SCORM 2004 or HTML package that any

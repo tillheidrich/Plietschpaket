@@ -1,6 +1,6 @@
 # Plietschpaket
 
-*English version: [README.md](README.md) · Website: [tillheidrich.github.io/plietschpaket/de](https://tillheidrich.github.io/plietschpaket/de/)*
+*English version: [README.md](README.md) · Website: [plietschpaket.heidrich-digital.de/de](https://plietschpaket.heidrich-digital.de/de/)*
 
 Plietschpaket ist ein Autorenwerkzeug im Browser für interaktive E-Learning-Kurse. Aus H5P-Inhalten entsteht ein
 Paket für SCORM 1.2, SCORM 2004 oder HTML. Menschen arbeiten in der Oberfläche, KI-Assistenten wie Claude über MCP mit OAuth.

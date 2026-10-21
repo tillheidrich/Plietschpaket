@@ -381,3 +381,10 @@ footer { padding: 56px 0 48px; font-size: 0.9rem; color: var(--graphite); }
   .stage-side { padding: 22px 18px; }
   .stage-label { min-height: 0; }
 }
+
+.sec-tight { padding-top: 0; }
+.sec-head.flush { margin: 0; }
+.final { padding-bottom: 24px; }
+.foot-brand { display: inline-flex; margin-right: 12px; }
+.vid-track i.m1 { left: 42%; }
+.vid-track i.m2 { left: 71%; }

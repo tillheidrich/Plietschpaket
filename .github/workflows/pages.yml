@@ -1,9 +1,7 @@
-# Builds the marketing site in site/ and publishes it with GitHub Pages.
+# Optional mirror of the marketing site on GitHub Pages. The live site is https://plietschpaket.heidrich-digital.de
+# (site/Dockerfile). Run manually after enabling Pages (Settings > Pages > Source: GitHub Actions).
 name: pages
 on:
-  push:
-    branches: [main]
-    paths: ["site/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 permissions:
   contents: read
