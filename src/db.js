@@ -192,6 +192,32 @@ const migrations = [
     resolved_by TEXT
   );
   CREATE INDEX review_comments_course ON review_comments(course_id, created_at);
+  `,
+  // 7: own course templates (blocks + design + media copied into DATA_DIR/templates/<id>)
+  `
+  CREATE TABLE templates (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    shared INTEGER NOT NULL DEFAULT 0,
+    blocks TEXT NOT NULL DEFAULT '[]',
+    design TEXT NOT NULL DEFAULT '{}',
+    settings TEXT NOT NULL DEFAULT '{}',
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  `,
+  // 8: Block Studio – own reusable blocks (media copied into DATA_DIR/custom-blocks/<id>)
+  `
+  CREATE TABLE custom_blocks (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    shared INTEGER NOT NULL DEFAULT 0,
+    type TEXT NOT NULL,
+    data TEXT NOT NULL DEFAULT '{}',
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
   `
 ];
 

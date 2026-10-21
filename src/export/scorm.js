@@ -421,7 +421,7 @@ async function writeXapiFiles(dir, course, format, scoredAny, settings) {
   else await fs.promises.writeFile(path.join(dir, 'cmi5.xml'), cmi5Xml(course, scoredAny, settings));
 }
 
-const GRADED_BLOCKS = new Set(['quiz', 'matching', 'sorting', 'fillBlanks', 'bucketSort', 'assessment']);
+const GRADED_BLOCKS = new Set(['quiz', 'matching', 'sorting', 'fillBlanks', 'bucketSort', 'assessment', 'wordBank', 'termGuess']);
 
 async function finishBlockPackage({ dir, course, full, settings, unitsPayload, format, scormVersion, warnings }) {
   const used = new Set(full.blocks.filter((b) => b.type === 'h5p').map((b) => b.data.unitId));

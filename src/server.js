@@ -253,6 +253,7 @@ app.get('/live/:courseId', (req, res, next) => {
     if (!req.user) return res.redirect(302, `/login?next=${encodeURIComponent(req.originalUrl)}`);
     const full = getCourse(req.user, req.params.courseId);
     res.set('Cache-Control', 'no-store');
+    res.set('Permissions-Policy', 'camera=(), microphone=(self), geolocation=(), payment=(), usb=(), fullscreen=(self)'); // language lab blocks
     res.send(livePlayer(full, { design: req.query.design, mediaBase: `/course-media/${encodeURIComponent(full.id)}/` }));
   } catch (err) {
     next(err);
@@ -283,6 +284,7 @@ app.get('/review/:token/player', reviewIpLimit, (req, res, next) => {
   try {
     const full = getCourseForReview(link.course_id);
     res.set('Cache-Control', 'no-store');
+    res.set('Permissions-Policy', 'camera=(), microphone=(self), geolocation=(), payment=(), usb=(), fullscreen=(self)');
     res.send(livePlayer(full, { mediaBase: `/review/${encodeURIComponent(req.params.token)}/media/` }));
   } catch (err) {
     next(err);

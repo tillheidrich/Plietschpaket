@@ -20,6 +20,8 @@ import { kindMatches } from './sniff.js';
 import { blockCatalog, blockSummary, PLAYER_DESIGNS, THEME_PRESETS, FONTS } from './blocks.js';
 import { listLanguages } from './languages.js';
 import * as reviewSvc from './review.js';
+import { listTemplates } from './templates.js';
+import { listCustomBlocks, useCustomBlock } from './customblocks.js';
 
 const VERSION = '0.1.0';
 
@@ -139,6 +141,17 @@ export function buildMcpServer(user) {
   );
 
   server.registerTool(
+    'list_templates',
+    {
+      title: 'Kursvorlagen',
+      description: 'Vorlagen für Block-Kurse: eingebaute (Software-Schulung, Onboarding, Pflichtunterweisung, Produktschulung, Gesprächsführung, Micro-Learning) und eigene. Mit Gliederung und Design. language wählt die Sprache der eingebauten Vorlagentexte (de oder en).',
+      inputSchema: { language: z.string().optional() },
+      annotations: ro
+    },
+    wrap(async ({ language }) => ok(listTemplates(user, language || 'de')))
+  );
+
+  server.registerTool(
     'list_content_types',
     {
       title: 'Inhaltstypen',
@@ -196,18 +209,19 @@ export function buildMcpServer(user) {
     {
       title: 'Kurs anlegen',
       description:
-        'Neuer Kurs in einem Projekt. language: Kurssprache (list_languages; eingebaut de, en, fr, it, es, pt, nl, pl, cs, sv, tr, ar plus eigene Sprachen der Verwaltung). Sie bestimmt die Texte der Kursoberfläche und die vorbelegten H5P-Texte; ar und eigene RTL-Sprachen laufen von rechts nach links. settings: scormVersion 1.2|2004, completion all (alle Einheiten erledigt, Fragen beantwortet) | viewed (alle geöffnet), masteryScore in Prozent, navigation free|linear.',
+        'Neuer Kurs in einem Projekt. language: Kurssprache (list_languages; eingebaut de, en, fr, it, es, pt, nl, pl, cs, sv, tr, ar plus eigene Sprachen der Verwaltung). Sie bestimmt die Texte der Kursoberfläche und die vorbelegten H5P-Texte; ar und eigene RTL-Sprachen laufen von rechts nach links. settings: scormVersion 1.2|2004, completion all (alle Einheiten erledigt, Fragen beantwortet) | viewed (alle geöffnet), masteryScore in Prozent, navigation free|linear. template: ID aus list_templates; legt einen Block-Kurs mit fertiger Gliederung und Design an, dessen Texte du danach mit get_blocks/save_blocks durch echte Inhalte ersetzt.',
       inputSchema: {
         project_id: z.string(),
         title: z.string().min(1).max(200),
         description: z.string().max(4000).optional(),
         language: z.string().optional(),
-        settings: settingsSchema
+        settings: settingsSchema,
+        template: z.string().optional()
       },
       annotations: rw
     },
-    wrap(async ({ project_id, title, description, language, settings }) => {
-      const c = svc.createCourse(user, project_id, { title, description, language, settings }, via);
+    wrap(async ({ project_id, title, description, language, settings, template }) => {
+      const c = svc.createCourse(user, project_id, { title, description, language, settings, template }, via);
       return ok({ ...c, url: appLink(`/courses/${c.id}`) }, 'Kurs angelegt.');
     })
   );
@@ -490,6 +504,27 @@ export function buildMcpServer(user) {
     'list_course_media',
     { title: 'Mediathek eines Kurses', description: 'Hochgeladene Medien eines Block-Kurses.', inputSchema: { course_id: z.string() }, annotations: ro },
     wrap(async ({ course_id }) => ok(svc.courseMedia(user, course_id).map((m) => ({ ...m, ref: `media:${m.name}` }))))
+  );
+
+  server.registerTool(
+    'list_custom_blocks',
+    { title: 'Eigene Bausteine', description: 'Gespeicherte eigene Bausteine (Block Studio) des Nutzers und freigegebene, mit Typ und Kurzinhalt.', annotations: ro },
+    wrap(async () => ok(listCustomBlocks(user)))
+  );
+
+  server.registerTool(
+    'insert_custom_block',
+    {
+      title: 'Eigenen Baustein einfügen',
+      description: 'Fügt einen gespeicherten eigenen Baustein in einen Block-Kurs ein (Medien werden in den Kurs kopiert), nach after_id oder am Ende.',
+      inputSchema: { course_id: z.string(), custom_block_id: z.string(), after_id: z.string().optional() },
+      annotations: rw
+    },
+    wrap(async ({ course_id, custom_block_id, after_id }) => {
+      const block = useCustomBlock(user, course_id, custom_block_id);
+      const r = svc.insertBlocks(user, course_id, [block], { afterId: after_id }, via);
+      return ok({ inserted: r.inserted });
+    })
   );
 
   // ---------------------------------------------------------------- review

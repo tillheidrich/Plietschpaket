@@ -14,6 +14,9 @@ import { assertProject, assertCourse } from './access.js';
 import { toH5pUser } from './h5p.js';
 import { getH5P, getProject, getCourse, createProject, createCourse, createUnit, attachContent, updateUnit, ValidationError, invalidateContentTypes } from './services.js';
 import { detectAppSimPackage, buildAppSimParams } from './import/appsim.js';
+import { detectRisePackage, riseToBlocks } from './import/rise.js';
+import { saveMedia } from './blocks.js';
+import { saveBlocks } from './services.js';
 
 const FORMAT = 'plietschpaket-project';
 const LEGACY_FORMATS = ['scorm-studio-project'];
@@ -189,6 +192,47 @@ export async function importFile(user, filePath, originalName, target = {}, via 
         updateProject(user, projectId, { branding: manifest.project.branding }, via);
       }
       audit(user.id, 'import.project', projectId, { file: originalName, units: summary.units }, via);
+      return summary;
+    }
+
+    // Articulate Rise 360 export → block course
+    const rise = detectRisePackage(entries);
+    if (rise) {
+      let projectId = target.projectId;
+      const courseTitle = String(rise.data.course?.title || baseName(originalName)).replace(/<[^>]*>/g, '').slice(0, 200) || 'Rise';
+      if (!projectId) projectId = createProject(user, { name: courseTitle }, via).id;
+      summary.projectId = projectId;
+      const courseId = createCourse(user, projectId, { title: courseTitle, language: target.language || 'de', settings: { mode: 'blocks' } }, via).id;
+      summary.courses.push(courseId);
+      const byName = new Map();
+      for (const e of entries) if (!e.isDirectory) byName.set(path.posix.basename(e.entryName).toLowerCase(), e);
+      const saved = new Map();
+      let missing = 0;
+      const addMedia = (key) => {
+        const name = path.posix.basename(String(key).split(/[?#]/)[0]).toLowerCase();
+        if (saved.has(name)) return saved.get(name);
+        const entry = byName.get(name);
+        let ref = null;
+        if (entry) {
+          try {
+            ref = saveMedia(courseId, name, entry.getData(), config.maxUploadBytes).ref;
+          } catch {
+            ref = null;
+          }
+        }
+        if (!ref) missing++;
+        saved.set(name, ref);
+        return ref;
+      };
+      const built = riseToBlocks(rise.data, addMedia);
+      const course = saveBlocks(user, courseId, built.blocks, { draft: true }, via);
+      if (built.description) {
+        const { updateCourse } = await import('./services.js');
+        updateCourse(user, courseId, { description: built.description }, via);
+      }
+      summary.units = 0;
+      summary.converted = { from: 'Rise 360', lessons: built.stats.lessons, blocks: course.blocks.length, mapped: built.stats.mapped, asText: built.stats.fallback, media: [...saved.values()].filter(Boolean).length, missingMedia: missing, incomplete: course.blocks.filter((b) => b.issues).length };
+      audit(user.id, 'import.rise', courseId, { file: originalName, ...summary.converted }, via);
       return summary;
     }
 

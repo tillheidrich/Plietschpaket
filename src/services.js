@@ -10,6 +10,7 @@ import { normalizeParams, relocalizeParams } from './schema.js';
 import { normalizeBlocks, normalizeDesign, outline, mediaPath, saveMedia, listMedia, courseMediaDir, newBlockId, DEFAULT_DESIGN } from './blocks.js';
 import fs from 'node:fs';
 import { isCourseLanguage, h5pLanguage } from './languages.js';
+import { resolveTemplate } from './templates.js';
 
 export const DEFAULT_COURSE_SETTINGS = {
   scormVersion: '1.2', // '1.2' | '2004'
@@ -187,8 +188,17 @@ export function removeMember(user, projectId, memberId, via = 'web') {
 // Courses
 // ---------------------------------------------------------------------------
 
+function courseThumb(c) {
+  const settings = parseJson(c.settings, {});
+  if (settings.mode !== 'blocks') return null;
+  const design = { ...DEFAULT_DESIGN, ...parseJson(c.design, {}) };
+  const firstTitle = parseJson(c.blocks, []).find((b) => b.type === 'title' && b.data && b.data.image);
+  return { image: design.cover?.image || firstTitle?.data.image || null, primary: design.theme?.primary, accent: design.theme?.accent, player: design.player };
+}
+
 function courseSummary(c) {
   return {
+    thumb: courseThumb(c),
     id: c.id,
     projectId: c.project_id,
     title: c.title,
@@ -233,8 +243,11 @@ function fullCourse(course, project, role) {
   };
 }
 
-export function createCourse(user, projectId, { title, description = '', language = 'de', settings = {} }, via = 'web') {
+export function createCourse(user, projectId, { title, description = '', language = 'de', settings = {}, template }, via = 'web') {
   assertProject(user, projectId, 'editor');
+  const lang = normalizeLanguage(language);
+  const tpl = template ? resolveTemplate(user, template, lang) : null;
+  if (tpl) settings = { ...settings, ...tpl.settings, mode: 'blocks' };
   const id = newId('c_');
   const pos = db.prepare('SELECT COALESCE(MAX(position), -1) + 1 AS p FROM courses WHERE project_id = ?').get(projectId).p;
   db.prepare(
@@ -244,13 +257,20 @@ export function createCourse(user, projectId, { title, description = '', languag
     projectId,
     requireText(title, 'Kurstitel'),
     String(description || '').slice(0, 4000),
-    normalizeLanguage(language),
+    lang,
     JSON.stringify(sanitizeSettings(settings)),
     crypto.randomUUID(),
     pos
   );
+  if (tpl) {
+    tpl.copyMedia(id);
+    const row = db.prepare('SELECT * FROM courses WHERE id = ?').get(id);
+    storeBlocks(user, row, tpl.blocks.map((b) => ({ ...b, id: undefined })), via, 'course.template', 'all');
+    const design = normalizeDesign({ ...DEFAULT_DESIGN, ...tpl.design }, blockCtx(id));
+    db.prepare('UPDATE courses SET design = ? WHERE id = ?').run(JSON.stringify(design), id);
+  }
   touchProject(projectId);
-  audit(user.id, 'course.create', id, { title }, via);
+  audit(user.id, 'course.create', id, { title, template: template || undefined }, via);
   return getCourse(user, id);
 }
 

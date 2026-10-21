@@ -16,6 +16,8 @@ Paket für SCORM 1.2, SCORM 2004, xAPI, cmi5 oder HTML. Menschen arbeiten in der
 - **Import:** `.h5p` (z. B. aus Lumi: Datei → Speichern), ZIP mit mehreren `.h5p`, Plietschpaket-Projekt-ZIP, Klick-Übungs-Pakete (`course.json` + Screenshots) → bearbeitbare App-Simulation.
 - **Varianten:** Sprachfassung eines Kurses mit einem Klick (in jede Kurssprache, Oberflächentexte und Medien werden übernommen), danach Texte und Screenshots tauschen.
 - **Export:** SCORM 1.2, SCORM 2004 4th Ed., xAPI (Tin Can), cmi5, HTML. Eingebauter LMS-Simulator zeigt, was ein LMS erhalten würde.
+- **Sprachlabor und Block Studio:** Wortbank, Begriffe raten, Vorlesen mit Spracherkennung, Sprachaufnahme, Gesprächsübung; freie Fläche für eigene Bausteine, jeder Block als wiederverwendbarer Baustein speicherbar.
+- **Vorlagen und Import:** sechs eingebaute Kursvorlagen plus eigene; Import von Exporten aus Articulate Rise 360 als Block-Kurs.
 - **Review:** Review-Links für Prüfer ohne Konto, Kommentare je Block, Antworten und Erledigt-Status im Editor und über MCP.
 - **Lizenz:** GPL-3.0-or-later (wegen @lumieducation/h5p-server, GPL-3.0).
 

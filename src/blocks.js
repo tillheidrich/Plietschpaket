@@ -115,6 +115,23 @@ export const BLOCK_TYPES = {
     fields: { title: T(160), intro: T(1000), questions: L(O(QUESTION), 1, 60), passPercent: N(0, 100, 70), timeLimit: N(0, 240, 0), shuffle: B(false), showReview: B(true) },
     example: { title: 'Abschlusstest', questions: [{ question: 'Frage?', options: ['Richtig', 'Falsch'], correct: [0] }], passPercent: 70 } },
 
+  // ------------------------------------------------------------------ language lab
+  wordBank: { cat: 'language', graded: true, de: ['Wortbank', 'Wörter in die Lücken eines Satzes tippen oder ziehen'], en: ['Word bank', 'Tap or drag words into the gaps of a sentence'],
+    fields: { prompt: T(400), text: T(3000, true), distractors: L(T(60, true), 0, 10) },
+    example: { prompt: 'Setze die Wörter ein.', text: 'Ich [habe] gestern einen Kaffee [getrunken].', distractors: ['bin', 'trinke'] } },
+  termGuess: { cat: 'language', graded: true, de: ['Begriffe raten', 'Beschreibung lesen, Begriff eintippen'], en: ['Term guess', 'Read the clue, type the term'],
+    fields: { prompt: T(400), items: L(O({ clue: T(400, true), term: T(80, true), hint: T(200) }), 1, 20) },
+    example: { items: [{ clue: 'Man trinkt ihn morgens, er ist schwarz oder mit Milch.', term: 'Kaffee', hint: 'K…' }] } },
+  oralReading: { cat: 'language', de: ['Vorlesen', 'Text laut lesen, Spracherkennung gibt Rückmeldung'], en: ['Oral reading', 'Read a text aloud, speech recognition gives feedback'],
+    fields: { prompt: T(400), text: T(1500, true), model: M('audio'), passPercent: N(0, 100, 70) },
+    example: { text: 'Guten Morgen. Ich hätte gern einen Tisch für zwei Personen.' } },
+  voiceInsert: { cat: 'language', de: ['Sprachaufnahme', 'Antwort sprechen, anhören, mit der Vorlage vergleichen'], en: ['Voice insert', 'Speak an answer, play it back, compare with the model'],
+    fields: { prompt: T(600, true), model: M('audio'), modelText: T(1000) },
+    example: { prompt: 'Stell dich in zwei Sätzen vor.', modelText: 'Ich heiße Maren und arbeite im Kundenservice.' } },
+  conversation: { cat: 'language', de: ['Gesprächsübung', 'Dialog mit einer Figur, Lernende sprechen ihre Rolle'], en: ['Conversation practice', 'Dialogue with a character, learners speak their part'],
+    fields: { title: T(160), partner: T(60), turns: L(O({ speaker: E(['partner', 'learner'], 'partner'), text: T(600, true), audio: M('audio') }), 2, 30) },
+    example: { partner: 'Kellnerin', turns: [{ speaker: 'partner', text: 'Guten Abend! Was darf ich Ihnen bringen?' }, { speaker: 'learner', text: 'Ich hätte gern ein Wasser, bitte.' }, { speaker: 'partner', text: 'Gern. Still oder mit Kohlensäure?' }, { speaker: 'learner', text: 'Still, bitte.' }] } },
+
   // ------------------------------------------------------------------ advanced
   table: { cat: 'advanced', de: ['Tabelle', 'Zeilen und Spalten'], en: ['Table', 'Rows and columns'],
     fields: { caption: T(200), header: B(true), rows: L(L(T(400), 1, 10), 1, 60) }, example: { rows: [['Spalte A', 'Spalte B'], ['1', '2']] } },
@@ -128,11 +145,31 @@ export const BLOCK_TYPES = {
   comparison: { cat: 'advanced', de: ['Vergleich', 'Das eine gegen das andere'], en: ['Comparison', 'This versus that'],
     fields: { left: O({ title: T(120, true), items: L(T(300, true), 1, 12) }, true), right: O({ title: T(120, true), items: L(T(300, true), 1, 12) }, true) },
     example: { left: { title: 'Vorher', items: ['Langsam'] }, right: { title: 'Nachher', items: ['Schnell'] } } },
+  canvas: { cat: 'advanced', de: ['Freie Fläche', 'Eigener Baustein: Texte, Bilder, Formen und Knöpfe frei anordnen'], en: ['Canvas', 'Custom block: place text, images, shapes and buttons freely'],
+    fields: {
+      aspect: E(['16:9', '4:3', '1:1', '3:4', '21:9'], '16:9'),
+      background: T(9),
+      backgroundImage: M('image'),
+      alt: T(300),
+      layers: L(O({
+        kind: E(['text', 'image', 'shape', 'button'], 'text'),
+        x: N(-50, 150, 10, false), y: N(-50, 150, 10, false), w: N(1, 200, 30, false), h: N(1, 200, 15, false), rotate: N(-180, 180, 0),
+        text: T(600), size: N(8, 160, 28), weight: E(['regular', 'bold'], 'regular'), align: E(['left', 'center', 'right'], 'left'),
+        color: T(9), fill: T(9), shape: E(['rect', 'round', 'circle'], 'rect'), opacity: N(0, 100, 100),
+        image: M('image'), alt: T(300), link: U(), reveal: T(600)
+      }), 0, 40)
+    },
+    example: { aspect: '16:9', background: '#1d2230', layers: [
+      { kind: 'text', x: 8, y: 18, w: 60, h: 20, text: 'Überschrift', size: 56, weight: 'bold', color: '#ffffff' },
+      { kind: 'text', x: 8, y: 42, w: 55, h: 20, text: 'Ein kurzer Satz dazu.', size: 26, color: '#d5d8e0' },
+      { kind: 'shape', x: 72, y: 20, w: 20, h: 35.6, shape: 'circle', fill: '#b3312c' },
+      { kind: 'button', x: 8, y: 68, w: 22, h: 11, text: 'Mehr erfahren', size: 22, fill: '#ffffff', color: '#1d2230', shape: 'round', reveal: 'Hier steht, was beim Klick erscheint.' }
+    ] } },
   h5p: { cat: 'advanced', de: ['H5P-Einheit', 'App-Simulation, Szenario, interaktives Video, Sprachlabor …'], en: ['H5P unit', 'App simulation, scenario, interactive video, language lab …'],
     fields: { unitId: T(40, true), height: N(0, 2000, 0) }, example: null }
 };
 
-export const BLOCK_CATEGORIES = ['content', 'media', 'interactive', 'advanced'];
+export const BLOCK_CATEGORIES = ['content', 'media', 'interactive', 'language', 'advanced'];
 
 // ---------------------------------------------------------------------------------------------- sanitiser
 const ALLOWED_TAGS = new Set(['p', 'br', 'b', 'strong', 'i', 'em', 'u', 's', 'a', 'ul', 'ol', 'li', 'h3', 'h4', 'blockquote', 'code', 'mark', 'sub', 'sup', 'span']);
@@ -296,6 +333,17 @@ function checkBlock(type, data, at, errors, ctx) {
   if (type === 'quiz') checkQuestion(data, at);
   if (type === 'assessment') (data.questions || []).forEach((q, i) => checkQuestion(q, `${at}.questions[${i}]`));
   if (type === 'fillBlanks' && !/\[[^\]]+\]/.test(data.text || '')) errors.push(`${at}.text: Lücken in eckigen Klammern markieren, z. B. [Antwort|Alternative].`);
+  if (type === 'canvas') {
+    const hexOk = (v) => v === undefined || /^#[0-9a-fA-F]{3,8}$/.test(v);
+    if (!hexOk(data.background)) errors.push(`${at}.background: Farbe als #hex angeben.`);
+    (data.layers || []).forEach((l, i) => {
+      if (!hexOk(l.color) || !hexOk(l.fill)) errors.push(`${at}.layers[${i}]: Farbe als #hex angeben.`);
+      if (l.kind === 'image' && !l.image) errors.push(`${at}.layers[${i}].image: Datei fehlt (erst hochladen, dann als "media:<name>" eintragen).`);
+      if ((l.kind === 'text' || l.kind === 'button') && !l.text) errors.push(`${at}.layers[${i}].text: Pflichtfeld fehlt.`);
+    });
+  }
+  if (type === 'wordBank' && !/\[[^\]]+\]/.test(data.text || '')) errors.push(`${at}.text: Lücken in eckigen Klammern markieren, z. B. [Antwort|Alternative].`);
+  if (type === 'conversation' && !(data.turns || []).some((t) => t.speaker === 'learner')) errors.push(`${at}.turns: mindestens ein Satz für die Lernenden (speaker learner).`);
   if (type === 'video' && !data.file && !data.url) errors.push(`${at}: Video-Datei oder YouTube-/Vimeo-Adresse angeben.`);
   if (type === 'video' && data.url && !/^https:\/\/(www\.)?(youtube\.com|youtu\.be|youtube-nocookie\.com|vimeo\.com|player\.vimeo\.com)\//i.test(data.url)) {
     errors.push(`${at}.url: nur YouTube oder Vimeo.`);

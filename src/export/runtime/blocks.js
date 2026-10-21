@@ -1458,6 +1458,599 @@
     return w;
   };
 
+  // ------------------------------------------------------------------ language lab
+  // Speech: SpeechRecognition where the browser has it (Chrome, Edge, Safari), otherwise recording with
+  // MediaRecorder and self-check. Recordings stay in the browser; nothing is uploaded.
+  var Recognition = root.SpeechRecognition || root.webkitSpeechRecognition || null;
+  function speechLang(ctx) {
+    var l = String(ctx.lang || 'de');
+    var map = { de: 'de-DE', en: 'en-GB', fr: 'fr-FR', it: 'it-IT', es: 'es-ES', pt: 'pt-PT', nl: 'nl-NL', pl: 'pl-PL', cs: 'cs-CZ', sv: 'sv-SE', tr: 'tr-TR', ar: 'ar-SA' };
+    return map[l] || l;
+  }
+  function words(s) {
+    return String(s || '')
+      .toLowerCase()
+      .replace(/[’']/g, '')
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+      .split(/\s+/)
+      .filter(Boolean);
+  }
+  /** Share of the target words that appear in the spoken text (order-free, each word counted once). */
+  function overlap(target, spoken) {
+    var want = words(target);
+    if (!want.length) return { pct: 0, hit: [] };
+    var pool = words(spoken);
+    var hit = want.map(function (w) {
+      var i = pool.indexOf(w);
+      if (i === -1) return false;
+      pool.splice(i, 1);
+      return true;
+    });
+    var n = hit.filter(Boolean).length;
+    return { pct: Math.round((n / want.length) * 100), hit: hit };
+  }
+  function listen(ctx, onResult, onEnd) {
+    var r = new Recognition();
+    r.lang = speechLang(ctx);
+    r.interimResults = true;
+    r.continuous = false;
+    r.maxAlternatives = 1;
+    var finalText = '';
+    r.onresult = function (e) {
+      var t = '';
+      for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript + ' ';
+      finalText = t.trim();
+      onResult(finalText, false);
+    };
+    r.onerror = function (e) {
+      onEnd(finalText, e.error || 'error');
+    };
+    r.onend = function () {
+      onEnd(finalText, null);
+    };
+    r.start();
+    return r;
+  }
+  function recorder(ctx, onDone) {
+    // returns a controller; onDone(blobUrl | null, errorLabel)
+    var media = null;
+    var chunks = [];
+    return {
+      start: function () {
+        if (!navigator.mediaDevices || !root.MediaRecorder) return onDone(null, ctx.label('micBlocked'));
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(
+          function (stream) {
+            media = new MediaRecorder(stream);
+            chunks = [];
+            media.ondataavailable = function (e) {
+              if (e.data && e.data.size) chunks.push(e.data);
+            };
+            media.onstop = function () {
+              stream.getTracks().forEach(function (t) {
+                t.stop();
+              });
+              onDone(URL.createObjectURL(new Blob(chunks, { type: media.mimeType || 'audio/webm' })), null);
+            };
+            media.start();
+          },
+          function () {
+            onDone(null, ctx.label('micBlocked'));
+          }
+        );
+      },
+      stop: function () {
+        if (media && media.state !== 'inactive') media.stop();
+      }
+    };
+  }
+  function audioPlayer(src, label) {
+    var a = el('audio', 'pp-ll-audio');
+    a.controls = true;
+    a.preload = 'none';
+    a.src = src;
+    if (label) a.setAttribute('aria-label', label);
+    return a;
+  }
+  function speak(ctx, text) {
+    if (!root.speechSynthesis) return false;
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = speechLang(ctx);
+    root.speechSynthesis.cancel();
+    root.speechSynthesis.speak(u);
+    return true;
+  }
+  function micButton(ctx) {
+    var b = btn('pp-btn pp-btn-mic', '');
+    b.innerHTML = '<svg class="pp-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span></span>';
+    b.setLabel = function (t) {
+      b.querySelector('span').textContent = t;
+    };
+    return b;
+  }
+
+  R.wordBank = function (b, ctx) {
+    var w = el('div', 'pp-b-wordbank pp-card');
+    return graded(b, ctx, w, function (saved, report) {
+      w.appendChild(el('div', 'pp-eyebrow', ctx.label('wordBank')));
+      w.appendChild(el('p', 'pp-q-text', b.data.prompt || ctx.label('wordBankHint')));
+      var p = el('p', 'pp-blanks-text pp-wb-text');
+      var gaps = [];
+      var re = /\[([^\]]+)\]/g;
+      var last = 0;
+      var m;
+      var text = b.data.text;
+      while ((m = re.exec(text))) {
+        p.appendChild(document.createTextNode(text.slice(last, m.index)));
+        var answers = m[1].split('|').map(function (s) {
+          return s.trim();
+        });
+        var g = btn('pp-wb-gap', '');
+        g.setAttribute('aria-label', ctx.label('gap', { num: gaps.length + 1 }));
+        gaps.push({ el: g, answers: answers, value: null });
+        p.appendChild(g);
+        last = re.lastIndex;
+      }
+      p.appendChild(document.createTextNode(text.slice(last)));
+      w.appendChild(p);
+      var bankWords = shuffle(
+        gaps
+          .map(function (g) {
+            return g.answers[0];
+          })
+          .concat(b.data.distractors || []),
+        seedOf(b.id)
+      );
+      var bank = el('div', 'pp-wb-bank');
+      var chips = bankWords.map(function (word, i) {
+        var c = btn('pp-wb-chip', word);
+        c.draggable = true;
+        c.dataset.i = String(i);
+        c.addEventListener('dragstart', function (e) {
+          e.dataTransfer.setData('text/plain', String(i));
+        });
+        c.addEventListener('click', function () {
+          if (locked) return;
+          var target = gaps.filter(function (x) {
+            return x.value === null;
+          })[0];
+          if (target) place(target, i);
+        });
+        bank.appendChild(c);
+        return c;
+      });
+      var locked = false;
+      function place(g, i) {
+        if (g.value !== null) chips[g.value].hidden = false;
+        g.value = i;
+        g.el.textContent = bankWords[i];
+        g.el.classList.add('is-filled');
+        chips[i].hidden = true;
+        submit.disabled = gaps.some(function (x) {
+          return x.value === null;
+        });
+      }
+      gaps.forEach(function (g) {
+        g.el.addEventListener('click', function () {
+          if (locked || g.value === null) return;
+          chips[g.value].hidden = false;
+          g.value = null;
+          g.el.textContent = '';
+          g.el.classList.remove('is-filled');
+          submit.disabled = true;
+        });
+        g.el.addEventListener('dragover', function (e) {
+          e.preventDefault();
+        });
+        g.el.addEventListener('drop', function (e) {
+          e.preventDefault();
+          if (!locked) place(g, Number(e.dataTransfer.getData('text/plain')));
+        });
+      });
+      w.appendChild(bank);
+      var submit = btn('pp-btn pp-btn-primary', ctx.label('check'));
+      submit.disabled = true;
+      var fb = el('div');
+      function lock(resp) {
+        locked = true;
+        var good = 0;
+        gaps.forEach(function (g, i) {
+          var word = resp[i] || '';
+          g.el.textContent = word;
+          g.el.disabled = true;
+          var okw = g.answers.some(function (a) {
+            return a.toLowerCase() === String(word).toLowerCase();
+          });
+          if (okw) good++;
+          g.el.classList.add(okw ? 'is-correct' : 'is-wrong');
+          if (!okw) g.el.after(el('span', 'pp-gap-solution', g.answers[0]));
+        });
+        bank.hidden = true;
+        submit.remove();
+        fb.appendChild(feedback(good === gaps.length, ctx.label('result', { good: good, total: gaps.length }), good > 0));
+        return gaps.length ? good / gaps.length : 1;
+      }
+      submit.addEventListener('click', function () {
+        var resp = gaps.map(function (g) {
+          return bankWords[g.value];
+        });
+        report(lock(resp), resp);
+      });
+      var a = el('div', 'pp-actions');
+      a.appendChild(submit);
+      w.appendChild(a);
+      w.appendChild(fb);
+      if (saved && saved.r) lock(saved.r);
+    });
+  };
+
+  R.termGuess = function (b, ctx) {
+    var w = el('div', 'pp-b-termguess pp-card');
+    return graded(b, ctx, w, function (saved, report) {
+      w.appendChild(el('div', 'pp-eyebrow', ctx.label('termGuess')));
+      if (b.data.prompt) w.appendChild(el('p', 'pp-q-text', b.data.prompt));
+      var list = el('ol', 'pp-tg-list');
+      var rows = b.data.items.map(function (it, i) {
+        var li = el('li', 'pp-tg-item');
+        li.appendChild(el('p', 'pp-tg-clue', it.clue));
+        var line = el('div', 'pp-tg-line');
+        var inp = el('input', 'pp-gap pp-tg-input');
+        inp.type = 'text';
+        inp.autocomplete = 'off';
+        inp.spellcheck = false;
+        inp.setAttribute('aria-label', it.clue);
+        line.appendChild(inp);
+        if (it.hint) {
+          var hb = btn('pp-btn pp-btn-ghost pp-btn-sm', ctx.label('hint'), function () {
+            hb.replaceWith(el('span', 'pp-tg-hint', it.hint));
+          });
+          line.appendChild(hb);
+        }
+        li.appendChild(line);
+        list.appendChild(li);
+        return { inp: inp, li: li, terms: it.term.split('|').map(function (s) { return s.trim().toLowerCase(); }), term: it.term.split('|')[0] };
+      });
+      w.appendChild(list);
+      var submit = btn('pp-btn pp-btn-primary', ctx.label('check'));
+      var fb = el('div');
+      function lock(resp) {
+        var good = 0;
+        rows.forEach(function (r, i) {
+          r.inp.value = resp[i] || '';
+          r.inp.disabled = true;
+          var okt = r.terms.indexOf(String(resp[i] || '').trim().toLowerCase()) !== -1;
+          if (okt) good++;
+          r.inp.classList.add(okt ? 'is-correct' : 'is-wrong');
+          if (!okt) r.inp.after(el('span', 'pp-gap-solution', r.term));
+          var h = r.li.querySelector('.pp-btn-ghost');
+          if (h) h.remove();
+        });
+        submit.remove();
+        fb.appendChild(feedback(good === rows.length, ctx.label('result', { good: good, total: rows.length }), good > 0));
+        return rows.length ? good / rows.length : 1;
+      }
+      submit.addEventListener('click', function () {
+        var resp = rows.map(function (r) {
+          return r.inp.value.slice(0, 120);
+        });
+        report(lock(resp), resp);
+      });
+      var a = el('div', 'pp-actions');
+      a.appendChild(submit);
+      w.appendChild(a);
+      w.appendChild(fb);
+      if (saved && saved.r) lock(saved.r);
+    });
+  };
+
+  R.oralReading = function (b, ctx) {
+    var w = el('div', 'pp-b-oral pp-card');
+    var saved = ctx.state(b.id) || {};
+    w.appendChild(el('div', 'pp-eyebrow', ctx.label('oralReading')));
+    if (b.data.prompt) w.appendChild(el('p', 'pp-q-text', b.data.prompt));
+    var target = b.data.text;
+    var textEl = el('p', 'pp-oral-text');
+    var tokens = target.split(/(\s+)/);
+    var spans = [];
+    tokens.forEach(function (t) {
+      if (/^\s+$/.test(t) || !t) textEl.appendChild(document.createTextNode(t));
+      else {
+        var s = el('span', 'pp-oral-word', t);
+        spans.push(s);
+        textEl.appendChild(s);
+      }
+    });
+    w.appendChild(textEl);
+    if (b.data.model) w.appendChild(audioPlayer(ctx.url(b.data.model), ctx.label('model')));
+    var row = el('div', 'pp-actions');
+    var out = el('div', 'pp-oral-out');
+    var mic = micButton(ctx);
+    var pass = b.data.passPercent === undefined ? 70 : b.data.passPercent;
+    function show(spoken, final) {
+      var r = overlap(target, spoken);
+      spans.forEach(function (s, i) {
+        s.classList.toggle('is-hit', !!r.hit[i]);
+        s.classList.toggle('is-miss', final && !r.hit[i]);
+      });
+      if (final) {
+        out.innerHTML = '';
+        out.appendChild(feedback(r.pct >= pass, ctx.label('recognized', { pct: r.pct }), r.pct > 0));
+        ctx.save(b.id, { c: 1, p: Math.max(r.pct, saved.p || 0) });
+        saved.p = Math.max(r.pct, saved.p || 0);
+      }
+    }
+    if (Recognition) {
+      var rec = null;
+      mic.setLabel(ctx.label('readAloud'));
+      mic.addEventListener('click', function () {
+        if (rec) {
+          rec.stop();
+          return;
+        }
+        out.innerHTML = '';
+        mic.classList.add('is-live');
+        mic.setLabel(ctx.label('stop'));
+        rec = listen(
+          ctx,
+          function (t) {
+            show(t, false);
+          },
+          function (t, err) {
+            rec = null;
+            mic.classList.remove('is-live');
+            mic.setLabel(ctx.label('again'));
+            if (err && err !== 'no-speech' && err !== 'aborted') out.appendChild(el('p', 'pp-hint', ctx.label('micBlocked')));
+            else show(t, true);
+          }
+        );
+      });
+    } else {
+      // no recognition: record, listen back, self-check
+      out.appendChild(el('p', 'pp-hint', ctx.label('noRecognition')));
+      var recCtl = null;
+      var live = false;
+      mic.setLabel(ctx.label('record'));
+      mic.addEventListener('click', function () {
+        if (live) {
+          recCtl.stop();
+          return;
+        }
+        recCtl = recorder(ctx, function (url, err) {
+          live = false;
+          mic.classList.remove('is-live');
+          mic.setLabel(ctx.label('again'));
+          if (err) return out.appendChild(el('p', 'pp-hint', err));
+          var old = out.querySelector('audio');
+          if (old) old.remove();
+          out.appendChild(audioPlayer(url, ctx.label('yourRecording')));
+          ctx.save(b.id, { c: 1 });
+        });
+        recCtl.start();
+        live = true;
+        mic.classList.add('is-live');
+        mic.setLabel(ctx.label('stop'));
+      });
+    }
+    row.appendChild(mic);
+    w.appendChild(row);
+    w.appendChild(out);
+    if (saved.p !== undefined && Recognition) out.appendChild(el('p', 'pp-hint', ctx.label('bestScore', { pct: saved.p })));
+    return w;
+  };
+
+  R.voiceInsert = function (b, ctx) {
+    var w = el('div', 'pp-b-voice pp-card');
+    w.appendChild(el('div', 'pp-eyebrow', ctx.label('voiceInsert')));
+    w.appendChild(el('p', 'pp-q-text', b.data.prompt));
+    var out = el('div', 'pp-voice-out');
+    var mic = micButton(ctx);
+    mic.setLabel(ctx.label('record'));
+    var live = false;
+    var ctl = null;
+    mic.addEventListener('click', function () {
+      if (live) {
+        ctl.stop();
+        return;
+      }
+      ctl = recorder(ctx, function (url, err) {
+        live = false;
+        mic.classList.remove('is-live');
+        mic.setLabel(ctx.label('again'));
+        out.innerHTML = '';
+        if (err) return out.appendChild(el('p', 'pp-hint', err));
+        out.appendChild(el('span', 'pp-voice-label', ctx.label('yourRecording')));
+        out.appendChild(audioPlayer(url, ctx.label('yourRecording')));
+        ctx.save(b.id, { c: 1 });
+        if (b.data.model || b.data.modelText) {
+          var d = el('details', 'pp-sample');
+          d.open = true;
+          d.appendChild(el('summary', '', ctx.label('compareModel')));
+          if (b.data.model) d.appendChild(audioPlayer(ctx.url(b.data.model), ctx.label('model')));
+          if (b.data.modelText) d.appendChild(el('p', 'pp-voice-model', b.data.modelText));
+          out.appendChild(d);
+        }
+      });
+      ctl.start();
+      live = true;
+      mic.classList.add('is-live');
+      mic.setLabel(ctx.label('stop'));
+    });
+    var a = el('div', 'pp-actions');
+    a.appendChild(mic);
+    w.appendChild(a);
+    w.appendChild(out);
+    return w;
+  };
+
+  R.conversation = function (b, ctx) {
+    var w = el('div', 'pp-b-convo pp-card');
+    w.appendChild(el('div', 'pp-eyebrow', ctx.label('conversation')));
+    if (b.data.title) w.appendChild(el('h4', 'pp-h3', b.data.title));
+    var log = el('div', 'pp-convo-log');
+    log.setAttribute('aria-live', 'polite');
+    w.appendChild(log);
+    var controls = el('div', 'pp-convo-controls');
+    w.appendChild(controls);
+    var turns = b.data.turns;
+    var idx = 0;
+    function bubble(who, text, cls) {
+      var m = el('div', 'pp-convo-msg ' + cls);
+      m.appendChild(el('span', 'pp-convo-who', who));
+      m.appendChild(el('p', '', text));
+      log.appendChild(m);
+      return m;
+    }
+    function step() {
+      controls.innerHTML = '';
+      if (idx >= turns.length) {
+        controls.appendChild(feedback(true, ctx.label('convoDone')));
+        controls.appendChild(
+          btn('pp-btn pp-btn-ghost', ctx.label('again'), function () {
+            log.innerHTML = '';
+            idx = 0;
+            step();
+          })
+        );
+        ctx.save(b.id, { c: 1 });
+        return;
+      }
+      var t = turns[idx];
+      if (t.speaker === 'partner') {
+        var m = bubble(b.data.partner || ctx.label('partner'), t.text, 'is-partner');
+        if (t.audio) {
+          var a = audioPlayer(ctx.url(t.audio));
+          m.appendChild(a);
+          a.play().catch(function () {});
+        } else speak(ctx, t.text);
+        idx++;
+        controls.appendChild(btn('pp-btn pp-btn-primary', ctx.label('next'), step));
+        return;
+      }
+      // learner turn: say it (recognition) or type it, then compare with the model line
+      controls.appendChild(el('span', 'pp-convo-turn', ctx.label('yourTurn')));
+      var input = el('input', 'pp-gap pp-convo-input');
+      input.type = 'text';
+      input.placeholder = ctx.label('typeOrSpeak');
+      input.setAttribute('aria-label', ctx.label('yourTurn'));
+      controls.appendChild(input);
+      var row = el('div', 'pp-actions');
+      if (Recognition) {
+        var mic = micButton(ctx);
+        mic.setLabel(ctx.label('speak'));
+        var rec = null;
+        mic.addEventListener('click', function () {
+          if (rec) return rec.stop();
+          mic.classList.add('is-live');
+          rec = listen(
+            ctx,
+            function (txt) {
+              input.value = txt;
+            },
+            function () {
+              rec = null;
+              mic.classList.remove('is-live');
+            }
+          );
+        });
+        row.appendChild(mic);
+      }
+      row.appendChild(
+        btn('pp-btn pp-btn-primary', ctx.label('submit'), function () {
+          var said = input.value.trim();
+          var r = overlap(t.text, said);
+          var mine = bubble(ctx.label('you'), said || '…', 'is-learner');
+          var model = el('div', 'pp-convo-model ' + (r.pct >= 70 ? 'is-close' : ''));
+          model.appendChild(el('span', '', (r.pct >= 70 ? ctx.label('wellSaid') : ctx.label('modelAnswer')) + ' '));
+          model.appendChild(el('em', '', t.text));
+          mine.appendChild(model);
+          idx++;
+          step();
+        })
+      );
+      controls.appendChild(row);
+      setTimeout(function () {
+        input.focus({ preventScroll: true });
+      }, 0);
+    }
+    var start = btn('pp-btn pp-btn-primary', ctx.label('startConvo'), function () {
+      start.remove();
+      step();
+    });
+    controls.appendChild(start);
+    if ((ctx.state(b.id) || {}).c) controls.appendChild(el('span', 'pp-hint', ' ' + ctx.label('convoDoneBefore')));
+    return w;
+  };
+
+  // ------------------------------------------------------------------ canvas (Block Studio)
+  // Positions and sizes are percentages of the stage; font sizes refer to a 1000 px wide stage and scale with
+  // the container (cqw). Buttons open a link in a new tab or reveal a short text.
+  var ASPECT = { '16:9': '16 / 9', '4:3': '4 / 3', '1:1': '1 / 1', '3:4': '3 / 4', '21:9': '21 / 9' };
+  R.canvas = function (b, ctx) {
+    var d = b.data;
+    var w = el('div', 'pp-b-canvas');
+    var stage = el('div', 'pp-cv-stage');
+    stage.style.aspectRatio = ASPECT[d.aspect] || '16 / 9';
+    if (d.background) stage.style.background = d.background;
+    if (d.backgroundImage) {
+      var bg = img(ctx, d.backgroundImage, d.alt || '', 'pp-cv-bg');
+      stage.appendChild(bg);
+    }
+    var pop = null;
+    (d.layers || []).forEach(function (l, i) {
+      var node;
+      if (l.kind === 'image' && l.image) {
+        node = el('div', 'pp-cv-layer pp-cv-image');
+        node.appendChild(img(ctx, l.image, l.alt || ''));
+      } else if (l.kind === 'shape') {
+        node = el('div', 'pp-cv-layer pp-cv-shape shape-' + (l.shape || 'rect'));
+        node.setAttribute('aria-hidden', 'true');
+      } else if (l.kind === 'button') {
+        node = btn('pp-cv-layer pp-cv-button shape-' + (l.shape || 'rect'), l.text || '');
+        node.addEventListener('click', function () {
+          if (l.link) {
+            root.open(l.link, '_blank', 'noopener');
+            return;
+          }
+          if (!l.reveal) return;
+          if (pop && pop.dataset.i === String(i)) {
+            pop.remove();
+            pop = null;
+            node.setAttribute('aria-expanded', 'false');
+            return;
+          }
+          if (pop) pop.remove();
+          pop = el('div', 'pp-cv-pop', l.reveal);
+          pop.dataset.i = String(i);
+          pop.setAttribute('role', 'status');
+          var top = Math.min(78, (l.y || 0) + (l.h || 10) + 3);
+          pop.style.top = top + '%';
+          pop.style.left = Math.max(2, Math.min(60, l.x || 0)) + '%';
+          stage.appendChild(pop);
+          node.setAttribute('aria-expanded', 'true');
+        });
+        if (l.reveal && !l.link) node.setAttribute('aria-expanded', 'false');
+      } else {
+        node = el('div', 'pp-cv-layer pp-cv-text', l.text || '');
+      }
+      node.style.left = (l.x || 0) + '%';
+      node.style.top = (l.y || 0) + '%';
+      node.style.width = (l.w || 10) + '%';
+      node.style.height = (l.h || 10) + '%';
+      if (l.rotate) node.style.transform = 'rotate(' + l.rotate + 'deg)';
+      if (l.opacity !== undefined && l.opacity !== 100) node.style.opacity = String(l.opacity / 100);
+      if (l.kind === 'text' || l.kind === 'button') {
+        node.style.fontSize = (l.size || 28) * 0.1 + 'cqw';
+        node.style.fontWeight = l.weight === 'bold' ? '700' : '400';
+        node.style.textAlign = l.align || (l.kind === 'button' ? 'center' : 'left');
+        if (l.color) node.style.color = l.color;
+      }
+      if (l.fill && l.kind !== 'text' && l.kind !== 'image') node.style.background = l.fill;
+      if (l.fill && l.kind === 'text') node.style.background = l.fill;
+      stage.appendChild(node);
+    });
+    w.appendChild(stage);
+    return w;
+  };
+
   function render(block, ctx) {
     var fn = R[block.type];
     var wrap = el('div', 'pp-block pp-t-' + block.type + (block.issues ? ' is-draft' : ''));
@@ -1493,7 +2086,7 @@
   root.PPBlocks = {
     render: render,
     renderers: R,
-    graded: { quiz: 1, matching: 1, sorting: 1, fillBlanks: 1, bucketSort: 1, assessment: 1 },
+    graded: { quiz: 1, matching: 1, sorting: 1, fillBlanks: 1, bucketSort: 1, assessment: 1, wordBank: 1, termGuess: 1 },
     icon: icon
   };
 })(window);

@@ -51,7 +51,13 @@ const BI = {
   pdf: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 17h4"/>',
   graph: '<path d="M4 20V4M4 20h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/>',
   comparison: '<path d="M12 3v18"/><path d="M4 8h5M4 12h5M15 8h5M15 12h5"/>',
-  h5p: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8v8M8 12h4M12 8v8M16 8v8"/>'
+  h5p: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8v8M8 12h4M12 8v8M16 8v8"/>',
+  wordBank: '<rect x="3" y="14" width="7" height="5" rx="2"/><rect x="12" y="14" width="9" height="5" rx="2"/><path d="M3 9h5M11 9h10" stroke-dasharray="2 2"/>',
+  termGuess: '<path d="M4 6h16M4 11h10"/><rect x="4" y="15" width="16" height="5" rx="1.5"/><path d="M7 17.5h.01M10 17.5h.01"/>',
+  oralReading: '<path d="M4 6h10M4 10h10M4 14h6"/><path d="M17 9a3 3 0 0 1 0 6M19.5 6.5a7 7 0 0 1 0 11"/>',
+  voiceInsert: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  conversation: '<path d="M3 5h12v8H8l-4 3z"/><path d="M15 9h6v8l-3-2h-6v-2"/>',
+  canvas: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h6M7 13h4"/><circle cx="16" cy="14" r="2.5"/>'
 };
 const UI = {
   undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-4"/>',
@@ -83,6 +89,7 @@ const UI = {
   warn: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
   edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
   chat: '<path d="M4 5h16v11H9l-5 4z"/>',
+  star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
   play: '<path d="M8 5v14l11-7z"/>'
 };
 const svg = (paths, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${paths}</svg>`;
@@ -99,20 +106,26 @@ const FIELD = {
   minWords: 'Mindestanzahl Wörter', sample: 'Musterlösung', intro: 'Einleitung', questions: 'Fragen', passPercent: 'Bestanden ab (%)',
   timeLimit: 'Zeitlimit in Minuten (0 = ohne)', shuffle: 'Fragen mischen', showReview: 'Antworten nach dem Test zeigen',
   header: 'Erste Zeile ist Kopfzeile', rows: 'Zeilen', height: 'Höhe in Pixeln (0 = automatisch)', chartType: 'Diagrammart',
-  labels: 'Beschriftungen', series: 'Datenreihen', values: 'Werte', unit: 'Einheit', unitId: 'H5P-Einheit', multiple: 'Mehrere Antworten'
+  labels: 'Beschriftungen', series: 'Datenreihen', values: 'Werte', unit: 'Einheit', unitId: 'H5P-Einheit', multiple: 'Mehrere Antworten',
+  distractors: 'Zusätzliche falsche Wörter', clue: 'Beschreibung', term: 'Begriff (Alternativen mit |)', hint: 'Tipp', model: 'Vorlage (Audio)', modelText: 'Vorlage als Text',
+  reveal: 'Text beim Klick', link: 'Link (optional)',
+  turns: 'Gesprächszüge', speaker: 'Wer spricht', partner: 'Name des Gegenübers', audio: 'Audio (optional)'
 };
 const OPT = {
   info: 'Hinweis', tip: 'Tipp', warning: 'Achtung', success: 'Gut zu wissen', key: 'Merke', accent: 'Akzent', plain: 'Schlicht', dark: 'Dunkel',
   left: 'Links', right: 'Rechts', wide: 'Breit', full: 'Randlos', medium: 'Mittel', grid: 'Raster', carousel: 'Karussell', bar: 'Balken',
-  line: 'Linie', pie: 'Torte'
+  line: 'Linie', pie: 'Torte', learner: 'Lernende', partner: 'Gegenüber'
 };
 const HINT = {
+  'wordBank.text': 'Wörter für die Wortbank in eckige Klammern setzen, z. B. „Ich [habe] Hunger.“ Alternativen mit |.',
+  'conversation.turns': 'Gegenüber-Sätze werden vorgelesen (eigene Audiodatei oder Sprachausgabe des Browsers). Lernende sprechen oder tippen ihre Sätze und sehen danach die Vorlage.',
+  'oralReading.passPercent': 'Anteil der Wörter, die die Spracherkennung finden muss, damit die Rückmeldung grün ist.',
   'fillBlanks.text': 'Lücken in eckige Klammern setzen, Alternativen mit |, z. B. „Die Hauptstadt ist [Paris|paris].“',
   'image.alt': 'Beschreibt das Bild für Screenreader. Leer lassen, wenn es nur Dekoration ist.',
   'video.url': 'YouTube- oder Vimeo-Adresse – oder oben eine Videodatei wählen.',
   'embed.url': 'Nur https. Die Seite muss das Einbetten erlauben.'
 };
-const CATS = { content: 'Text & Struktur', media: 'Medien', interactive: 'Interaktion', advanced: 'Weitere' };
+const CATS = { content: 'Text & Struktur', media: 'Medien', interactive: 'Interaktion', language: 'Sprachlabor', advanced: 'Weitere' };
 const DESIGN_INFO = {
   studio: ['Studio', 'Seitenleiste mit Lektionen, eine Lektion je Seite'],
   classic: ['Klassisch', 'Helle Seitenleiste, ruhiges Layout'],
@@ -154,6 +167,7 @@ export async function blockEditor(el, courseId, ctx) {
   let units = course.units;
   let media = mediaList;
   let comments = commentList;
+  let customBlocks = await api('/custom-blocks').catch(() => []);
   let commentFilter = 'open';
   let updatedAt = course.updatedAt;
   let sel = blocks[0]?.id || null;
@@ -361,6 +375,16 @@ export async function blockEditor(el, courseId, ctx) {
           .join('')}</div></div>`;
       })
       .join('');
+    const own = customBlocks.filter((x) => !q || `${x.name} ${x.summary}`.toLowerCase().includes(q));
+    const ownGroup = canEdit
+      ? `<div class="be-lib-group"><h3>${te('Eigene Bausteine')}</h3>${
+          own.length
+            ? `<div class="be-lib-units">${own
+                .map((x) => `<div class="be-lib-own"><button type="button" class="be-lib-unit" data-add-custom="${esc(x.id)}">${svg(BI[x.type] || BI.text, 'be-ic')}<span><b>${esc(x.name)}</b><small>${esc(typeLabel(x.type))}${x.shared ? ` · ${te('für alle')}` : ''}</small></span></button>${x.mine || state.me?.role === 'admin' ? `<button type="button" class="icon-btn small" data-del-custom="${esc(x.id)}" aria-label="${te('Löschen')}" title="${te('Löschen')}">${svg(UI.trash)}</button>` : ''}</div>`)
+                .join('')}</div>`
+            : `<p class="muted small">${te('Speichere einen Block mit dem Stern-Symbol, um ihn hier wiederzuverwenden. Für frei gestaltete Bausteine: „Freie Fläche“ unter Weitere.')}</p>`
+        }</div>`
+      : '';
     const used = new Set(blocks.filter((b) => b.type === 'h5p').map((b) => b.data.unitId));
     const h5pItems = units.filter((u) => !q || u.title.toLowerCase().includes(q));
     const h5p = `<div class="be-lib-group"><h3>${te('H5P-Einheiten')}</h3>
@@ -371,7 +395,7 @@ export async function blockEditor(el, courseId, ctx) {
       <a class="btn small" href="/courses/${esc(courseId)}/new">${svg(UI.plus)}${te('Neue H5P-Einheit')}</a></div>`;
     return `<label class="be-search">${svg(UI.search)}<input class="input" id="be-search" type="search" placeholder="${te('Baustein suchen …')}" value="${esc(filter)}"></label>
       <p class="be-lib-hint muted small">${sel ? te('Wird nach dem ausgewählten Block eingefügt.') : te('Wird am Ende eingefügt.')}</p>
-      ${groups}${h5p}`;
+      ${groups}${ownGroup}${h5p}`;
   }
 
   function bindLibrary(s) {
@@ -389,6 +413,25 @@ export async function blockEditor(el, courseId, ctx) {
     }
     s.querySelectorAll('[data-add]').forEach((b) => (b.onclick = () => addBlock(b.dataset.add)));
     s.querySelectorAll('[data-add-unit]').forEach((b) => (b.onclick = () => addBlock('h5p', { unitId: b.dataset.addUnit })));
+    s.querySelectorAll('[data-add-custom]').forEach((b) => {
+      b.onclick = async () => {
+        try {
+          const blk = await api(`/courses/${courseId}/custom-blocks/${b.dataset.addCustom}/use`, { method: 'POST' });
+          media = await api(`/courses/${courseId}/media`).catch(() => media);
+          addBlock(blk.type, blk.data);
+        } catch (err) {
+          fail(err);
+        }
+      };
+    });
+    s.querySelectorAll('[data-del-custom]').forEach((b) => {
+      b.onclick = async () => {
+        if (!(await confirmDialog(t('Baustein löschen?'), t('Der gespeicherte Baustein wird entfernt. Kurse, in denen er schon steckt, bleiben unverändert.')))) return;
+        await api(`/custom-blocks/${b.dataset.delCustom}`, { method: 'DELETE' }).catch(fail);
+        customBlocks = await api('/custom-blocks').catch(() => customBlocks);
+        paintSide();
+      };
+    });
   }
 
   // ---------------------------------------------------------------- canvas
@@ -442,6 +485,7 @@ export async function blockEditor(el, courseId, ctx) {
           <button type="button" class="icon-btn" data-act="up" ${i === 0 ? 'disabled' : ''} aria-label="${te('Nach oben')}" title="${te('Nach oben')}">${svg(UI.up)}</button>
           <button type="button" class="icon-btn" data-act="down" ${i === blocks.length - 1 ? 'disabled' : ''} aria-label="${te('Nach unten')}" title="${te('Nach unten')}">${svg(UI.down)}</button>
           <button type="button" class="icon-btn" data-act="dup" aria-label="${te('Duplizieren')}" title="${te('Duplizieren')}">${svg(UI.copy)}</button>
+          ${b.type !== 'h5p' ? `<button type="button" class="icon-btn" data-act="keep" aria-label="${te('Als eigenen Baustein speichern')}" title="${te('Als eigenen Baustein speichern')}">${svg(UI.star)}</button>` : ''}
           <button type="button" class="icon-btn" data-act="del" aria-label="${te('Löschen')}" title="${te('Löschen')}">${svg(UI.trash)}</button></div>`
             : ''
         }
@@ -474,6 +518,32 @@ export async function blockEditor(el, courseId, ctx) {
           delete copy.issues;
           blocks.splice(i + 1, 0, copy);
           sel = copy.id;
+        } else if (btn.dataset.act === 'keep') {
+          if (b.issues) return toast(t('Der Block ist noch unvollständig.'), 'error');
+          dialog({
+            title: t('Als eigenen Baustein speichern'),
+            body: `<p class="muted">${te('Der Block landet unter „Bausteine → Eigene Bausteine“ und lässt sich in jeden Kurs einfügen. Bilder und Dateien werden mitkopiert.')}</p>
+              <div class="field"><label for="cbn">${te('Name')}</label><input class="input" id="cbn" maxlength="80" value="${esc(cut(summary(b) || typeLabel(b.type), 60))}"></div>
+              ${state.me?.role === 'admin' ? `<label class="check"><input type="checkbox" id="cbs">${te('Für alle Konten freigeben')}</label>` : ''}`,
+            actions: [
+              { label: t('Abbrechen'), kind: 'ghost' },
+              {
+                label: t('Speichern'),
+                kind: 'primary',
+                handler: async (dd) => {
+                  if (dirty || saving) {
+                    clearTimeout(saveTimer);
+                    await saveNow();
+                  }
+                  await api(`/courses/${courseId}/blocks/${b.id}/save-custom`, { method: 'POST', body: { name: dd.querySelector('#cbn').value, shared: !!dd.querySelector('#cbs')?.checked } });
+                  customBlocks = await api('/custom-blocks').catch(() => customBlocks);
+                  toast(t('Gespeichert. Du findest ihn unter Bausteine.'));
+                  if (side === 'library') paintSide();
+                }
+              }
+            ]
+          });
+          return;
         } else if (btn.dataset.act === 'del') {
           if (!isEmpty(b) && !(await confirmDialog(t('Block löschen?'), t('„{name}“ wird entfernt. Mit „Rückgängig“ holst du ihn zurück.', { name: summary(b) || typeLabel(b.type) }), t('Löschen')))) return;
           blocks.splice(i, 1);
@@ -578,6 +648,7 @@ export async function blockEditor(el, courseId, ctx) {
     if (b.type === 'quiz') wrap.appendChild(questionEditor(b.data, ctxF, 'data'));
     else if (b.type === 'graph') wrap.appendChild(graphEditor(b));
     else if (b.type === 'h5p') wrap.appendChild(h5pEditor(b));
+    else if (b.type === 'canvas') wrap.appendChild(canvasEditor(b));
     else {
       for (const [name, spec] of Object.entries(ty.spec || {})) {
         if (b.type === 'hotspot' && name === 'spots') {
@@ -1122,6 +1193,331 @@ export async function blockEditor(el, courseId, ctx) {
     links.innerHTML += `<a class="btn small ghost" href="/courses/${esc(courseId)}/new">${svg(UI.plus)}${te('Neue H5P-Einheit')}</a>`;
     wrap.appendChild(links);
     wrap.appendChild(field('height', TYPES.h5p.spec.height, d, 'data.height', b));
+    return wrap;
+  }
+
+  // ---------------------------------------------------------------- Block Studio: canvas editor
+  function canvasEditor(b) {
+    const d = b.data;
+    if (!Array.isArray(d.layers)) d.layers = [];
+    if (!d.aspect) d.aspect = '16:9';
+    const RATIO = { '16:9': 16 / 9, '4:3': 4 / 3, '1:1': 1, '3:4': 3 / 4, '21:9': 21 / 9 };
+    let current = d.layers.length ? 0 : -1;
+    const wrap = h('div', 'be-cv');
+    const bar = h('div', 'be-cv-bar');
+    const stageWrap = h('div', 'be-cv-stagewrap');
+    const stage = h('div', 'be-cv-stage');
+    stageWrap.appendChild(stage);
+    const props = h('div', 'be-cv-props');
+    wrap.append(bar, stageWrap, props);
+    const r1 = (v) => Math.round(v * 10) / 10;
+
+    const addLayer = (kind) => {
+      const base = { kind, x: 10 + (d.layers.length % 5) * 4, y: 10 + (d.layers.length % 5) * 4 };
+      const l = kind === 'text' ? { ...base, w: 50, h: 14, text: t('Neuer Text'), size: 32, color: '#ffffff' }
+        : kind === 'button' ? { ...base, w: 22, h: 11, text: t('Mehr erfahren'), size: 22, fill: '#ffffff', color: '#1d2230', shape: 'round', reveal: t('Text, der beim Klick erscheint.') }
+        : kind === 'shape' ? { ...base, w: 20, h: 20 * RATIO[d.aspect], fill: '#b3312c', shape: 'rect' }
+        : { ...base, w: 30, h: 30 };
+      if (kind === 'image') {
+        library('image', (ref) => {
+          if (!ref) return;
+          d.layers.push({ ...l, image: ref, alt: '' });
+          current = d.layers.length - 1;
+          changed({ structure: true });
+          paintAll();
+        });
+        return;
+      }
+      d.layers.push(l);
+      current = d.layers.length - 1;
+      changed({ structure: true });
+      paintAll();
+    };
+
+    function paintBar() {
+      bar.innerHTML = '';
+      const seg = h('div', 'segmented be-seg');
+      Object.keys(RATIO).forEach((k) => {
+        const x = h('button', d.aspect === k ? 'is-on' : '');
+        x.type = 'button';
+        x.textContent = k;
+        x.onclick = () => ((d.aspect = k), changed(), paintAll());
+        seg.appendChild(x);
+      });
+      const bg = h('label', 'be-color be-cv-bg');
+      bg.innerHTML = `<input type="color" value="${esc(d.background || '#1d2230')}"><span>${te('Hintergrund')}</span>`;
+      bg.querySelector('input').oninput = (e) => ((d.background = e.target.value), changed(), paintStage());
+      const add = h('div', 'be-cv-add');
+      [['text', 'Text', UI.h], ['image', 'Bild', BI.image], ['shape', 'Form', '<rect x="4" y="4" width="16" height="16" rx="3"/>'], ['button', 'Knopf', '<rect x="3" y="8" width="18" height="8" rx="4"/>']].forEach(([k, l, ic]) => {
+        const x = h('button', 'btn small');
+        x.type = 'button';
+        x.innerHTML = `${svg(ic)}${te(l)}`;
+        x.onclick = () => addLayer(k);
+        add.appendChild(x);
+      });
+      bar.append(seg, bg, add);
+    }
+
+    function layerNode(l, i) {
+      const n = h('div', `be-cv-layer k-${l.kind} ${i === current ? 'is-sel' : ''}`);
+      n.dataset.i = String(i);
+      Object.assign(n.style, { left: `${l.x}%`, top: `${l.y}%`, width: `${l.w}%`, height: `${l.h}%`, transform: l.rotate ? `rotate(${l.rotate}deg)` : '', opacity: l.opacity !== undefined ? String(l.opacity / 100) : '' });
+      if (l.kind === 'image') n.innerHTML = l.image ? `<img src="${esc(mediaUrl(l.image))}" alt="" draggable="false">` : '';
+      else if (l.kind === 'shape') {
+        n.style.background = l.fill || '#b3312c';
+        n.style.borderRadius = l.shape === 'circle' ? '50%' : l.shape === 'round' ? '999px' : '0';
+      } else {
+        n.textContent = l.text || '';
+        n.style.fontSize = `${(l.size || 28) * 0.1}cqw`;
+        n.style.fontWeight = l.weight === 'bold' ? '700' : '400';
+        n.style.textAlign = l.align || (l.kind === 'button' ? 'center' : 'left');
+        n.style.color = l.color || (l.kind === 'button' ? '#fff' : '#111');
+        if (l.kind === 'button') {
+          n.style.background = l.fill || '#1d2230';
+          n.style.borderRadius = l.shape === 'round' ? '999px' : '0.8cqw';
+        } else if (l.fill) n.style.background = l.fill;
+      }
+      if (i === current && canEdit) {
+        const hd = h('span', 'be-cv-handle');
+        hd.dataset.resize = '1';
+        n.appendChild(hd);
+      }
+      return n;
+    }
+
+    function paintStage() {
+      stage.innerHTML = '';
+      stage.style.aspectRatio = String(RATIO[d.aspect] || 16 / 9);
+      stage.style.background = d.background || '#1d2230';
+      if (d.backgroundImage) {
+        const im = h('img', 'be-cv-bgimg');
+        im.src = mediaUrl(d.backgroundImage);
+        im.alt = '';
+        im.draggable = false;
+        stage.appendChild(im);
+      }
+      d.layers.forEach((l, i) => stage.appendChild(layerNode(l, i)));
+      if (!d.layers.length) stage.insertAdjacentHTML('beforeend', `<p class="be-cv-empty">${te('Füge oben Text, Bilder, Formen oder Knöpfe hinzu und ziehe sie an ihren Platz.')}</p>`);
+    }
+
+    // drag & resize with pointer events; values in % of the stage, 0.5 % grid
+    stage.addEventListener('pointerdown', (e) => {
+      if (!canEdit) return;
+      const node = e.target.closest('.be-cv-layer');
+      if (!node) {
+        current = -1;
+        paintStage();
+        paintProps();
+        return;
+      }
+      const i = Number(node.dataset.i);
+      const l = d.layers[i];
+      const resize = !!e.target.dataset.resize;
+      if (current !== i) {
+        current = i;
+        paintStage();
+        paintProps();
+      }
+      const target = stage.querySelector(`[data-i="${i}"]`);
+      const rect = stage.getBoundingClientRect();
+      const sx = e.clientX;
+      const sy = e.clientY;
+      const start = { x: l.x, y: l.y, w: l.w, h: l.h };
+      stage.setPointerCapture(e.pointerId);
+      e.preventDefault();
+      const snap = (v) => Math.round(v * 2) / 2;
+      const move = (ev) => {
+        const dx = ((ev.clientX - sx) / rect.width) * 100;
+        const dy = ((ev.clientY - sy) / rect.height) * 100;
+        if (resize) {
+          l.w = Math.max(2, snap(start.w + dx));
+          l.h = Math.max(2, snap(start.h + dy));
+          if (ev.shiftKey && l.kind !== 'text') l.h = r1((l.w * rect.width) / rect.height * (start.h / start.w) * (rect.height / rect.width));
+        } else {
+          l.x = Math.max(-40, Math.min(140, snap(start.x + dx)));
+          l.y = Math.max(-40, Math.min(140, snap(start.y + dy)));
+        }
+        Object.assign(target.style, { left: `${l.x}%`, top: `${l.y}%`, width: `${l.w}%`, height: `${l.h}%` });
+      };
+      const up = () => {
+        stage.removeEventListener('pointermove', move);
+        stage.removeEventListener('pointerup', up);
+        if (start.x !== l.x || start.y !== l.y || start.w !== l.w || start.h !== l.h) {
+          changed();
+          paintProps();
+        }
+      };
+      stage.addEventListener('pointermove', move);
+      stage.addEventListener('pointerup', up);
+    });
+    stage.tabIndex = 0;
+    stage.addEventListener('keydown', (e) => {
+      const l = d.layers[current];
+      if (!l || !canEdit || e.target !== stage) return;
+      const step = e.shiftKey ? 5 : 0.5;
+      const keys = { ArrowLeft: ['x', -step], ArrowRight: ['x', step], ArrowUp: ['y', -step], ArrowDown: ['y', step] };
+      if (keys[e.key]) {
+        e.preventDefault();
+        l[keys[e.key][0]] = r1(l[keys[e.key][0]] + keys[e.key][1]);
+        changed();
+        paintStage();
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        d.layers.splice(current, 1);
+        current = Math.min(current, d.layers.length - 1);
+        changed({ structure: true });
+        paintAll();
+      }
+    });
+
+    function paintProps() {
+      props.innerHTML = '';
+      const l = d.layers[current];
+      if (!l) {
+        const bgf = h('div', 'be-field');
+        bgf.innerHTML = `<span class="be-label">${te('Hintergrundbild')}</span>`;
+        bgf.appendChild(mediaField('image', d.backgroundImage, (v) => {
+          if (v) d.backgroundImage = v;
+          else delete d.backgroundImage;
+          changed();
+          paintAll();
+        }));
+        props.appendChild(bgf);
+        props.appendChild(field('alt', TYPES.canvas.spec.alt, d, 'data.alt', b));
+        props.insertAdjacentHTML('beforeend', `<p class="muted small">${te('Element anklicken, um es zu bearbeiten. Pfeiltasten verschieben, Umschalt + Pfeil in großen Schritten, Entf löscht.')}</p>`);
+        return;
+      }
+      const head = h('div', 'be-cv-head');
+      head.innerHTML = `<b>${te({ text: 'Text', image: 'Bild', shape: 'Form', button: 'Knopf' }[l.kind])} ${current + 1}</b>`;
+      const tools = h('div', 'be-cv-tools');
+      const tool = (label, ic, fn, dis) => {
+        const x = h('button', 'icon-btn small');
+        x.type = 'button';
+        x.title = label;
+        x.setAttribute('aria-label', label);
+        x.innerHTML = svg(ic);
+        x.disabled = !!dis;
+        x.onclick = fn;
+        tools.appendChild(x);
+      };
+      tool(t('Nach hinten'), UI.down, () => {
+        [d.layers[current - 1], d.layers[current]] = [d.layers[current], d.layers[current - 1]];
+        current--;
+        changed({ structure: true });
+        paintAll();
+      }, current === 0);
+      tool(t('Nach vorn'), UI.up, () => {
+        [d.layers[current + 1], d.layers[current]] = [d.layers[current], d.layers[current + 1]];
+        current++;
+        changed({ structure: true });
+        paintAll();
+      }, current === d.layers.length - 1);
+      tool(t('Duplizieren'), UI.copy, () => {
+        d.layers.splice(current + 1, 0, { ...clone(l), x: r1(l.x + 3), y: r1(l.y + 3) });
+        current++;
+        changed({ structure: true });
+        paintAll();
+      }, d.layers.length >= 40);
+      tool(t('Löschen'), UI.trash, () => {
+        d.layers.splice(current, 1);
+        current = Math.min(current, d.layers.length - 1);
+        changed({ structure: true });
+        paintAll();
+      });
+      head.appendChild(tools);
+      props.appendChild(head);
+      const grid = h('div', 'be-cv-grid');
+      const num = (key, label, min, max, step = 0.5) => {
+        const f = h('label', 'be-cv-num');
+        f.innerHTML = `<span>${te(label)}</span><input class="input num" type="number" min="${min}" max="${max}" step="${step}" value="${l[key] ?? ''}">`;
+        f.querySelector('input').oninput = (e) => {
+          if (e.target.value === '') return;
+          l[key] = Number(e.target.value);
+          changed();
+          paintStage();
+        };
+        grid.appendChild(f);
+      };
+      num('x', 'X %', -50, 150);
+      num('y', 'Y %', -50, 150);
+      num('w', 'Breite %', 1, 200);
+      num('h', 'Höhe %', 1, 200);
+      num('rotate', 'Drehung °', -180, 180, 1);
+      props.appendChild(grid);
+      const color = (key, label, def) => {
+        const c = h('label', 'be-color');
+        c.innerHTML = `<input type="color" value="${esc(l[key] || def)}"><span>${te(label)}</span>`;
+        c.querySelector('input').oninput = (e) => ((l[key] = e.target.value), changed(), paintStage());
+        return c;
+      };
+      const segOf = (key, opts, def) => {
+        const s2 = h('div', 'segmented be-seg');
+        opts.forEach(([v, lab]) => {
+          const x = h('button', (l[key] || def) === v ? 'is-on' : '');
+          x.type = 'button';
+          x.textContent = t(lab);
+          x.onclick = () => {
+            l[key] = v;
+            changed();
+            paintStage();
+            s2.querySelectorAll('button').forEach((y) => y.classList.toggle('is-on', y === x));
+          };
+          s2.appendChild(x);
+        });
+        return s2;
+      };
+      if (l.kind === 'text' || l.kind === 'button') {
+        const tf = h('div', 'be-field');
+        tf.innerHTML = `<label class="be-label">${te('Text')}<span class="be-req">*</span></label>`;
+        const ta = h('textarea', 'input');
+        ta.rows = 2;
+        ta.maxLength = 600;
+        ta.value = l.text || '';
+        ta.oninput = () => ((l.text = ta.value), changed(), paintStage());
+        tf.appendChild(ta);
+        props.appendChild(tf);
+        const row = h('div', 'be-cv-row');
+        num('size', 'Schriftgröße', 8, 160, 1);
+        row.append(segOf('weight', [['regular', 'Normal'], ['bold', 'Fett']], 'regular'), segOf('align', [['left', 'Links'], ['center', 'Mitte'], ['right', 'Rechts']], l.kind === 'button' ? 'center' : 'left'), color('color', 'Schrift', l.kind === 'button' ? '#ffffff' : '#111111'));
+        props.appendChild(row);
+      }
+      if (l.kind !== 'image') {
+        const row = h('div', 'be-cv-row');
+        row.appendChild(color('fill', l.kind === 'text' ? 'Fläche' : 'Farbe', l.kind === 'button' ? '#1d2230' : '#b3312c'));
+        if (l.kind !== 'text') row.appendChild(segOf('shape', l.kind === 'button' ? [['rect', 'Eckig'], ['round', 'Rund']] : [['rect', 'Eckig'], ['round', 'Abgerundet'], ['circle', 'Kreis']], l.kind === 'button' ? 'round' : 'rect'));
+        if (l.kind === 'text' && l.fill) {
+          const x = h('button', 'btn small ghost');
+          x.type = 'button';
+          x.textContent = t('Ohne Fläche');
+          x.onclick = () => (delete l.fill, changed(), paintAll());
+          row.appendChild(x);
+        }
+        props.appendChild(row);
+      }
+      if (l.kind === 'image') {
+        const f = h('div', 'be-field');
+        f.innerHTML = `<span class="be-label">${te('Bild')}</span>`;
+        f.appendChild(mediaField('image', l.image, (v) => ((l.image = v), changed(), paintAll())));
+        props.appendChild(f);
+        props.appendChild(field('alt', { t: 'text', max: 300 }, l, `data.layers[${current}].alt`, b));
+      }
+      const op = h('label', 'be-cv-range');
+      op.innerHTML = `<span>${te('Deckkraft')}</span><input type="range" min="0" max="100" value="${l.opacity ?? 100}">`;
+      op.querySelector('input').oninput = (e) => ((l.opacity = Number(e.target.value)), changed(), paintStage());
+      props.appendChild(op);
+      if (l.kind === 'button') {
+        props.appendChild(field('reveal', { t: 'text', max: 600 }, l, `data.layers[${current}].reveal`, b));
+        props.appendChild(field('link', { t: 'url' }, l, `data.layers[${current}].link`, b));
+        props.insertAdjacentHTML('beforeend', `<p class="muted small">${te('Mit Adresse öffnet der Knopf einen Link, sonst zeigt er den Text an.')}</p>`);
+      }
+    }
+
+    function paintAll() {
+      paintBar();
+      paintStage();
+      paintProps();
+    }
+    paintAll();
     return wrap;
   }
 
@@ -1731,6 +2127,7 @@ export async function blockEditor(el, courseId, ctx) {
         }</section>
       ${canEdit ? `<section class="panel"><div class="panel-head"><h2>${te('Weitere Aktionen')}</h2></div><div class="panel-body be-inline-actions">
         <button class="btn" id="st-dup">${te('Duplizieren / Sprachfassung')}</button>
+        <button class="btn" id="st-tpl">${te('Als Vorlage speichern')}</button>
         <button class="btn danger" id="st-del">${te('Kurs löschen')}</button></div></section>` : ''}
     </div>`;
     c.querySelector('#st-export').onclick = exportDialog;
@@ -1760,6 +2157,26 @@ export async function blockEditor(el, courseId, ctx) {
       await api(`/courses/${courseId}`, { method: 'DELETE' });
       navigate(`/projects/${course.projectId}`);
     });
+    c.querySelector('#st-tpl')?.addEventListener('click', () =>
+      dialog({
+        title: t('Als Vorlage speichern'),
+        body: `<p class="muted">${te('Blöcke, Design und Medien werden kopiert. H5P-Einheiten gehören nicht dazu.')}</p>
+          <div class="field"><label for="tn">${te('Name der Vorlage')}</label><input class="input" id="tn" maxlength="120" value="${esc(course.title)}"></div>
+          <div class="field"><label for="td">${te('Beschreibung')}</label><input class="input" id="td" maxlength="400" placeholder="${te('Wofür eignet sich die Vorlage?')}"></div>
+          ${state.me?.role === 'admin' ? `<label class="check"><input type="checkbox" id="ts">${te('Für alle Konten freigeben')}</label>` : ''}`,
+        actions: [
+          { label: t('Abbrechen'), kind: 'ghost' },
+          {
+            label: t('Speichern'),
+            kind: 'primary',
+            handler: async (d) => {
+              await api(`/courses/${courseId}/template`, { method: 'POST', body: { name: d.querySelector('#tn').value, description: d.querySelector('#td').value, shared: !!d.querySelector('#ts')?.checked } });
+              toast(t('Vorlage gespeichert. Sie steht beim nächsten neuen Kurs zur Auswahl.'));
+            }
+          }
+        ]
+      })
+    );
     c.querySelector('#st-dup')?.addEventListener('click', () => {
       const nextLang = course.language === 'de' ? 'en' : 'de';
       dialog({
@@ -2073,6 +2490,10 @@ function cssId(id) {
 }
 function cssAttr(s) {
   return String(s).replace(/["\\]/g, '\\$&');
+}
+function cut(s, n) {
+  s = String(s || '');
+  return s.length > n ? `${s.slice(0, n - 1)}…` : s;
 }
 function debounce(fn, ms) {
   let tm = null;

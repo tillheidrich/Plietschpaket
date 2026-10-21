@@ -613,3 +613,61 @@ figcaption { color: var(--pp-muted); font-size: 0.84em; margin-top: 10px; }
 /* review: number of comments on a block */
 .pp-block[data-comments] { position: relative; }
 .pp-block[data-comments]::after { content: attr(data-comments); position: absolute; top: -10px; inset-inline-end: -10px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #e0a800; color: #1b1b1b; font: 700 12px/22px system-ui, sans-serif; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,.2); z-index: 2; }
+
+/* ---------- language lab ---------- */
+.pp-wb-text { line-height: 2.4; }
+.pp-wb-gap { display: inline-block; min-width: 5.5em; min-height: 1.9em; margin: 0 4px; padding: 2px 10px; vertical-align: middle; border: 0; border-bottom: 2px dashed var(--pp-line-2); border-radius: 6px 6px 0 0; background: var(--pp-surface-2, rgba(0,0,0,.03)); font: inherit; color: var(--pp-ink); cursor: pointer; }
+.pp-wb-gap.is-filled { border-bottom-style: solid; border-bottom-color: var(--pp-accent); background: var(--pp-accent-soft); font-weight: 600; }
+.pp-wb-gap.is-correct { border-bottom-color: var(--pp-ok); background: var(--pp-ok-bg); }
+.pp-wb-gap.is-wrong { border-bottom-color: #c0392b; background: rgba(192, 57, 43, 0.08); text-decoration: line-through; }
+.pp-wb-bank { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; border-radius: var(--pp-r); background: var(--pp-surface-2, rgba(0,0,0,.03)); margin: 4px 0 8px; }
+.pp-wb-chip { border: 1px solid var(--pp-line-2); background: var(--pp-surface); color: var(--pp-ink); border-radius: 999px; padding: 6px 14px; font: inherit; font-weight: 600; cursor: grab; box-shadow: 0 1px 2px rgba(0,0,0,.06); transition: transform .15s var(--pp-ease); }
+.pp-wb-chip:hover { transform: translateY(-1px); border-color: var(--pp-accent); }
+.pp-wb-chip:active { cursor: grabbing; transform: scale(.97); }
+.pp-tg-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: tg; }
+.pp-tg-item { counter-increment: tg; display: grid; gap: 8px; padding-inline-start: 38px; position: relative; }
+.pp-tg-item::before { content: counter(tg); position: absolute; inset-inline-start: 0; top: 0; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--pp-accent-soft); color: var(--pp-accent); font-weight: 700; font-size: .8em; }
+.pp-tg-clue { margin: 0; }
+.pp-tg-line { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.pp-tg-input { min-width: 14em; }
+.pp-tg-hint { color: var(--pp-muted); font-style: italic; }
+.pp-btn-sm { padding: 6px 12px; font-size: .86em; }
+.pp-oral-text { font-size: 1.22em; line-height: 1.7; margin: 4px 0 14px; }
+.pp-oral-word { border-radius: 4px; padding: 0 2px; transition: background .25s, color .25s; }
+.pp-oral-word.is-hit { background: var(--pp-ok-bg); color: var(--pp-ok); }
+.pp-oral-word.is-miss { background: rgba(192, 57, 43, 0.08); text-decoration: underline wavy rgba(192, 57, 43, .5); text-underline-offset: 4px; }
+.pp-ll-audio { width: 100%; max-width: 420px; height: 38px; margin: 6px 0; }
+.pp-btn-mic { display: inline-flex; align-items: center; gap: 8px; }
+.pp-btn-mic .pp-ico { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+.pp-btn-mic.is-live { background: #c0392b; border-color: #c0392b; color: #fff; animation: pp-pulse 1.4s ease-in-out infinite; }
+@keyframes pp-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, .45); } 50% { box-shadow: 0 0 0 8px rgba(192, 57, 43, 0); } }
+.pp-oral-out, .pp-voice-out { display: grid; gap: 8px; margin-top: 8px; }
+.pp-voice-label { font-size: .8em; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--pp-muted); }
+.pp-voice-model { margin: 6px 0 0; font-style: italic; }
+.pp-convo-log { display: grid; gap: 10px; margin: 8px 0 14px; }
+.pp-convo-msg { max-width: 82%; padding: 10px 14px; border-radius: 16px; display: grid; gap: 2px; animation: pp-rise .35s var(--pp-ease) both; }
+.pp-convo-msg p { margin: 0; }
+.pp-convo-who { font-size: .72em; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; opacity: .7; }
+.pp-convo-msg.is-partner { justify-self: start; background: var(--pp-surface-2, rgba(0,0,0,.04)); border-end-start-radius: 4px; }
+.pp-convo-msg.is-learner { justify-self: end; background: var(--pp-primary); color: #fff; border-end-end-radius: 4px; }
+.pp-convo-model { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.25); font-size: .88em; opacity: .92; }
+.pp-convo-model em { font-style: normal; font-weight: 600; }
+.pp-convo-controls { display: grid; gap: 10px; }
+.pp-convo-turn { font-weight: 700; color: var(--pp-accent); }
+.pp-convo-input { width: 100%; }
+.pp-convo-controls > .pp-btn, .pp-convo-controls > .pp-actions { justify-self: start; }
+
+/* ---------- canvas (Block Studio) ---------- */
+.pp-b-canvas { container-type: inline-size; }
+.pp-cv-stage { position: relative; width: 100%; overflow: hidden; border-radius: var(--pp-r); background: var(--pp-surface-2); container-type: inline-size; }
+.pp-cv-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.pp-cv-layer { position: absolute; box-sizing: border-box; margin: 0; }
+.pp-cv-text { line-height: 1.2; overflow: visible; white-space: pre-wrap; overflow-wrap: anywhere; }
+.pp-cv-image img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.pp-cv-shape { background: var(--pp-accent); }
+.pp-cv-shape.shape-round, .pp-cv-button.shape-round { border-radius: 999px; }
+.pp-cv-shape.shape-circle { border-radius: 50%; }
+.pp-cv-button { border: 0; cursor: pointer; display: grid; place-items: center; background: var(--pp-primary); color: #fff; font: inherit; line-height: 1.1; padding: 0 1cqw; border-radius: 0.8cqw; box-shadow: 0 0.4cqw 1.6cqw rgba(0,0,0,.18); transition: transform .15s var(--pp-ease); }
+.pp-cv-button:hover { transform: translateY(-1px); }
+.pp-cv-button:focus-visible { outline: 3px solid var(--pp-accent); outline-offset: 2px; }
+.pp-cv-pop { position: absolute; max-width: 38%; padding: 1.4cqw 1.8cqw; background: var(--pp-surface); color: var(--pp-ink); border-radius: 1cqw; box-shadow: 0 1cqw 3cqw rgba(0,0,0,.25); font-size: max(13px, 1.8cqw); line-height: 1.4; z-index: 5; animation: pp-rise .3s var(--pp-ease) both; }

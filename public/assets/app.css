@@ -366,3 +366,25 @@ a.row:hover .row-chev { color: var(--seal); transform: translateX(3px); }
 .lang-texts h3 { margin-top: 6px; color: var(--ink-2); }
 .dialog-body .form-grid.two { align-items: start; }
 .segmented { flex-wrap: wrap; }
+/* course templates (new course dialog) */
+.tpl-pick { border: 0; padding: 0; margin: 0; display: grid; gap: 8px; }
+.tpl-pick legend { font-size: 0.82rem; font-weight: 580; color: var(--ink-2); margin-bottom: 6px; }
+.tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; max-height: 46vh; overflow: auto; padding: 2px; }
+.tpl-card { position: relative; display: grid; gap: 8px; padding: 8px 8px 12px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; background: var(--surface); transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease); }
+.tpl-card:hover { border-color: var(--line-strong); }
+.tpl-card.is-on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.tpl-card input { position: absolute; opacity: 0; pointer-events: none; }
+.tpl-card:has(input:focus-visible) { outline: 2px solid var(--seal); outline-offset: 2px; }
+.tpl-art { height: 62px; border-radius: 8px; background: linear-gradient(135deg, var(--a), color-mix(in oklch, var(--a) 70%, var(--b))); display: flex; align-items: flex-end; gap: 4px; padding: 10px; }
+.tpl-art i { display: block; height: 6px; border-radius: 3px; background: color-mix(in oklch, white 70%, transparent); }
+.tpl-art i:nth-child(1) { width: 38%; background: var(--b); }
+.tpl-art i:nth-child(2) { width: 22%; }
+.tpl-art i:nth-child(3) { width: 14%; }
+.tpl-art.is-blank { background: repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 6px, var(--bg) 6px, var(--bg) 12px); border: 1px dashed var(--line-strong); }
+.tpl-text { display: grid; gap: 2px; padding: 0 4px; }
+.tpl-text b { font-size: 0.88rem; }
+.tpl-text small { font-size: 0.76rem; color: var(--muted); line-height: 1.35; }
+.tpl-text em { font-style: normal; font-size: 0.72rem; color: var(--accent); font-weight: 600; margin-top: 2px; }
+/* course thumbnails in the project list */
+.course-thumb { width: 64px; height: 44px; border-radius: 8px; overflow: hidden; flex: none; display: grid; place-items: center; background: linear-gradient(135deg, var(--a), color-mix(in oklch, var(--a) 65%, var(--b))); color: #fff; font-weight: 650; font-size: 0.82rem; box-shadow: inset 0 0 0 1px oklch(0% 0 0 / 0.06); }
+.course-thumb img { width: 100%; height: 100%; object-fit: cover; }

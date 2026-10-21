@@ -46,6 +46,12 @@ and a completion message are set in the design tab. Each block can carry a narra
 There is also a role-play content type (`H5P.Scenario`) with branching decisions, illustrated characters and an ending
 that depends on the choices.
 
+A language lab adds word banks, term guessing, reading aloud with speech recognition, voice recordings with a model
+answer and conversation practice with a character. In Block Studio you place text, images, shapes and buttons freely on
+a canvas and keep any block as a custom block for other courses. New courses can start from six built-in templates
+(software training, onboarding, compliance, product training, conversation skills, micro-learning) or from your own.
+Articulate Rise 360 exports can be imported; they become block courses.
+
 Other things that matter in day-to-day work:
 
 - Several people work on shared projects. An admin creates the accounts, and each project has owners, editors and viewers.

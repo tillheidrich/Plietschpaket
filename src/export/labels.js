@@ -22,7 +22,8 @@ export const PLAYER = {
     questions: '{n} Fragen', passMark: 'Bestanden ab {n} %', timeLimit: '{n} Minuten Zeit', startTest: 'Test starten', retry: 'Nochmal versuchen', questionOf: 'Frage {num} von {total}',
     confirm: 'Antwort bestätigen', finishTest: 'Test abschließen', reviewAnswers: 'Antworten ansehen', listen: 'Anhören', missingUnit: 'Diese Einheit fehlt.',
     blockError: 'Dieser Block konnte nicht angezeigt werden.', draftBlock: 'Block noch unvollständig', callout_info: 'Hinweis', callout_tip: 'Tipp', callout_warning: 'Achtung',
-    callout_success: 'Gut zu wissen', callout_key: 'Merke', lmsWarning: 'Keine Verbindung zur Lernplattform. Dein Fortschritt wird nur in diesem Browser gespeichert.'
+    callout_success: 'Gut zu wissen', callout_key: 'Merke', lmsWarning: 'Keine Verbindung zur Lernplattform. Dein Fortschritt wird nur in diesem Browser gespeichert.',
+    wordBank: "Wortbank", wordBankHint: "Tippe die Wörter in der richtigen Reihenfolge an oder ziehe sie in die Lücken.", termGuess: "Begriffe raten", hint: "Tipp", oralReading: "Vorlesen", voiceInsert: "Sprachaufnahme", conversation: "Gesprächsübung", model: "Vorlage anhören", readAloud: "Vorlesen starten", stop: "Stopp", again: "Nochmal", recognized: "Erkannt: {pct} % der Wörter", micBlocked: "Kein Zugriff auf das Mikrofon.", noRecognition: "Dieser Browser erkennt keine Sprache. Nimm dich auf und vergleiche selbst.", record: "Aufnehmen", yourRecording: "Deine Aufnahme", bestScore: "Bisher bestes Ergebnis: {pct} %", compareModel: "Mit der Vorlage vergleichen", convoDone: "Gespräch beendet.", convoDoneBefore: "Schon einmal geübt.", partner: "Gegenüber", yourTurn: "Du bist dran", typeOrSpeak: "Sprechen oder tippen …", speak: "Sprechen", you: "Du", wellSaid: "Gut gesagt. Vorlage:", modelAnswer: "So könnte es klingen:", startConvo: "Gespräch starten"
   },
   en: {
     start: 'Start course', resume: 'Continue', restart: 'Start over', lessons: 'Lessons', lesson: 'Lesson', lessonOf: 'Lesson {num} of {total}', minutes: 'Duration',
@@ -37,7 +38,8 @@ export const PLAYER = {
     questions: '{n} questions', passMark: 'Pass mark {n}%', timeLimit: '{n} minutes', startTest: 'Start test', retry: 'Try again', questionOf: 'Question {num} of {total}',
     confirm: 'Confirm answer', finishTest: 'Finish test', reviewAnswers: 'Review answers', listen: 'Listen', missingUnit: 'This unit is missing.',
     blockError: 'This block could not be shown.', draftBlock: 'Block not finished yet', callout_info: 'Note', callout_tip: 'Tip', callout_warning: 'Caution',
-    callout_success: 'Good to know', callout_key: 'Key takeaway', lmsWarning: 'No connection to the learning platform. Progress is only stored in this browser.'
+    callout_success: 'Good to know', callout_key: 'Key takeaway', lmsWarning: 'No connection to the learning platform. Progress is only stored in this browser.',
+    wordBank: "Word bank", wordBankHint: "Tap the words in order or drag them into the gaps.", termGuess: "Term guess", hint: "Hint", oralReading: "Read aloud", voiceInsert: "Voice recording", conversation: "Conversation practice", model: "Listen to the model", readAloud: "Start reading", stop: "Stop", again: "Again", recognized: "Recognised: {pct}% of the words", micBlocked: "No access to the microphone.", noRecognition: "This browser cannot recognise speech. Record yourself and compare.", record: "Record", yourRecording: "Your recording", bestScore: "Best result so far: {pct}%", compareModel: "Compare with the model", convoDone: "Conversation finished.", convoDoneBefore: "Practised before.", partner: "Partner", yourTurn: "Your turn", typeOrSpeak: "Speak or type …", speak: "Speak", you: "You", wellSaid: "Well said. Model:", modelAnswer: "It could sound like this:", startConvo: "Start conversation"
   },
   fr: {
     start: 'Commencer le cours', resume: 'Reprendre', restart: 'Recommencer', lessons: 'Leçons', lesson: 'Leçon', lessonOf: 'Leçon {num} sur {total}', minutes: 'Durée',
@@ -52,7 +54,8 @@ export const PLAYER = {
     questions: '{n} questions', passMark: 'Réussi à partir de {n} %', timeLimit: '{n} minutes', startTest: 'Commencer le test', retry: 'Réessayer', questionOf: 'Question {num} sur {total}',
     confirm: 'Valider la réponse', finishTest: 'Terminer le test', reviewAnswers: 'Voir les réponses', listen: 'Écouter', missingUnit: 'Cette unité est introuvable.',
     blockError: 'Ce bloc n’a pas pu être affiché.', draftBlock: 'Bloc pas encore terminé', callout_info: 'Remarque', callout_tip: 'Astuce', callout_warning: 'Attention',
-    callout_success: 'Bon à savoir', callout_key: 'À retenir', lmsWarning: 'Pas de connexion à la plateforme de formation. La progression est enregistrée uniquement dans ce navigateur.'
+    callout_success: 'Bon à savoir', callout_key: 'À retenir', lmsWarning: 'Pas de connexion à la plateforme de formation. La progression est enregistrée uniquement dans ce navigateur.',
+    wordBank: "Banque de mots", wordBankHint: "Touchez les mots dans l’ordre ou faites-les glisser dans les trous.", termGuess: "Deviner le terme", hint: "Indice", oralReading: "Lecture à voix haute", voiceInsert: "Enregistrement vocal", conversation: "Dialogue", model: "Écouter le modèle", readAloud: "Commencer la lecture", stop: "Arrêter", again: "Encore", recognized: "Reconnu : {pct} % des mots", micBlocked: "Pas d’accès au microphone.", noRecognition: "Ce navigateur ne reconnaît pas la parole. Enregistrez-vous et comparez.", record: "Enregistrer", yourRecording: "Votre enregistrement", bestScore: "Meilleur résultat : {pct} %", compareModel: "Comparer avec le modèle", convoDone: "Dialogue terminé.", convoDoneBefore: "Déjà pratiqué.", partner: "Interlocuteur", yourTurn: "À vous", typeOrSpeak: "Parlez ou tapez …", speak: "Parler", you: "Vous", wellSaid: "Bien dit. Modèle :", modelAnswer: "Cela pourrait donner :", startConvo: "Commencer le dialogue"
   },
   it: {
     start: 'Inizia il corso', resume: 'Continua', restart: 'Ricomincia', lessons: 'Lezioni', lesson: 'Lezione', lessonOf: 'Lezione {num} di {total}', minutes: 'Durata',
@@ -67,7 +70,8 @@ export const PLAYER = {
     questions: '{n} domande', passMark: 'Superato da {n}%', timeLimit: '{n} minuti', startTest: 'Inizia il test', retry: 'Riprova', questionOf: 'Domanda {num} di {total}',
     confirm: 'Conferma la risposta', finishTest: 'Concludi il test', reviewAnswers: 'Rivedi le risposte', listen: 'Ascolta', missingUnit: 'Questa unità non è disponibile.',
     blockError: 'Questo blocco non può essere visualizzato.', draftBlock: 'Blocco non ancora completo', callout_info: 'Nota', callout_tip: 'Suggerimento', callout_warning: 'Attenzione',
-    callout_success: 'Buono a sapersi', callout_key: 'Da ricordare', lmsWarning: 'Nessuna connessione alla piattaforma di apprendimento. I progressi vengono salvati solo in questo browser.'
+    callout_success: 'Buono a sapersi', callout_key: 'Da ricordare', lmsWarning: 'Nessuna connessione alla piattaforma di apprendimento. I progressi vengono salvati solo in questo browser.',
+    wordBank: "Banca delle parole", wordBankHint: "Tocca le parole nell’ordine giusto o trascinale negli spazi.", termGuess: "Indovina il termine", hint: "Suggerimento", oralReading: "Lettura ad alta voce", voiceInsert: "Registrazione vocale", conversation: "Dialogo", model: "Ascolta il modello", readAloud: "Inizia a leggere", stop: "Stop", again: "Ancora", recognized: "Riconosciuto: {pct}% delle parole", micBlocked: "Nessun accesso al microfono.", noRecognition: "Questo browser non riconosce la voce. Registrati e confronta.", record: "Registra", yourRecording: "La tua registrazione", bestScore: "Miglior risultato finora: {pct}%", compareModel: "Confronta con il modello", convoDone: "Dialogo concluso.", convoDoneBefore: "Già esercitato.", partner: "Interlocutore", yourTurn: "Tocca a te", typeOrSpeak: "Parla o scrivi …", speak: "Parla", you: "Tu", wellSaid: "Ben detto. Modello:", modelAnswer: "Potrebbe suonare così:", startConvo: "Inizia il dialogo"
   },
   es: {
     start: 'Empezar el curso', resume: 'Continuar', restart: 'Empezar de nuevo', lessons: 'Lecciones', lesson: 'Lección', lessonOf: 'Lección {num} de {total}', minutes: 'Duración',
@@ -82,7 +86,8 @@ export const PLAYER = {
     questions: '{n} preguntas', passMark: 'Aprobado desde el {n} %', timeLimit: '{n} minutos', startTest: 'Empezar la prueba', retry: 'Intentar de nuevo', questionOf: 'Pregunta {num} de {total}',
     confirm: 'Confirmar respuesta', finishTest: 'Terminar la prueba', reviewAnswers: 'Revisar respuestas', listen: 'Escuchar', missingUnit: 'Falta esta unidad.',
     blockError: 'Este bloque no se ha podido mostrar.', draftBlock: 'Bloque aún incompleto', callout_info: 'Nota', callout_tip: 'Consejo', callout_warning: 'Atención',
-    callout_success: 'Bueno saberlo', callout_key: 'Recuerda', lmsWarning: 'Sin conexión con la plataforma de aprendizaje. El progreso solo se guarda en este navegador.'
+    callout_success: 'Bueno saberlo', callout_key: 'Recuerda', lmsWarning: 'Sin conexión con la plataforma de aprendizaje. El progreso solo se guarda en este navegador.',
+    wordBank: "Banco de palabras", wordBankHint: "Toca las palabras en orden o arrástralas a los huecos.", termGuess: "Adivinar el término", hint: "Pista", oralReading: "Lectura en voz alta", voiceInsert: "Grabación de voz", conversation: "Práctica de conversación", model: "Escuchar el modelo", readAloud: "Empezar a leer", stop: "Parar", again: "Otra vez", recognized: "Reconocido: {pct} % de las palabras", micBlocked: "Sin acceso al micrófono.", noRecognition: "Este navegador no reconoce la voz. Grábate y compara.", record: "Grabar", yourRecording: "Tu grabación", bestScore: "Mejor resultado hasta ahora: {pct} %", compareModel: "Comparar con el modelo", convoDone: "Conversación terminada.", convoDoneBefore: "Ya practicado.", partner: "Interlocutor", yourTurn: "Tu turno", typeOrSpeak: "Habla o escribe …", speak: "Hablar", you: "Tú", wellSaid: "Bien dicho. Modelo:", modelAnswer: "Podría sonar así:", startConvo: "Empezar la conversación"
   },
   pt: {
     start: 'Iniciar o curso', resume: 'Continuar', restart: 'Recomeçar', lessons: 'Lições', lesson: 'Lição', lessonOf: 'Lição {num} de {total}', minutes: 'Duração',
@@ -97,7 +102,8 @@ export const PLAYER = {
     questions: '{n} perguntas', passMark: 'Aprovado a partir de {n}%', timeLimit: '{n} minutos', startTest: 'Iniciar o teste', retry: 'Tentar novamente', questionOf: 'Pergunta {num} de {total}',
     confirm: 'Confirmar resposta', finishTest: 'Concluir o teste', reviewAnswers: 'Rever respostas', listen: 'Ouvir', missingUnit: 'Esta unidade não está disponível.',
     blockError: 'Não foi possível mostrar este bloco.', draftBlock: 'Bloco ainda incompleto', callout_info: 'Nota', callout_tip: 'Dica', callout_warning: 'Atenção',
-    callout_success: 'Bom saber', callout_key: 'A reter', lmsWarning: 'Sem ligação à plataforma de aprendizagem. O progresso só é guardado neste navegador.'
+    callout_success: 'Bom saber', callout_key: 'A reter', lmsWarning: 'Sem ligação à plataforma de aprendizagem. O progresso só é guardado neste navegador.',
+    wordBank: "Banco de palavras", wordBankHint: "Toque nas palavras pela ordem ou arraste-as para as lacunas.", termGuess: "Adivinhar o termo", hint: "Dica", oralReading: "Leitura em voz alta", voiceInsert: "Gravação de voz", conversation: "Prática de conversação", model: "Ouvir o modelo", readAloud: "Começar a ler", stop: "Parar", again: "Outra vez", recognized: "Reconhecido: {pct}% das palavras", micBlocked: "Sem acesso ao microfone.", noRecognition: "Este navegador não reconhece fala. Grave-se e compare.", record: "Gravar", yourRecording: "A sua gravação", bestScore: "Melhor resultado até agora: {pct}%", compareModel: "Comparar com o modelo", convoDone: "Conversa concluída.", convoDoneBefore: "Já praticado.", partner: "Interlocutor", yourTurn: "A sua vez", typeOrSpeak: "Fale ou escreva …", speak: "Falar", you: "Você", wellSaid: "Bem dito. Modelo:", modelAnswer: "Poderia soar assim:", startConvo: "Iniciar a conversa"
   },
   nl: {
     start: 'Cursus starten', resume: 'Verdergaan', restart: 'Opnieuw beginnen', lessons: 'Lessen', lesson: 'Les', lessonOf: 'Les {num} van {total}', minutes: 'Duur',
@@ -112,7 +118,8 @@ export const PLAYER = {
     questions: '{n} vragen', passMark: 'Geslaagd vanaf {n}%', timeLimit: '{n} minuten', startTest: 'Toets starten', retry: 'Opnieuw proberen', questionOf: 'Vraag {num} van {total}',
     confirm: 'Antwoord bevestigen', finishTest: 'Toets afronden', reviewAnswers: 'Antwoorden bekijken', listen: 'Beluisteren', missingUnit: 'Deze eenheid ontbreekt.',
     blockError: 'Dit blok kon niet worden weergegeven.', draftBlock: 'Blok nog niet af', callout_info: 'Opmerking', callout_tip: 'Tip', callout_warning: 'Let op',
-    callout_success: 'Goed om te weten', callout_key: 'Onthoud', lmsWarning: 'Geen verbinding met het leerplatform. Je voortgang wordt alleen in deze browser opgeslagen.'
+    callout_success: 'Goed om te weten', callout_key: 'Onthoud', lmsWarning: 'Geen verbinding met het leerplatform. Je voortgang wordt alleen in deze browser opgeslagen.',
+    wordBank: "Woordenbank", wordBankHint: "Tik de woorden op volgorde aan of sleep ze naar de open plekken.", termGuess: "Begrip raden", hint: "Tip", oralReading: "Voorlezen", voiceInsert: "Spraakopname", conversation: "Gespreksoefening", model: "Voorbeeld beluisteren", readAloud: "Beginnen met lezen", stop: "Stop", again: "Nog een keer", recognized: "Herkend: {pct}% van de woorden", micBlocked: "Geen toegang tot de microfoon.", noRecognition: "Deze browser herkent geen spraak. Neem jezelf op en vergelijk.", record: "Opnemen", yourRecording: "Jouw opname", bestScore: "Beste resultaat tot nu toe: {pct}%", compareModel: "Met het voorbeeld vergelijken", convoDone: "Gesprek afgerond.", convoDoneBefore: "Al eens geoefend.", partner: "Gesprekspartner", yourTurn: "Jij bent aan de beurt", typeOrSpeak: "Spreek of typ …", speak: "Spreken", you: "Jij", wellSaid: "Goed gezegd. Voorbeeld:", modelAnswer: "Zo zou het kunnen klinken:", startConvo: "Gesprek starten"
   },
   pl: {
     start: 'Rozpocznij kurs', resume: 'Kontynuuj', restart: 'Zacznij od nowa', lessons: 'Lekcje', lesson: 'Lekcja', lessonOf: 'Lekcja {num} z {total}', minutes: 'Czas trwania',
@@ -127,7 +134,8 @@ export const PLAYER = {
     questions: 'Pytania: {n}', passMark: 'Zaliczenie od {n}%', timeLimit: 'Czas: {n} min', startTest: 'Rozpocznij test', retry: 'Spróbuj ponownie', questionOf: 'Pytanie {num} z {total}',
     confirm: 'Potwierdź odpowiedź', finishTest: 'Zakończ test', reviewAnswers: 'Przejrzyj odpowiedzi', listen: 'Posłuchaj', missingUnit: 'Brak tej jednostki.',
     blockError: 'Nie udało się wyświetlić tego bloku.', draftBlock: 'Blok jeszcze niegotowy', callout_info: 'Uwaga', callout_tip: 'Wskazówka', callout_warning: 'Ostrożnie',
-    callout_success: 'Warto wiedzieć', callout_key: 'Zapamiętaj', lmsWarning: 'Brak połączenia z platformą szkoleniową. Postęp jest zapisywany tylko w tej przeglądarce.'
+    callout_success: 'Warto wiedzieć', callout_key: 'Zapamiętaj', lmsWarning: 'Brak połączenia z platformą szkoleniową. Postęp jest zapisywany tylko w tej przeglądarce.',
+    wordBank: "Bank słów", wordBankHint: "Dotykaj słów po kolei albo przeciągnij je w luki.", termGuess: "Zgadnij pojęcie", hint: "Podpowiedź", oralReading: "Czytanie na głos", voiceInsert: "Nagranie głosowe", conversation: "Ćwiczenie rozmowy", model: "Posłuchaj wzoru", readAloud: "Zacznij czytać", stop: "Stop", again: "Jeszcze raz", recognized: "Rozpoznano: {pct}% słów", micBlocked: "Brak dostępu do mikrofonu.", noRecognition: "Ta przeglądarka nie rozpoznaje mowy. Nagraj się i porównaj.", record: "Nagraj", yourRecording: "Twoje nagranie", bestScore: "Najlepszy wynik: {pct}%", compareModel: "Porównaj ze wzorem", convoDone: "Rozmowa zakończona.", convoDoneBefore: "Już ćwiczone.", partner: "Rozmówca", yourTurn: "Twoja kolej", typeOrSpeak: "Mów albo pisz …", speak: "Mów", you: "Ty", wellSaid: "Dobrze powiedziane. Wzór:", modelAnswer: "Mogłoby to brzmieć tak:", startConvo: "Zacznij rozmowę"
   },
   cs: {
     start: 'Spustit kurz', resume: 'Pokračovat', restart: 'Začít znovu', lessons: 'Lekce', lesson: 'Lekce', lessonOf: 'Lekce {num} z {total}', minutes: 'Délka',
@@ -142,7 +150,8 @@ export const PLAYER = {
     questions: 'Otázek: {n}', passMark: 'Splněno od {n} %', timeLimit: 'Čas: {n} min', startTest: 'Spustit test', retry: 'Zkusit znovu', questionOf: 'Otázka {num} z {total}',
     confirm: 'Potvrdit odpověď', finishTest: 'Dokončit test', reviewAnswers: 'Zobrazit odpovědi', listen: 'Poslechnout', missingUnit: 'Tato jednotka chybí.',
     blockError: 'Tento blok nelze zobrazit.', draftBlock: 'Blok ještě není hotový', callout_info: 'Poznámka', callout_tip: 'Tip', callout_warning: 'Pozor',
-    callout_success: 'Dobré vědět', callout_key: 'Zapamatujte si', lmsWarning: 'Žádné spojení s výukovou platformou. Postup se ukládá jen v tomto prohlížeči.'
+    callout_success: 'Dobré vědět', callout_key: 'Zapamatujte si', lmsWarning: 'Žádné spojení s výukovou platformou. Postup se ukládá jen v tomto prohlížeči.',
+    wordBank: "Banka slov", wordBankHint: "Klepejte na slova postupně, nebo je přetáhněte do mezer.", termGuess: "Uhodni pojem", hint: "Nápověda", oralReading: "Čtení nahlas", voiceInsert: "Hlasový záznam", conversation: "Nácvik rozhovoru", model: "Poslechnout vzor", readAloud: "Začít číst", stop: "Stop", again: "Znovu", recognized: "Rozpoznáno: {pct} % slov", micBlocked: "Žádný přístup k mikrofonu.", noRecognition: "Tento prohlížeč nerozpozná řeč. Nahrajte se a porovnejte.", record: "Nahrát", yourRecording: "Vaše nahrávka", bestScore: "Dosud nejlepší výsledek: {pct} %", compareModel: "Porovnat se vzorem", convoDone: "Rozhovor skončil.", convoDoneBefore: "Už jednou procvičeno.", partner: "Partner", yourTurn: "Jste na řadě", typeOrSpeak: "Mluvte nebo pište …", speak: "Mluvit", you: "Vy", wellSaid: "Dobře řečeno. Vzor:", modelAnswer: "Mohlo by to znít takto:", startConvo: "Zahájit rozhovor"
   },
   sv: {
     start: 'Starta kursen', resume: 'Fortsätt', restart: 'Börja om', lessons: 'Lektioner', lesson: 'Lektion', lessonOf: 'Lektion {num} av {total}', minutes: 'Längd',
@@ -157,7 +166,8 @@ export const PLAYER = {
     questions: '{n} frågor', passMark: 'Godkänd från {n} %', timeLimit: '{n} minuter', startTest: 'Starta testet', retry: 'Försök igen', questionOf: 'Fråga {num} av {total}',
     confirm: 'Bekräfta svaret', finishTest: 'Avsluta testet', reviewAnswers: 'Visa svaren', listen: 'Lyssna', missingUnit: 'Den här enheten saknas.',
     blockError: 'Det här blocket kunde inte visas.', draftBlock: 'Blocket är inte klart än', callout_info: 'Obs', callout_tip: 'Tips', callout_warning: 'Varning',
-    callout_success: 'Bra att veta', callout_key: 'Kom ihåg', lmsWarning: 'Ingen anslutning till lärplattformen. Dina framsteg sparas bara i den här webbläsaren.'
+    callout_success: 'Bra att veta', callout_key: 'Kom ihåg', lmsWarning: 'Ingen anslutning till lärplattformen. Dina framsteg sparas bara i den här webbläsaren.',
+    wordBank: "Ordbank", wordBankHint: "Tryck på orden i rätt ordning eller dra dem till luckorna.", termGuess: "Gissa begreppet", hint: "Ledtråd", oralReading: "Läs högt", voiceInsert: "Röstinspelning", conversation: "Samtalsövning", model: "Lyssna på förebilden", readAloud: "Börja läsa", stop: "Stopp", again: "Igen", recognized: "Igenkänt: {pct} % av orden", micBlocked: "Ingen åtkomst till mikrofonen.", noRecognition: "Den här webbläsaren känner inte igen tal. Spela in dig själv och jämför.", record: "Spela in", yourRecording: "Din inspelning", bestScore: "Bästa resultat hittills: {pct} %", compareModel: "Jämför med förebilden", convoDone: "Samtalet är klart.", convoDoneBefore: "Redan övat.", partner: "Samtalspartner", yourTurn: "Din tur", typeOrSpeak: "Tala eller skriv …", speak: "Tala", you: "Du", wellSaid: "Bra sagt. Förebild:", modelAnswer: "Så här kan det låta:", startConvo: "Starta samtalet"
   },
   tr: {
     start: 'Kursu başlat', resume: 'Devam et', restart: 'Baştan başla', lessons: 'Dersler', lesson: 'Ders', lessonOf: 'Ders {num} / {total}', minutes: 'Süre',
@@ -172,7 +182,8 @@ export const PLAYER = {
     questions: '{n} soru', passMark: '%{n} ile geçer', timeLimit: '{n} dakika', startTest: 'Testi başlat', retry: 'Tekrar dene', questionOf: 'Soru {num} / {total}',
     confirm: 'Cevabı onayla', finishTest: 'Testi bitir', reviewAnswers: 'Cevapları gör', listen: 'Dinle', missingUnit: 'Bu ünite bulunamadı.',
     blockError: 'Bu blok görüntülenemedi.', draftBlock: 'Blok henüz tamamlanmadı', callout_info: 'Not', callout_tip: 'İpucu', callout_warning: 'Dikkat',
-    callout_success: 'Bilmekte fayda var', callout_key: 'Unutmayın', lmsWarning: 'Öğrenme platformuna bağlantı yok. İlerlemeniz yalnızca bu tarayıcıda kaydediliyor.'
+    callout_success: 'Bilmekte fayda var', callout_key: 'Unutmayın', lmsWarning: 'Öğrenme platformuna bağlantı yok. İlerlemeniz yalnızca bu tarayıcıda kaydediliyor.',
+    wordBank: "Kelime bankası", wordBankHint: "Kelimelere sırayla dokunun veya boşluklara sürükleyin.", termGuess: "Terimi tahmin et", hint: "İpucu", oralReading: "Sesli okuma", voiceInsert: "Ses kaydı", conversation: "Konuşma alıştırması", model: "Örneği dinle", readAloud: "Okumaya başla", stop: "Durdur", again: "Tekrar", recognized: "Tanınan: kelimelerin %{pct} kadarı", micBlocked: "Mikrofona erişim yok.", noRecognition: "Bu tarayıcı konuşmayı tanımıyor. Kendinizi kaydedip karşılaştırın.", record: "Kaydet", yourRecording: "Kaydınız", bestScore: "Şimdiye kadarki en iyi sonuç: %{pct}", compareModel: "Örnekle karşılaştır", convoDone: "Konuşma bitti.", convoDoneBefore: "Daha önce çalışıldı.", partner: "Muhatap", yourTurn: "Sıra sizde", typeOrSpeak: "Konuşun veya yazın …", speak: "Konuş", you: "Siz", wellSaid: "Güzel söylediniz. Örnek:", modelAnswer: "Şöyle olabilir:", startConvo: "Konuşmayı başlat"
   },
   ar: {
     start: 'ابدأ الدورة', resume: 'تابع', restart: 'ابدأ من جديد', lessons: 'الدروس', lesson: 'الدرس', lessonOf: 'الدرس {num} من {total}', minutes: 'المدة',
@@ -187,7 +198,8 @@ export const PLAYER = {
     questions: '{n} أسئلة', passMark: 'النجاح من {n}٪', timeLimit: '{n} دقيقة', startTest: 'ابدأ الاختبار', retry: 'حاول مرة أخرى', questionOf: 'السؤال {num} من {total}',
     confirm: 'تأكيد الإجابة', finishTest: 'إنهاء الاختبار', reviewAnswers: 'مراجعة الإجابات', listen: 'استمع', missingUnit: 'هذه الوحدة غير موجودة.',
     blockError: 'تعذر عرض هذا العنصر.', draftBlock: 'العنصر غير مكتمل بعد', callout_info: 'ملاحظة', callout_tip: 'نصيحة', callout_warning: 'تنبيه',
-    callout_success: 'معلومة مفيدة', callout_key: 'تذكّر', lmsWarning: 'لا يوجد اتصال بمنصة التعلم. يتم حفظ تقدمك في هذا المتصفح فقط.'
+    callout_success: 'معلومة مفيدة', callout_key: 'تذكّر', lmsWarning: 'لا يوجد اتصال بمنصة التعلم. يتم حفظ تقدمك في هذا المتصفح فقط.',
+    wordBank: "بنك الكلمات", wordBankHint: "انقر على الكلمات بالترتيب أو اسحبها إلى الفراغات.", termGuess: "خمّن المصطلح", hint: "تلميح", oralReading: "القراءة بصوت عالٍ", voiceInsert: "تسجيل صوتي", conversation: "تدريب على المحادثة", model: "استمع إلى النموذج", readAloud: "ابدأ القراءة", stop: "إيقاف", again: "مرة أخرى", recognized: "تم التعرف على {pct}٪ من الكلمات", micBlocked: "لا يمكن الوصول إلى الميكروفون.", noRecognition: "هذا المتصفح لا يتعرف على الكلام. سجّل صوتك وقارن بنفسك.", record: "تسجيل", yourRecording: "تسجيلك", bestScore: "أفضل نتيجة حتى الآن: {pct}٪", compareModel: "قارن مع النموذج", convoDone: "انتهت المحادثة.", convoDoneBefore: "تم التدرب عليها من قبل.", partner: "المحاور", yourTurn: "دورك", typeOrSpeak: "تحدث أو اكتب …", speak: "تحدث", you: "أنت", wellSaid: "أحسنت. النموذج:", modelAnswer: "قد تبدو هكذا:", startConvo: "ابدأ المحادثة"
   }
 };
 

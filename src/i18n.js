@@ -80,7 +80,17 @@ const EN = {
   'Zu viele Kommentare in diesem Kurs.': 'Too many comments in this course.',
   'Status muss open oder resolved sein.': 'Status must be open or resolved.',
   'Kommentar nicht gefunden.': 'Comment not found.',
-  'Zu viele Kommentare in kurzer Zeit. Bitte kurz warten.': 'Too many comments in a short time. Please wait a moment.'
+  'Zu viele Kommentare in kurzer Zeit. Bitte kurz warten.': 'Too many comments in a short time. Please wait a moment.',
+  'Vorlage nicht gefunden.': 'Template not found.',
+  'Name der Vorlage fehlt.': 'Template name is missing.',
+  'Nur Admins können Vorlagen für alle freigeben.': 'Only admins can share templates with everybody.',
+  'Der Kurs hat keine Blöcke, die in eine Vorlage passen.': 'The course has no blocks that fit into a template.',
+  'H5P-Blöcke lassen sich nicht als eigener Baustein speichern.': 'H5P blocks cannot be saved as a custom block.',
+  'Der Block ist noch unvollständig.': 'The block is still incomplete.',
+  'Nur Admins können Bausteine für alle freigeben.': 'Only admins can share blocks with everybody.',
+  'Name des Bausteins fehlt.': 'Block name is missing.',
+  'Höchstens 200 eigene Bausteine.': 'At most 200 custom blocks.',
+  'Baustein nicht gefunden.': 'Block not found.'
 };
 
 const PATTERNS = [
@@ -106,6 +116,8 @@ const PATTERNS = [
   [/^(.+): mindestens eine richtige Antwort .*$/, (m) => `${m[1]}: mark at least one correct answer.`],
   [/^(.+): Lücken in eckigen Klammern markieren.*$/, (m) => `${m[1]}: mark blanks in square brackets, e.g. [answer|alternative].`],
   [/^(.+): Video-Datei oder YouTube-\/Vimeo-Adresse angeben\.$/, (m) => `${m[1]}: add a video file or a YouTube/Vimeo address.`],
+  [/^(.+): mindestens ein Satz für die Lernenden \(speaker learner\)\.$/, (m) => `${m[1]}: at least one line for the learner (speaker learner).`],
+  [/^(.+): Farbe als #hex angeben\.$/, (m) => `${m[1]}: give the colour as #hex.`],
   [/^(.+): nur YouTube oder Vimeo\.$/, (m) => `${m[1]}: YouTube or Vimeo only.`],
   [/^(.+): Einheit gibt es in diesem Kurs nicht\.$/, (m) => `${m[1]}: this unit does not exist in this course.`],
   [/^(\d+) (Block ist|Blöcke sind) noch unvollständig\.$/, (m) => `${m[1]} ${m[1] === '1' ? 'block is' : 'blocks are'} still incomplete.`]

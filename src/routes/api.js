@@ -25,6 +25,8 @@ import { importFile, exportProjectZip } from '../projectio.js';
 import { listConnections, revokeConnection } from '../oauth.js';
 import { listApiTokens, createApiToken, revokeApiToken } from '../apitokens.js';
 import { tr, requestLanguage, UI_LANGUAGES } from '../i18n.js';
+import { listTemplates, saveAsTemplate, deleteTemplate } from '../templates.js';
+import { listCustomBlocks, saveCustomBlock, useCustomBlock, deleteCustomBlock } from '../customblocks.js';
 import { createReviewLink, listReviewLinks, revokeReviewLink, courseComments, addTeamComment, setCommentStatus, deleteComment } from '../review.js';
 import { listLanguages, saveLanguage, deleteLanguage, PLAYER_LABEL_KEYS, SHELL_LABEL_KEYS } from '../languages.js';
 import { PLAYER, SHELL } from '../export/labels.js';
@@ -337,6 +339,21 @@ export function apiRouter() {
   r.delete('/courses/:id/blocks/:blockId', (req, res) => res.json(svc.deleteBlocks(req.user, req.params.id, [req.params.blockId])));
   r.post('/courses/:id/blocks/:blockId/move', (req, res) => res.json(svc.moveBlock(req.user, req.params.id, req.params.blockId, req.body)));
   r.put('/courses/:id/design', (req, res) => res.json(svc.setDesign(req.user, req.params.id, req.body || {})));
+  // course templates
+  r.get('/templates', (req, res) => res.json(listTemplates(req.user, req.query.lang || requestLanguage(req))));
+  r.post('/courses/:id/template', (req, res) => res.status(201).json(saveAsTemplate(req.user, req.params.id, req.body || {})));
+  r.delete('/templates/:tid', (req, res) => {
+    deleteTemplate(req.user, req.params.tid);
+    res.json({ ok: true });
+  });
+  // Block Studio: own reusable blocks
+  r.get('/custom-blocks', (req, res) => res.json(listCustomBlocks(req.user)));
+  r.post('/courses/:id/blocks/:blockId/save-custom', (req, res) => res.status(201).json(saveCustomBlock(req.user, req.params.id, req.params.blockId, req.body || {})));
+  r.post('/courses/:id/custom-blocks/:cid/use', (req, res) => res.json(useCustomBlock(req.user, req.params.id, req.params.cid)));
+  r.delete('/custom-blocks/:cid', (req, res) => {
+    deleteCustomBlock(req.user, req.params.cid);
+    res.json({ ok: true });
+  });
   // review links and comments
   r.get('/courses/:id/review-links', (req, res) => res.json(listReviewLinks(req.user, req.params.id)));
   r.post('/courses/:id/review-links', (req, res) => {

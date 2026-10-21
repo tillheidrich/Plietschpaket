@@ -82,6 +82,12 @@ const glyph = (iconUrl, cls = '') =>
   iconUrl
     ? `<span class="glyph ${cls}" aria-hidden="true"><img src="${esc(iconUrl)}" alt="" loading="lazy"></span>`
     : `<span class="glyph ${cls}" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12h8M12 8v8"/></svg></span>`;
+// Block courses show their cover (or first lesson image) on a band of the theme colours; unit courses a monogram.
+const courseThumb = (c) => {
+  if (!c.thumb) return tile(c.title, c.id);
+  const img = c.thumb.image ? `<img src="/course-media/${encodeURIComponent(c.id)}/${encodeURIComponent(String(c.thumb.image).replace(/^media:/, ''))}" alt="" loading="lazy">` : `<b>${esc(initials(c.title))}</b>`;
+  return `<span class="course-thumb" style="--a:${esc(c.thumb.primary || '#1d2230')};--b:${esc(c.thumb.accent || '#b3312c')}" aria-hidden="true">${img}</span>`;
+};
 const chev = () => `<span class="row-chev" aria-hidden="true"><svg viewBox="0 0 24 24">${ICONS.chev}</svg></span>`;
 
 const esc = (s) =>
@@ -504,7 +510,7 @@ route(
             p.courses.length
               ? `<ul class="rows fade-in">${p.courses
                   .map(
-                    (c, i) => `<li style="--i:${i}"><a class="row with-tile" href="/courses/${esc(c.id)}">${tile(c.title, c.id)}<div><span class="row-title">${esc(c.title)}</span>
+                    (c, i) => `<li style="--i:${i}"><a class="row with-tile" href="/courses/${esc(c.id)}">${courseThumb(c)}<div><span class="row-title">${esc(c.title)}</span>
                     <span class="row-meta"><span>${c.settings.mode === 'blocks' ? te('Block-Kurs') : esc(plural(c.unitCount, 'Einheit', 'Einheiten'))}</span><span>${fmtDate(c.updatedAt)}</span></span>
                     <span class="stamps"><span class="stamp"><b>v${c.version}</b>SCORM ${esc(c.settings.scormVersion)}</span><span class="stamp">${esc(c.language.toUpperCase())}</span></span></div>
                     ${chev()}</a></li>`
@@ -549,19 +555,52 @@ route(
             <label class="kind-card"><input type="radio" name="ck" value="blocks" checked><span><b>${te('Block-Kurs')}</b><small>${te('Lektionen aus Text, Bildern, Wissensfragen, Rollenspielen und H5P – mit eigenem Player-Design. Empfohlen.')}</small></span></label>
             <label class="kind-card"><input type="radio" name="ck" value="units"><span><b>${te('H5P-Einheiten')}</b><small>${te('Eine Folge von H5P-Inhalten in einer schlichten Kurshülle.')}</small></span></label>
           </fieldset>
+          <fieldset class="tpl-pick" id="tpl-pick"><legend>${te('Vorlage')}</legend><div class="tpl-grid" id="tpl-grid"><div class="skeleton" style="height:88px"></div></div></fieldset>
           <div class="form-grid two">
             <div class="field"><label for="cl">${te('Kurssprache')}</label><select class="input" id="cl">${langOptions(state.lang)}</select></div>
             <div class="field"><label for="cv">${te('SCORM-Version')}</label><select class="input" id="cv"><option value="1.2">${te('SCORM 1.2 (am verbreitetsten)')}</option><option value="2004">SCORM 2004 (4th Ed.)</option></select></div>
           </div>`,
+        wide: true,
+        onOpen: (d) => {
+          let chosen = '';
+          const grid = d.querySelector('#tpl-grid');
+          const pick = d.querySelector('#tpl-pick');
+          pick.parentElement.appendChild(pick); // after language and SCORM version: the language decides the template texts
+          const paintTemplates = async () => {
+            let list = [];
+            try {
+              list = await api(`/templates?lang=${encodeURIComponent(d.querySelector('#cl').value)}`);
+            } catch {
+              /* empty grid */
+            }
+            const card = (tp) => `<label class="tpl-card ${chosen === tp.id ? 'is-on' : ''}"><input type="radio" name="tpl" value="${esc(tp.id)}" ${chosen === tp.id ? 'checked' : ''}>
+              <span class="tpl-art" style="--a:${esc(tp.design?.theme?.primary || '#1d2230')};--b:${esc(tp.design?.theme?.accent || '#b3312c')}"><i></i><i></i><i></i></span>
+              <span class="tpl-text"><b>${esc(tp.name)}</b><small>${esc(tp.description || '')}</small>${tp.lessons?.length ? `<em>${esc(plural(tp.lessons.length, 'Lektion', 'Lektionen'))}${tp.builtin ? '' : tp.shared ? ` · ${te('für alle')}` : ` · ${te('eigene')}`}</em>` : ''}</span></label>`;
+            grid.innerHTML =
+              `<label class="tpl-card is-blank ${chosen === '' ? 'is-on' : ''}"><input type="radio" name="tpl" value="" ${chosen === '' ? 'checked' : ''}><span class="tpl-art is-blank"></span><span class="tpl-text"><b>${te('Leer')}</b><small>${te('Mit einem leeren Kurs beginnen.')}</small></span></label>` +
+              list.map(card).join('');
+            grid.querySelectorAll('[name="tpl"]').forEach((r) => {
+              r.onchange = () => {
+                chosen = r.value;
+                grid.querySelectorAll('.tpl-card').forEach((c) => c.classList.toggle('is-on', c.contains(r)));
+              };
+            });
+          };
+          d.querySelectorAll('[name="ck"]').forEach((r) => (r.onchange = () => (pick.hidden = d.querySelector('[name="ck"]:checked').value !== 'blocks')));
+          d.querySelector('#cl').addEventListener('change', paintTemplates);
+          paintTemplates();
+        },
         actions: [
           { label: t('Abbrechen'), kind: 'ghost' },
           {
             label: t('Anlegen'),
             kind: 'primary',
             handler: async (d) => {
+              const kind = d.querySelector('[name="ck"]:checked').value;
+              const template = kind === 'blocks' ? d.querySelector('[name="tpl"]:checked')?.value || undefined : undefined;
               const c = await api(`/projects/${p.id}/courses`, {
                 method: 'POST',
-                body: { title: d.querySelector('#ct').value, language: d.querySelector('#cl').value, settings: { scormVersion: d.querySelector('#cv').value, mode: d.querySelector('[name="ck"]:checked').value } }
+                body: { title: d.querySelector('#ct').value, language: d.querySelector('#cl').value, template, settings: { scormVersion: d.querySelector('#cv').value, mode: kind } }
               });
               navigate(`/courses/${c.id}`);
             }
@@ -1099,7 +1138,7 @@ route(
     const lead =
       state.lang === 'en'
         ? EN.Importieren_lead
-        : 'Übernimmt Lumi-Dateien (.h5p), ZIP-Archive mit mehreren .h5p-Dateien, einen Plietschpaket-Projektexport oder ein Klick-Übungs-Paket (ZIP mit course.json und Screenshots, wird zur bearbeitbaren App-Simulation). Jede .h5p-Datei wird zu einer Einheit.';
+        : 'Übernimmt Lumi-Dateien (.h5p), ZIP-Archive mit mehreren .h5p-Dateien, einen Plietschpaket-Projektexport, ein Klick-Übungs-Paket (ZIP mit course.json und Screenshots, wird zur bearbeitbaren App-Simulation) oder einen Export aus Articulate Rise 360 (wird zum Block-Kurs). Jede .h5p-Datei wird zu einer Einheit.';
     el.innerHTML = `<div class="page">
       <div class="page-head"><div><h1>${te('Importieren')}</h1><p class="lead">${esc(lead)}</p></div></div>
       <div class="split">
@@ -1119,6 +1158,7 @@ route(
           <h2>${te('Was übernommen wird')}</h2>
           <p class="muted small">${te('Inhalt, Medien und Einstellungen jeder .h5p-Datei. Fehlende Inhaltstypen werden aus der Datei nachinstalliert.')}</p>
           <p class="muted small">${te('SCORM-Pakete lassen sich nicht zurückverwandeln – dafür die ursprüngliche .h5p-Datei verwenden.')}</p>
+          <p class="muted small">${te('Ausnahme: Exporte aus Articulate Rise 360 (SCORM, xAPI oder Web) werden zu Block-Kursen. Texte, Listen, Bilder, Akkordeons, Tabs, Prozesse, Wissensfragen und Medien werden übernommen, alles andere als Text.')}</p>
         </aside>
       </div>
     </div>`;
@@ -1136,7 +1176,10 @@ route(
       try {
         const res = await api('/import', { method: 'POST', form });
         const out = el.querySelector('#import-result');
-        out.innerHTML = `<div class="notice ${res.skipped.length ? '' : 'ok'}">${te('{n} importiert.', { n: plural(res.units, 'Einheit', 'Einheiten') })}${
+        const rise = res.converted && res.converted.from === 'Rise 360' ? res.converted : null;
+        out.innerHTML = rise
+          ? `<div class="notice ${rise.incomplete || rise.missingMedia ? '' : 'ok'}">${te('Rise-Kurs übernommen: {l} Lektionen, {b} Blöcke, {m} Medien.', { l: rise.lessons, b: rise.blocks, m: rise.media })}${rise.asText ? `<br>${te('{n} Rise-Blöcke ohne Gegenstück wurden als Text übernommen.', { n: rise.asText })}` : ''}${rise.incomplete ? `<br>${te('{n} Blöcke sind noch unvollständig und im Editor markiert.', { n: rise.incomplete })}` : ''}</div>`
+          : `<div class="notice ${res.skipped.length ? '' : 'ok'}">${te('{n} importiert.', { n: plural(res.units, 'Einheit', 'Einheiten') })}${
           res.skipped.length ? `<br>${te('Übersprungen:')} ${res.skipped.map(esc).join('<br>')}` : ''
         }</div>`;
         toast(t('Import abgeschlossen.'));
