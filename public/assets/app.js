@@ -386,7 +386,7 @@ route(
           <div><span>01</span>${te('Projekte gemeinsam im Team bearbeiten')}</div>
           <div><span>02</span>${te('Lumi-Dateien (.h5p) übernehmen')}</div>
           <div><span>03</span>${te('Claude per MCP mit eigenem Login anbinden')}</div>
-          <div><span>04</span>${te('App-Simulationen in 4 Sprachen ausliefern')}</div>
+          <div><span>04</span>${te('Kurse in 12 Sprachen ausliefern, eigene Sprachen ergänzen')}</div>
         </div>
       </section>
       <section class="auth-form">
@@ -728,6 +728,7 @@ route(
                 <div class="unit-actions">
                   ${canEdit ? `<button class="icon-btn" data-up="${i}" aria-label="${te('Nach oben')}" ${i === 0 ? 'disabled' : ''}>${icon('up')}</button><button class="icon-btn" data-down="${i}" aria-label="${te('Nach unten')}" ${i === c.units.length - 1 ? 'disabled' : ''}>${icon('down')}</button>` : ''}
                   <a class="icon-btn" href="/units/${esc(u.id)}/view" aria-label="${te('Ansehen')}" title="${te('Ansehen')}">${icon('eye')}</a>
+                  <a class="icon-btn" href="/api/units/${esc(u.id)}/h5p" download aria-label="${te('Als .h5p für Lumi herunterladen')}" title="${te('Als .h5p für Lumi herunterladen')}">${icon('download')}</a>
                   ${canEdit ? `<a class="icon-btn" href="/units/${esc(u.id)}/edit" aria-label="${te('Bearbeiten')}" title="${te('Bearbeiten')}">${icon('edit')}</a><button class="icon-btn" data-settings="${esc(u.id)}" aria-label="${te('Titel und Gewichtung')}" title="${te('Titel und Gewichtung')}">${icon('sliders')}</button><button class="icon-btn" data-del="${esc(u.id)}" aria-label="${te('Löschen')}" title="${te('Löschen')}">${icon('trash')}</button>` : ''}
                 </div>
               </div>`
@@ -749,6 +750,7 @@ route(
               </div>
               <button class="btn accent" id="export" ${c.units.length ? '' : 'disabled'}>${icon('download')}${te('Paket erstellen')}</button>
               <p class="muted small">${te('Danach öffnet sich die LMS-Vorschau: Sie zeigt genau, welche Werte das Paket an das LMS sendet.')}</p>
+              ${c.units.length ? `<a class="btn ghost" href="/api/courses/${esc(c.id)}/h5p" download>${icon('download')}${te('Für Lumi (.h5p-Dateien)')}</a><p class="muted small">${te('Lumi öffnet keine SCORM-Pakete, sondern .h5p-Dateien. Dieses ZIP enthält jede Einheit als eigene .h5p-Datei.')}</p>` : ''}
             </div>
             ${
               c.exports.length

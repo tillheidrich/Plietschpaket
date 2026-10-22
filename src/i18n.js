@@ -90,7 +90,8 @@ const EN = {
   'Nur Admins können Bausteine für alle freigeben.': 'Only admins can share blocks with everybody.',
   'Name des Bausteins fehlt.': 'Block name is missing.',
   'Höchstens 200 eigene Bausteine.': 'At most 200 custom blocks.',
-  'Baustein nicht gefunden.': 'Block not found.'
+  'Baustein nicht gefunden.': 'Block not found.',
+  'Der Kurs enthält keine H5P-Einheiten, die Lumi öffnen könnte.': 'The course contains no H5P units that Lumi could open.'
 };
 
 const PATTERNS = [

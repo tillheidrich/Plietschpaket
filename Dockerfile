@@ -22,7 +22,7 @@ COPY h5p ./h5p
 COPY src ./src
 COPY desktop-extension ./desktop-extension
 COPY public/index.html public/review.html ./public/
-COPY public/assets/app.js public/assets/i18n.js public/assets/app.css public/assets/blockeditor.js public/assets/blockeditor.css public/assets/review.js public/assets/review.css public/assets/favicon.svg ./public/assets/
+COPY public/assets/app.js public/assets/i18n.js public/assets/app.css public/assets/blockeditor.js public/assets/blockeditor.css public/assets/review.js public/assets/review.css public/assets/favicon.svg public/assets/apple-touch-icon.png ./public/assets/
 USER node
 VOLUME ["/data"]
 EXPOSE 8080

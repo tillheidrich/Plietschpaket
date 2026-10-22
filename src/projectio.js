@@ -302,3 +302,64 @@ const baseName = (name) =>
     .slice(0, 200) || 'Import';
 
 export { getCourse };
+
+/**
+ * Lumi and other H5P editors open .h5p files, not SCORM packages. These exports hand out the H5P units of a course:
+ * one unit as .h5p, or the whole course as a ZIP with numbered .h5p files. The files contain the libraries, so
+ * Lumi can open App simulation and Role-play as well. Blocks of block courses have no H5P form and are not included.
+ */
+export async function exportUnitH5p(user, unitId, res) {
+  const unit = await getUnitForExport(user, unitId);
+  const { editor } = getH5P();
+  const tmp = await fs.promises.mkdtemp(path.join(config.tmpDir, 'h5p-'));
+  try {
+    const file = path.join(tmp, 'unit.h5p');
+    await editor.exportContent(unit.contentId, fs.createWriteStream(file), toH5pUser(user));
+    await waitForFile(file);
+    const data = await fs.promises.readFile(file);
+    audit(user.id, 'unit.export_h5p', unitId);
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${slug(unit.title)}.h5p"`);
+    res.end(data);
+  } finally {
+    await fs.promises.rm(tmp, { recursive: true, force: true });
+  }
+}
+
+async function getUnitForExport(user, unitId) {
+  const { getUnit } = await import('./services.js');
+  return getUnit(user, unitId);
+}
+
+export async function exportCourseH5pZip(user, courseId, res) {
+  const course = getCourse(user, courseId);
+  if (!course.units.length) throw new ValidationError('Der Kurs enthält keine H5P-Einheiten, die Lumi öffnen könnte.');
+  const { editor } = getH5P();
+  const h5pUser = toH5pUser(user);
+  const tmp = await fs.promises.mkdtemp(path.join(config.tmpDir, 'lumi-'));
+  try {
+    const archive = new ZipArchive({ zlib: { level: 6 } });
+    const lines = [];
+    for (const [i, u] of course.units.entries()) {
+      const name = `${String(i + 1).padStart(2, '0')}-${slug(u.title)}.h5p`;
+      const file = path.join(tmp, name);
+      await editor.exportContent(u.contentId, fs.createWriteStream(file), h5pUser);
+      await waitForFile(file);
+      archive.file(file, { name });
+      lines.push(`${name}  ${u.title}`);
+    }
+    const blockNote =
+      course.settings.mode === 'blocks'
+        ? '\nDieser Kurs ist ein Block-Kurs. Lumi kennt nur H5P-Inhalte, deshalb enthält dieses Archiv nur die eingebundenen H5P-Einheiten.\nText-, Bild- und Fragenblöcke gibt es nur in Plietschpaket und im SCORM-Paket.\n'
+        : '';
+    archive.append(`${course.title}\n\nJede .h5p-Datei lässt sich in Lumi öffnen (Datei → Öffnen) und nach der Bearbeitung über „Importieren“ wieder in Plietschpaket laden.\n${blockNote}\n${lines.join('\n')}\n`, { name: 'LIESMICH.txt' });
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${slug(course.title)}_h5p.zip"`);
+    const done = pipeline(archive, res);
+    await archive.finalize();
+    await done;
+    audit(user.id, 'course.export_h5p', courseId, { units: course.units.length });
+  } finally {
+    await fs.promises.rm(tmp, { recursive: true, force: true });
+  }
+}

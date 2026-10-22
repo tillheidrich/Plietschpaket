@@ -2125,6 +2125,7 @@ export async function blockEditor(el, courseId, ctx) {
                 .join('')}</ul>`
             : `<p class="panel-body muted">${te('Noch kein Export.')}</p>`
         }</section>
+      ${units.length ? `<section class="panel"><div class="panel-head"><h2>${te('Für Lumi')}</h2><a class="btn small" href="/api/courses/${esc(courseId)}/h5p" download>${te('H5P-Einheiten herunterladen')}</a></div><p class="panel-body muted small">${te('Lumi öffnet nur .h5p-Dateien. Das ZIP enthält die eingebundenen H5P-Einheiten (App-Simulation, Rollenspiel, Video …). Text-, Bild- und Fragenblöcke gibt es nur hier und im SCORM-Paket.')}</p></section>` : ''}
       ${canEdit ? `<section class="panel"><div class="panel-head"><h2>${te('Weitere Aktionen')}</h2></div><div class="panel-body be-inline-actions">
         <button class="btn" id="st-dup">${te('Duplizieren / Sprachfassung')}</button>
         <button class="btn" id="st-tpl">${te('Als Vorlage speichern')}</button>

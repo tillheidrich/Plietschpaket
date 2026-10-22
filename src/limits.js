@@ -75,3 +75,5 @@ export class Gate {
 }
 
 export const jobGate = new Gate({ global: Number(process.env.MAX_PARALLEL_JOBS || 3), perUser: 1 });
+// .h5p downloads: lighter than packaging, and people click several in a row – allow two at once per person.
+export const downloadGate = new Gate({ global: Number(process.env.MAX_PARALLEL_DOWNLOADS || 4), perUser: 2 });

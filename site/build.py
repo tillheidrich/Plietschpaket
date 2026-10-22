@@ -97,7 +97,7 @@ EN = {
         ["This is your list of receipts", "Tap the plus to add a receipt", "Fit the receipt inside the frame", "Take the photo", "Pick the right cost centre", "Submit the receipt", "Close the dialog"],
         ["Info step · <b>Next</b> to continue", "Task · <b>correct</b> on the first try", "Note · Kontor finds the edges itself", "Task · <b>correct</b> on the first try", "Task · <b>correct</b> after a hint", "Task · <b>correct</b> on the first try", "Done · <b>4 of 5</b> on the first try"],
     ),
-    "ticker": ticker(["SCORM 1.2", "SCORM 2004 4th edition", "HTML export", "H5P", "MCP", "OAuth 2.1", "Docker", "German · English · French · Italian", "Moodle", "ILIAS", "SuccessFactors", "Cornerstone"]),
+    "ticker": ticker(["SCORM 1.2", "SCORM 2004 4th edition", "xAPI", "cmi5", "H5P", "MCP", "OAuth 2.1", "Docker", "12 course languages", "Rise 360 import", "Moodle", "ILIAS", "SuccessFactors", "Cornerstone"]),
 }
 
 DE = dict(EN)
@@ -167,7 +167,7 @@ DE.update({
         ["Das ist deine Belegliste", "Tippe auf das Plus, um einen Beleg zu erfassen", "Richte den Beleg im Rahmen aus", "Löse die Aufnahme aus", "Wähle die passende Kostenstelle", "Reiche den Beleg ein", "Schließe den Vorgang ab"],
         ["Info-Schritt · <b>Weiter</b> zum Fortfahren", "Aufgabe · <b>richtig</b> beim ersten Versuch", "Hinweis · Kontor erkennt den Rand selbst", "Aufgabe · <b>richtig</b> beim ersten Versuch", "Aufgabe · <b>richtig</b> nach einem Hinweis", "Aufgabe · <b>richtig</b> beim ersten Versuch", "Geschafft · <b>4 von 5</b> beim ersten Versuch"],
     ),
-    "ticker": ticker(["SCORM 1.2", "SCORM 2004 4th Edition", "HTML-Export", "H5P", "MCP", "OAuth 2.1", "Docker", "Deutsch · Englisch · Französisch · Italienisch", "Moodle", "ILIAS", "SuccessFactors", "Cornerstone"]),
+    "ticker": ticker(["SCORM 1.2", "SCORM 2004 4th Edition", "xAPI", "cmi5", "H5P", "MCP", "OAuth 2.1", "Docker", "12 Kurssprachen", "Rise-360-Import", "Moodle", "ILIAS", "SuccessFactors", "Cornerstone"]),
 })
 
 IMPRESSUM = """<!doctype html>

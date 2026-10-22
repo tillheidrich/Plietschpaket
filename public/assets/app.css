@@ -63,8 +63,7 @@ p { margin: 0; }
 .app { display: grid; grid-template-columns: 232px 1fr; min-height: 100dvh; }
 .rail { position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; gap: 2px; padding: 22px 14px; background: var(--paper); border-right: 1px solid var(--rule); }
 .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 20px; text-decoration: none; }
-.brand-mark { width: 26px; height: 26px; border-radius: 7px; background: var(--ink); position: relative; flex: none; }
-.brand-mark::after { content: ''; position: absolute; inset: 7px 7px 7px 13px; background: var(--accent); border-radius: 2px; }
+.brand-mark { width: 28px; height: 28px; flex: none; background: url('/assets/favicon.svg') center / contain no-repeat; }
 .brand-name { font-weight: 650; letter-spacing: -0.02em; }
 .brand-sub { display: block; font-size: 0.72rem; color: var(--muted); font-weight: 450; letter-spacing: 0; }
 .nav-link { position: relative; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-sm); text-decoration: none; color: var(--ink-2); font-weight: 500; transition: background 0.2s var(--ease), color 0.2s var(--ease); }
@@ -207,7 +206,6 @@ dialog.wide { width: min(960px, calc(100vw - 32px)); }
 .auth-side { position: relative; overflow: hidden; background: var(--ink); color: oklch(95% 0.004 85); padding: clamp(32px, 6vw, 72px); display: flex; flex-direction: column; justify-content: space-between; gap: 40px; }
 .auth-side h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 600; letter-spacing: -0.035em; max-width: 16ch; line-height: 1.1; }
 .auth-side p { color: oklch(72% 0.008 80); max-width: 46ch; }
-.auth-side .brand-mark { background: oklch(95% 0.004 85); }
 .auth-points { display: grid; gap: 14px; border-top: 1px solid oklch(34% 0.008 70); padding-top: 24px; }
 .auth-points div { display: grid; grid-template-columns: 28px 1fr; gap: 10px; color: oklch(86% 0.006 80); font-size: 0.9rem; }
 .auth-points span { font-family: var(--mono); color: oklch(66% 0.008 80); }

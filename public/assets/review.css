@@ -17,8 +17,7 @@ button, input, textarea { font: inherit; color: inherit; }
 
 .rv { display: grid; grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: auto minmax(0, 1fr); height: 100dvh; }
 .rv-bar { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 12px 20px; background: var(--sheet); border-bottom: 1px solid var(--rule); }
-.rv-mark { width: 26px; height: 26px; border-radius: 7px; background: var(--ink); position: relative; flex: none; }
-.rv-mark::after { content: ''; position: absolute; inset: 7px 7px 7px 13px; background: var(--seal); border-radius: 2px; }
+.rv-mark { width: 28px; height: 28px; flex: none; background: url('/assets/favicon.svg') center / contain no-repeat; }
 .rv-head { flex: 1; min-width: 0; }
 .rv-kicker { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--seal); font-weight: 650; }
 .rv-head h1 { margin: 0; font-size: 1.02rem; font-weight: 650; letter-spacing: -0.015em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

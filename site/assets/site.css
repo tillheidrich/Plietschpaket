@@ -83,8 +83,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; letter-spacing: -0.015em; }
   width: max-content; max-width: calc(100% - 24px);
 }
 .brand { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; font-weight: 650; letter-spacing: -0.02em; margin-right: 10px; }
-.mark { width: 24px; height: 24px; border-radius: 7px; background: var(--ink); position: relative; flex: none; }
-.mark::after { content: ""; position: absolute; inset: 6px 6px 6px 11px; border-radius: 2px; background: var(--seal); }
+.mark { width: 26px; height: 26px; flex: none; background: url("img/favicon.svg") center / contain no-repeat; }
 .nav-links { display: flex; gap: 2px; }
 .nav-links a { text-decoration: none; padding: 8px 13px; border-radius: 999px; font-size: 0.93rem; color: var(--ink-2); transition: background 0.3s var(--ease), color 0.3s var(--ease); }
 .nav-links a:hover { background: rgba(29, 34, 48, 0.06); color: var(--ink); }

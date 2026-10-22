@@ -269,7 +269,7 @@ export const EN = {
   "Über MCP legt Claude Projekte, Kurse und Einheiten direkt hier an – mit deinem Konto und deinen Rechten. Es gibt zwei Wege: als Konnektor über das Internet oder lokal über Claude Desktop, auch wenn Plietschpaket nur im Firmennetz oder per VPN erreichbar ist.": "Via MCP, Claude creates projects, courses and units right here – with your account and your permissions. There are two ways: as a connector over the internet, or locally through Claude Desktop, even if Plietschpaket is only reachable inside the company network or via VPN.",
   "Dein Passwort zur Bestätigung": "Your password to confirm",
   "Anderer Suchbegriff? Oder die H5P-Auswahl öffnen.": "Try another term, or open the H5P selector.",
-  "App-Simulationen in 4 Sprachen ausliefern": "Ship app simulations in 4 languages",
+  "Kurse in 12 Sprachen ausliefern, eigene Sprachen ergänzen": "Ship courses in 12 languages, add your own",
   "Für die meisten Kurse": "For most courses",
   "Inhaltstyp suchen …": "Search content types …",
   "Kein Treffer": "No match",
@@ -682,5 +682,11 @@ export const EN = {
   "Der gespeicherte Baustein wird entfernt. Kurse, in denen er schon steckt, bleiben unverändert.": "The saved block is removed. Courses that already contain it stay unchanged.",
   "Der Block ist noch unvollständig.": "The block is still incomplete.",
   "X %": "X %",
-  "Y %": "Y %"
+  "Y %": "Y %",
+  "Als .h5p für Lumi herunterladen": "Download as .h5p for Lumi",
+  "Für Lumi (.h5p-Dateien)": "For Lumi (.h5p files)",
+  "Lumi öffnet keine SCORM-Pakete, sondern .h5p-Dateien. Dieses ZIP enthält jede Einheit als eigene .h5p-Datei.": "Lumi does not open SCORM packages, only .h5p files. This ZIP contains every unit as its own .h5p file.",
+  "Für Lumi": "For Lumi",
+  "H5P-Einheiten herunterladen": "Download H5P units",
+  "Lumi öffnet nur .h5p-Dateien. Das ZIP enthält die eingebundenen H5P-Einheiten (App-Simulation, Rollenspiel, Video …). Text-, Bild- und Fragenblöcke gibt es nur hier und im SCORM-Paket.": "Lumi only opens .h5p files. The ZIP contains the embedded H5P units (app simulation, role-play, video …). Text, image and question blocks only exist here and in the SCORM package."
 };

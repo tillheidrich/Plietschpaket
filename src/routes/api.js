@@ -21,7 +21,7 @@ import { AccessError, assertCourse, assertUnit, contentRole } from '../access.js
 import * as svc from '../services.js';
 import { toH5pUser, resolveUbername } from '../h5p.js';
 import { exportCourse, FORMATS, downloadName } from '../export/scorm.js';
-import { importFile, exportProjectZip } from '../projectio.js';
+import { importFile, exportProjectZip, exportUnitH5p, exportCourseH5pZip } from '../projectio.js';
 import { listConnections, revokeConnection } from '../oauth.js';
 import { listApiTokens, createApiToken, revokeApiToken } from '../apitokens.js';
 import { tr, requestLanguage, UI_LANGUAGES } from '../i18n.js';
@@ -30,7 +30,7 @@ import { listCustomBlocks, saveCustomBlock, useCustomBlock, deleteCustomBlock } 
 import { createReviewLink, listReviewLinks, revokeReviewLink, courseComments, addTeamComment, setCommentStatus, deleteComment } from '../review.js';
 import { listLanguages, saveLanguage, deleteLanguage, PLAYER_LABEL_KEYS, SHELL_LABEL_KEYS } from '../languages.js';
 import { PLAYER, SHELL } from '../export/labels.js';
-import { RateLimit, limitByIp, jobGate } from '../limits.js';
+import { RateLimit, limitByIp, jobGate, downloadGate } from '../limits.js';
 import { blockCatalog, BLOCK_CATEGORIES, PLAYER_DESIGNS, THEME_PRESETS, FONTS } from '../blocks.js';
 
 const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -404,6 +404,8 @@ export function apiRouter() {
   );
 
   // ------------------------------------------------------------------ units
+  r.get('/units/:id/h5p', jobIpLimit, ah(async (req, res) => downloadGate.run(req.user.id, () => exportUnitH5p(req.user, req.params.id, res))));
+  r.get('/courses/:id/h5p', jobIpLimit, ah(async (req, res) => downloadGate.run(req.user.id, () => exportCourseH5pZip(req.user, req.params.id, res))));
   r.get('/units/:id', ah(async (req, res) => res.json(await svc.getUnit(req.user, req.params.id))));
   r.patch('/units/:id', ah(async (req, res) => res.json(await svc.updateUnit(req.user, req.params.id, { title: req.body.title, weight: req.body.weight }))));
   r.delete(
