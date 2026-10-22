@@ -38,6 +38,8 @@ continues with blocks: text, callouts, lists, tabs, timelines, images, galleries
 matching, sorting, fill in the blanks, bucket sort, hotspots, flip cards, a timed final test, tables, charts and more
 (38 block types). App simulations, role-plays and interactive videos sit in the same lesson as H5P blocks.
 
+![Block editor with outline, block form and live preview](docs/screenshots/blocks-en.png)
+
 The browser editor shows the outline, a block library and a live preview for desktop, tablet and phone side by side.
 It saves drafts as you type and refuses to export blocks that are still incomplete. Eight player designs (studio,
 classic, focus, stage, lesson, magazine, journey, hub), colour presets or your own colours, fonts, a cover page, a logo
@@ -61,6 +63,8 @@ Other things that matter in day-to-day work:
   into a new language version that keeps all media.
 - Import takes `.h5p` files (from Lumi, for example), ZIP files with several of them, Plietschpaket project exports and
   "click practice" packages (`course.json` plus screenshots), which become editable app simulations.
+- Lumi cannot open SCORM packages, so every unit also downloads as `.h5p`, and a whole course as a ZIP with one
+  `.h5p` per unit.
 - Every export opens in an LMS simulator that shows exactly which SCORM values the package sends. xAPI and cmi5
   packages talk to the LRS directly (statements for initialized, completed, passed/failed and terminated, resume state
   through the State API, cmi5 auth token, launch data and mastery score).
